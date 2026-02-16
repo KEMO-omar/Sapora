@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سبورة سابورة الذكية | Sapora Board</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+        }
+        body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ecf0f1;
+        }
+        /* شريط الأدوات */
+        #toolbar { 
+            position: fixed; 
+            top: 10px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9); 
+            padding: 10px 20px; 
+            border-radius: 50px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            z-index: 100; 
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(5px);
+        }
+        canvas { 
+            display: block; 
+            background: white; 
+            touch-action: none; /* لمنع اهتزاز الشاشة أثناء الرسم باللمس */
+        }
+        button { 
+            cursor: pointer; 
+            padding: 8px 15px; 
+            border: none;
+            border-radius: 20px;
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover { background: var(--accent); }
+        #clearBtn { background: #e74c3c; }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #2ecc71;
+            border-radius: 50%;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toolbar">
+        <span class="status-dot"></span>
+        <span id="status">جاري الاتصال...</span>
+        <input type="color" id="colorPicker" value="#000000">
+        <button id="clearBtn">مسح الكل</button>
+        <small>السبورة التفاعلية v1.0</small>
+    </div>
+
+    <canvas id="whiteboard"></canvas>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // إعدادات مشروعك التي أرفقتها
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVFNJhGIlOjyJgSGj9MqK4Xt89p_irSEQ",
+            authDomain: "sapora-f738b.firebaseapp.com",
+            projectId: "sapora-f738b",
+            storageBucket: "sapora-f738b.firebasestorage.app",
+            messagingSenderId: "6892834042",
+            appId: "1:6892834042:web:1993b52a61315ba5028d43",
+            measurementId: "G-RLNQ4F5HN9"
+        };
+
+        // تشغيل Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const boardRef = ref(db, 'board_data/drawing');
+
+        // إعداد السبورة
+        const canvas = document.getElementById('whiteboard');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const clearBtn = document.getElementById('clearBtn');
+        const statusText = document.getElementById('status');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let drawing = false;
+        let lastPos = { x: 0, y: 0 };
+
+        // --- وظائف الرسم ---
+
+        function drawLine(x1, y1, x2, y2, color, remote = false) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.lineCap = "round";
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.closePath();
+
+            // إذا كان المستخدم الحالي هو اللي بيرسم، نبعت الداتا لـ Firebase
+            if (!remote) {
+                const newDrawRef = ref(db, 'board_data/stream');
+                set(newDrawRef, { x1, y1, x2, y2, color, time: Date.now() });
+            }
+        }
+
+        // --- التعامل مع الماوس واللمس ---
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        const startDrawing = (e) => {
+            drawing = true;
+            lastPos = getPos(e);
+        };
+
+        const moveDrawing = (e) => {
+            if (!drawing) return;
+            const currentPos = getPos(e);
+            drawLine(lastPos.x, lastPos.y, currentPos.x, currentPos.y, colorPicker.value);
+            lastPos = currentPos;
+        };
+
+        const stopDrawing = () => { drawing = false; };
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', moveDrawing);
+        canvas.addEventListener('mouseup', stopDrawing);
+
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', moveDrawing);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // --- الاستقبال من Firebase (المزامنة اللحظية) ---
+
+        const streamRef = ref(db, 'board_data/stream');
+        onValue(streamRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                drawLine(data.x1, data.y1, data.x2, data.y2, data.color, true);
+            }
+        });
+
+        // مسح السبورة
+        clearBtn.addEventListener('click', () => {
+            set(ref(db, 'board_data/control'), { action: 'clear', time: Date.now() });
+        });
+
+        const controlRef = ref(db, 'board_data/control');
+        onValue(controlRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.action === 'clear') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            statusText.innerText = "متصل بالصف";
+        });
+
+        // تعديل حجم الشاشة عند تدوير الموبايل أو التابلت
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+    </script>
+</body>
+</html>
