@@ -3,167 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sapora Rocket | سبورة سابورة الصاروخية</title>
+    <title>Sapora Rocket | سابورة سابورة الذكية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --main: #1a73e8; --bg: #ffffff; --panel: #f8f9fa; }
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Cairo', sans-serif; background: #dfe6e9; }
+        :root { --main: #1a73e8; --bg: #f0f2f5; }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Cairo', sans-serif; background: var(--bg); touch-action: none; }
         
         /* شاشة الدخول */
         #auth-screen {
-            position: fixed; inset: 0; background: #1a237e; z-index: 2000;
-            display: flex; align-items: center; justify-content: center; color: white;
+            position: fixed; inset: 0; background: linear-gradient(135deg, #1a237e, #0d47a1); 
+            z-index: 2000; display: flex; align-items: center; justify-content: center; color: white;
         }
-        .card { background: white; padding: 40px; border-radius: 20px; color: #333; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .card input { padding: 12px; width: 250px; border: 2px solid #ddd; border-radius: 10px; font-size: 18px; margin: 15px 0; }
-        .card button { padding: 12px 30px; border: none; border-radius: 10px; background: #1a73e8; color: white; cursor: pointer; font-weight: bold; }
+        .card { background: white; padding: 30px; border-radius: 20px; color: #333; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
+        .card h2 { margin-top: 0; color: #1a237e; }
+        .card input { padding: 12px; width: 80%; border: 2px solid #ddd; border-radius: 10px; font-size: 18px; margin: 15px 0; outline: none; }
+        .card button { padding: 12px 25px; border: none; border-radius: 10px; background: #1a73e8; color: white; cursor: pointer; font-weight: bold; width: 100%; margin: 5px 0; transition: 0.3s; }
+        .card button:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        /* شريط الأدوات (يظهر للمدير فقط) */
+        /* شريط الأدوات */
         #admin-tools {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.95); padding: 12px 25px; border-radius: 50px;
-            display: none; align-items: center; gap: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 100;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 10px 20px; 
+            border-radius: 50px; display: none; align-items: center; gap: 10px; 
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15); z-index: 100; border: 1px solid rgba(0,0,0,0.1);
         }
-        .tool { width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.2s; }
-        .tool:hover { transform: scale(1.1); background: #eee; }
+        .tool { width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.2s; background: #eee; }
+        .tool:hover { background: #ddd; }
         .active { background: #1a73e8 !important; color: white; }
 
-        canvas { display: block; background: white; cursor: crosshair; touch-action: none; }
+        canvas { display: block; background: white; cursor: crosshair; }
         
-        #student-view { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; }
+        #status-tag { position: fixed; top: 15px; right: 15px; background: rgba(0,0,0,0.7); color: white; padding: 6px 15px; border-radius: 20px; font-size: 13px; z-index: 100; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="card" id="choice-card">
-            <h2>مرحباً بك في سابورة الذكية</h2>
+            <h2>🚀 سابورة الصاروخية</h2>
             <button onclick="beStudent()" style="background:#4caf50;">دخول كطالب (مشاهدة)</button>
-            <hr>
             <button onclick="showAdminLogin()">دخول كمعلم (تحكم)</button>
         </div>
         <div class="card" id="login-card" style="display:none;">
-            <h2>تسجيل دخول المعلم</h2>
-            <input type="password" id="pass" placeholder="كلمة السر">
-            <br>
-            <button onclick="verifyAdmin()">تأكيد الهوية</button>
+            <h2>قفل المعلم</h2>
+            <input type="password" id="pass" placeholder="كلمة السر (123)">
+            <button onclick="verifyAdmin()">فتح السبورة</button>
+            <button onclick="location.reload()" style="background:#666;">رجوع</button>
         </div>
     </div>
 
-    <div id="student-view">وضع المشاهدة النشط 📡</div>
+    <div id="status-tag">📡 متصل (وضع المشاهدة)</div>
 
     <div id="admin-tools">
-        <input type="color" id="color" value="#000000">
-        <button class="tool active" onclick="setMode('pen', this)">✏️</button>
-        <button class="tool" onclick="setMode('marker', this)">🖍️</button>
-        <button class="tool" onclick="setMode('eraser', this)">🧽</button>
-        <button class="tool" onclick="undo()" style="margin-right: 15px;">↩️</button>
+        <input type="color" id="color" value="#000000" style="width:30px; height:30px; border:none; cursor:pointer">
+        <button class="tool active" onclick="setMode('pen', this)" title="قلم">✏️</button>
+        <button class="tool" onclick="setMode('marker', this)" title="فسفوري">🖍️</button>
+        <button class="tool" onclick="setMode('eraser', this)" title="ممحاة">🧽</button>
+        <div style="width:1px; height:25px; background:#ccc; margin:0 5px;"></div>
         <button class="tool" onclick="clearBoard()" style="background:#ffebee;">🗑️</button>
-        <button class="tool" onclick="document.getElementById('imgInput').click()">🖼️</button>
-        <input type="file" id="imgInput" hidden accept="image/*">
     </div>
 
     <canvas id="board"></canvas>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAVFNJhGIlOjyJgSGj9MqK4Xt89p_irSEQ",
             authDomain: "sapora-f738b.firebaseapp.com",
+            databaseURL: "https://sapora-f738b-default-rtdb.firebaseio.com", // تأكد من صحة الرابط
             projectId: "sapora-f738b",
-            storageBucket: "sapora-f738b.firebasestorage.app",
-            messagingSenderId: "6892834042",
+            storageBucket: "sapora-f738b.appspot.com",
             appId: "1:6892834042:web:1993b52a61315ba5028d43"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const streamRef = ref(db, 'live_stream');
-        
+        const drawRef = ref(db, 'drawing');
+
         const canvas = document.getElementById('board');
-        const ctx = canvas.getContext('2d', { alpha: false }); // تحسين الأداء
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const ctx = canvas.getContext('2d');
+        
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.onresize = resize;
+        resize();
 
         let isAdmin = false;
         let isDrawing = false;
         let currentMode = 'pen';
-        let history = [];
+        let lastPos = { x: 0, y: 0 };
 
-        // إدارة الدخول
+        // التحكم في الدخول
+        window.beStudent = () => document.getElementById('auth-screen').style.display = 'none';
         window.showAdminLogin = () => {
             document.getElementById('choice-card').style.display = 'none';
             document.getElementById('login-card').style.display = 'block';
         };
-
-        window.beStudent = () => {
-            document.getElementById('auth-screen').style.display = 'none';
-            isAdmin = false;
-        };
-
         window.verifyAdmin = () => {
             if(document.getElementById('pass').value === "123") {
                 isAdmin = true;
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('admin-tools').style.display = 'flex';
-                document.getElementById('student-view').innerText = "وضع المعلم (تحكم كامل)";
-            } else { alert("خطأ!"); }
+                document.getElementById('status-tag').innerText = "👨‍🏫 وضع المعلم (بث مباشر)";
+                document.getElementById('status-tag').style.background = "#d32f2f";
+            } else { alert("كلمة السر خاطئة!"); }
         };
 
-        // الرسم (المعلم فقط)
+        // وظيفة الرسم الأساسية
+        function drawLine(x1, y1, x2, y2, color, width, opacity, emit = false) {
+            ctx.beginPath();
+            ctx.globalAlpha = opacity;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.closePath();
+
+            if (emit && isAdmin) {
+                // إرسال البيانات للـ Firebase
+                const moveRef = ref(db, 'drawing');
+                set(moveRef, {
+                    x1, y1, x2, y2, color, width, opacity, 
+                    time: Date.now(),
+                    type: 'line'
+                });
+            }
+        }
+
+        // أحداث الماوس واللمس (للمعلم)
         canvas.addEventListener('pointerdown', (e) => {
             if(!isAdmin) return;
             isDrawing = true;
-            history.push(canvas.toDataURL());
-            ctx.beginPath();
-            ctx.moveTo(e.clientX, e.clientY);
+            lastPos = { x: e.clientX, y: e.clientY };
         });
 
         canvas.addEventListener('pointermove', (e) => {
             if(!isDrawing || !isAdmin) return;
             
-            const drawData = {
-                x: e.clientX,
-                y: e.clientY,
-                c: currentMode === 'eraser' ? '#ffffff' : document.getElementById('color').value,
-                w: currentMode === 'pen' ? 2 : (currentMode === 'marker' ? 15 : 40),
-                a: currentMode === 'marker' ? 0.3 : 1,
-                t: 'm'
-            };
+            const color = currentMode === 'eraser' ? '#ffffff' : document.getElementById('color').value;
+            const width = currentMode === 'pen' ? 3 : (currentMode === 'marker' ? 20 : 40);
+            const opacity = currentMode === 'marker' ? 0.3 : 1;
 
-            renderDraw(drawData);
-            set(streamRef, { ...drawData, ts: Date.now() }); // المزامنة الصاروخية
+            drawLine(lastPos.x, lastPos.y, e.clientX, e.clientY, color, width, opacity, true);
+            lastPos = { x: e.clientX, y: e.clientY };
         });
 
-        canvas.addEventListener('pointerup', () => { 
-            isDrawing = false; 
-            if(isAdmin) set(streamRef, { t: 'e' });
-        });
+        canvas.addEventListener('pointerup', () => isDrawing = false);
 
-        function renderDraw(d) {
-            ctx.globalAlpha = d.a;
-            ctx.strokeStyle = d.c;
-            ctx.lineWidth = d.w;
-            ctx.lineCap = 'round';
-            ctx.lineTo(d.x, d.y);
-            ctx.stroke();
-        }
-
-        // الاستقبال للطلاب
-        onValue(streamRef, (snapshot) => {
-            const d = snapshot.val();
-            if(!d) return;
-            if(d.t === 'm' && !isDrawing) {
-                renderDraw(d);
-            } else if(d.t === 'e') {
-                ctx.beginPath();
-            } else if(d.t === 'c') {
-                ctx.clearRect(0,0,canvas.width, canvas.height);
+        // استقبال البيانات (للجميع)
+        onValue(drawRef, (snapshot) => {
+            const data = snapshot.val();
+            if(!data) return;
+            
+            if(data.type === 'line' && !isDrawing) {
+                drawLine(data.x1, data.y1, data.x2, data.y2, data.color, data.width, data.opacity);
+            } else if(data.type === 'clear') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
         });
 
-        // أدوات إضافية
+        // الأدوات
         window.setMode = (m, btn) => {
             currentMode = m;
             document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
@@ -171,32 +178,11 @@
         };
 
         window.clearBoard = () => {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            set(streamRef, { t: 'c', ts: Date.now() });
+            if(!confirm("هل تريد مسح السبورة للجميع؟")) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            set(ref(db, 'drawing'), { type: 'clear', time: Date.now() });
         };
 
-        window.undo = () => {
-            if(history.length > 0) {
-                let img = new Image();
-                img.src = history.pop();
-                img.onload = () => {
-                    ctx.clearRect(0,0,canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                    // هنا يمكن تطوير مزامنة الـ undo أيضاً
-                };
-            }
-        };
-
-        // استيراد صور
-        document.getElementById('imgInput').onchange = (e) => {
-            const reader = new FileReader();
-            reader.onload = (f) => {
-                const img = new Image();
-                img.onload = () => ctx.drawImage(img, 50, 50, 500, 400);
-                img.src = f.target.result;
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        };
     </script>
 </body>
 </html>
