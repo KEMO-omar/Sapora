@@ -3,38 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sapora Rocket Turbo | سابورة الصاروخ الذكية</title>
+    <title>Sapora Rocket Turbo V2</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --main: #007bff; --bg: #121212; --panel: rgba(255, 255, 255, 0.95); }
-        body { margin: 0; overflow: hidden; font-family: 'Cairo', sans-serif; background: #222; touch-action: none; }
+        :root { --main: #007bff; --bg: #f4f7f6; --panel: rgba(255, 255, 255, 0.98); }
+        body { margin: 0; overflow: hidden; font-family: 'Cairo', sans-serif; background: var(--bg); touch-action: none; }
         
         /* شاشة الدخول */
         #auth-screen {
-            position: fixed; inset: 0; background: #000; 
+            position: fixed; inset: 0; background: radial-gradient(circle, #2c3e50, #000); 
             z-index: 2000; display: flex; align-items: center; justify-content: center; color: white;
         }
         .card { background: white; padding: 40px; border-radius: 25px; color: #333; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 85%; max-width: 350px; }
         .card h2 { margin-bottom: 20px; color: var(--main); }
         .card button { padding: 15px; border: none; border-radius: 12px; background: var(--main); color: white; cursor: pointer; font-weight: bold; width: 100%; margin: 8px 0; font-size: 16px; transition: 0.3s; }
-        .card button:hover { transform: scale(1.02); background: #0056b3; }
-
+        
         /* أشرطة الأدوات */
         #toolbar, #shape-tools {
-            position: fixed; background: var(--panel); backdrop-filter: blur(15px); 
-            border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); z-index: 100; display: none; padding: 10px;
+            position: fixed; background: var(--panel); backdrop-filter: blur(10px); 
+            border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 100; display: none; padding: 8px;
         }
-        #toolbar { top: 15px; left: 50%; transform: translateX(-50%); gap: 10px; align-items: center; }
-        #shape-tools { right: 15px; top: 50%; transform: translateY(-50%); flex-direction: column; gap: 12px; }
+        #toolbar { top: 15px; left: 50%; transform: translateX(-50%); gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center;}
+        #shape-tools { right: 15px; top: 50%; transform: translateY(-50%); flex-direction: column; gap: 10px; }
 
-        .tool { width: 48px; height: 48px; border-radius: 12px; border: 1px solid #eee; cursor: pointer; background: white; font-size: 22px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .tool:hover { background: #f8f9fa; transform: translateY(-2px); }
-        .tool.active { background: var(--main); color: white; border-color: var(--main); box-shadow: 0 4px 12px rgba(0,123,255,0.4); }
+        .tool { width: 42px; height: 42px; border-radius: 10px; border: 1px solid #eee; cursor: pointer; background: white; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .tool:hover { background: #f0f0f0; }
+        .tool.active { background: var(--main); color: white; border-color: var(--main); }
 
         canvas { display: block; background: #fff; cursor: crosshair; }
         
-        #status-tag { position: fixed; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: #00ff00; padding: 8px 15px; border-radius: 30px; font-size: 13px; z-index: 101; font-weight: bold; border: 1px solid #333; }
-        .zoom-info { position: fixed; bottom: 20px; left: 20px; background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 12px; font-size: 14px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #status-tag { position: fixed; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: #00ff00; padding: 8px 15px; border-radius: 30px; font-size: 12px; z-index: 101; }
+        .zoom-info { position: fixed; bottom: 20px; left: 20px; background: white; padding: 5px 12px; border-radius: 8px; font-size: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -47,22 +46,24 @@
         </div>
         <div class="card" id="login-card" style="display:none;">
             <h2>دخول آمن</h2>
-            <input type="password" id="pass" placeholder="كلمة المرور" style="width:90%; padding:15px; margin-bottom:15px; border-radius:10px; border:2px solid #ddd; text-align:center; font-size:18px;">
+            <input type="password" id="pass" placeholder="كلمة المرور" style="width:90%; padding:12px; margin-bottom:15px; border-radius:8px; border:1px solid #ddd; text-align:center;">
             <button onclick="verifyAdmin()">فتح اللوحة</button>
         </div>
     </div>
 
-    <div id="status-tag">📡 وضع المتابعة المباشرة</div>
+    <div id="status-tag">📡 وضع المتابعة</div>
 
     <div id="toolbar">
-        <input type="color" id="color" value="#000000" style="width:40px; height:40px; border:none; cursor:pointer; background:none;">
-        <button class="tool active" onclick="setMode('pen', this)">✏️</button>
-        <button class="tool" onclick="setMode('marker', this)">🖍️</button>
-        <button class="tool" onclick="setMode('eraser', this)">🧽</button>
-        <button class="tool" onclick="setMode('move', this)">🖐️</button>
-        <div style="width:2px; height:30px; background:#ddd; margin:0 5px;"></div>
+        <input type="color" id="color" value="#000000" style="width:35px; height:35px; border:none; cursor:pointer;">
+        <button class="tool active" onclick="setMode('pen', this)" title="قلم">✏️</button>
+        <button class="tool" onclick="setMode('marker', this)" title="فسفوري">🖍️</button>
+        <button class="tool" onclick="setMode('text', this)" title="نص">✍️</button>
+        <button class="tool" onclick="setMode('eraser', this)" title="ممحاة">🧽</button>
+        <button class="tool" onclick="setMode('move', this)" title="تحريك">🖐️</button>
+        <div style="width:1px; height:25px; background:#ddd;"></div>
         <button class="tool" onclick="undo()">↩️</button>
-        <button class="tool" onclick="clearBoard()" style="color:#dc3545">🗑️</button>
+        <button class="tool" onclick="clearBoard()" style="color:red">🗑️</button>
+        <button class="tool" onclick="downloadBoard()">💾</button>
     </div>
 
     <div id="shape-tools">
@@ -71,17 +72,14 @@
         <button class="tool" onclick="setMode('circle', this)">⭕</button>
     </div>
 
-    <div class="zoom-info" id="zoom-val">التكبير: 100%</div>
-
+    <div class="zoom-info" id="zoom-val">100%</div>
     <canvas id="board"></canvas>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, onChildAdded, remove, limitToLast, query, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, remove, query, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // كلمة السر المخفية (تستطيع تغييرها هنا)
         const SECRET_PASS = "123"; 
-
         const firebaseConfig = {
             apiKey: "AIzaSyAVFNJhGIlOjyJgSGj9MqK4Xt89p_irSEQ",
             authDomain: "sapora-f738b.firebaseapp.com",
@@ -102,16 +100,16 @@
         let isAdmin = false;
         let isDrawing = false;
         let currentMode = 'pen';
-        let startPos = { x: 0, y: 0 };
         let camera = { x: 0, y: 0, zoom: 1 };
         let drawings = [];
+        let currentPath = []; // لتخزين النقاط الحالية قبل إرسالها
 
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             redrawAll();
         }
-        window.onresize = resize;
+        window.addEventListener('resize', resize);
         resize();
 
         function getMousePos(e) {
@@ -136,12 +134,11 @@
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('toolbar').style.display = 'flex';
                 document.getElementById('shape-tools').style.display = 'flex';
-                document.getElementById('status-tag').innerText = "👨‍🏫 بث مباشر للمعلم";
+                document.getElementById('status-tag').innerText = "👨‍🏫 بث مباشر";
                 document.getElementById('status-tag').style.color = "#ff4757";
-            } else { alert("عذراً، كلمة المرور غير صحيحة!"); }
+            } else { alert("خطأ!"); }
         };
 
-        // رسم كل شيء
         function redrawAll() {
             ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -150,102 +147,100 @@
 
             drawings.forEach(item => {
                 ctx.beginPath();
-                ctx.globalAlpha = item.opacity || 1;
                 ctx.strokeStyle = item.color;
                 ctx.lineWidth = item.width;
+                ctx.globalAlpha = item.opacity || 1;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
 
-                if (['pen', 'marker', 'eraser', 'line'].includes(item.type)) {
-                    ctx.moveTo(item.x1, item.y1);
-                    ctx.lineTo(item.x2, item.y2);
+                if (['pen', 'marker', 'eraser'].includes(item.type) && item.points) {
+                    ctx.moveTo(item.points[0].x, item.points[0].y);
+                    item.points.forEach(p => ctx.lineTo(p.x, p.y));
                 } else if (item.type === 'rect') {
                     ctx.strokeRect(item.x1, item.y1, item.x2 - item.x1, item.y2 - item.y1);
                 } else if (item.type === 'circle') {
                     let r = Math.sqrt(Math.pow(item.x2 - item.x1, 2) + Math.pow(item.y2 - item.y1, 2));
                     ctx.arc(item.x1, item.y1, r, 0, Math.PI * 2);
+                } else if (item.type === 'line') {
+                    ctx.moveTo(item.x1, item.y1); ctx.lineTo(item.x2, item.y2);
+                } else if (item.type === 'text') {
+                    ctx.font = `${item.width * 5}px Cairo`;
+                    ctx.fillStyle = item.color;
+                    ctx.fillText(item.text, item.x1, item.y1);
                 }
                 ctx.stroke();
             });
-            document.getElementById('zoom-val').innerText = `التكبير: ${Math.round(camera.zoom * 100)}%`;
+            document.getElementById('zoom-val').innerText = `${Math.round(camera.zoom * 100)}%`;
         }
 
-        // مزامنة الكاميرا (المعلم يرسل والطالب يستقبل)
-        if (!isAdmin) {
-            onValue(camRef, (snap) => {
-                if (snap.exists()) {
-                    camera = snap.val();
-                    redrawAll();
-                }
-            });
-        }
-
-        // استقبال بيانات الرسم
-        onValue(drawRef, (snapshot) => {
-            const data = snapshot.val();
-            drawings = data ? Object.values(data) : [];
+        onValue(drawRef, (snap) => {
+            drawings = snap.exists() ? Object.values(snap.val()) : [];
             redrawAll();
         });
 
-        // أحداث الرسم والتحريك
+        if (!isAdmin) {
+            onValue(camRef, (snap) => { if (snap.exists()) { camera = snap.val(); redrawAll(); } });
+        }
+
+        let startPos;
         canvas.addEventListener('pointerdown', (e) => {
             if(!isAdmin && currentMode !== 'move') return;
             isDrawing = true;
+            startPos = getMousePos(e);
             if(currentMode === 'move') {
                 startPos = { x: e.clientX - camera.x, y: e.clientY - camera.y };
-            } else {
-                startPos = getMousePos(e);
+            } else if(['pen', 'marker', 'eraser'].includes(currentMode)) {
+                currentPath = [getMousePos(e)];
             }
         });
 
         canvas.addEventListener('pointermove', (e) => {
             if(!isDrawing) return;
-
             if(currentMode === 'move') {
                 camera.x = e.clientX - startPos.x;
                 camera.y = e.clientY - startPos.y;
-                if(isAdmin) set(camRef, camera); // مزامنة حركة الشاشة للطلاب
+                if(isAdmin) set(camRef, camera);
                 redrawAll();
-                return;
-            }
-
-            if(!isAdmin) return;
-            const currentPos = getMousePos(e);
-            const color = currentMode === 'eraser' ? '#ffffff' : document.getElementById('color').value;
-            const width = currentMode === 'pen' ? 3 : (currentMode === 'marker' ? 20 : 40);
-            
-            if(['pen', 'marker', 'eraser'].includes(currentMode)) {
-                push(drawRef, {
-                    type: currentMode,
-                    x1: startPos.x, y1: startPos.y,
-                    x2: currentPos.x, y2: currentPos.y,
-                    color, width, opacity: currentMode === 'marker' ? 0.3 : 1
-                });
-                startPos = currentPos;
+            } else if(isAdmin && ['pen', 'marker', 'eraser'].includes(currentMode)) {
+                currentPath.push(getMousePos(e));
+                // رسم مؤقت محلي لتحسين الاستجابة
+                ctx.lineTo(currentPath[currentPath.length-1].x, currentPath[currentPath.length-1].y);
+                ctx.stroke();
             }
         });
 
         canvas.addEventListener('pointerup', (e) => {
             if(!isDrawing || !isAdmin) { isDrawing = false; return; }
             const endPos = getMousePos(e);
-            if(['rect', 'circle', 'line'].includes(currentMode)) {
-                push(drawRef, {
-                    type: currentMode,
-                    x1: startPos.x, y1: startPos.y,
-                    x2: endPos.x, y2: endPos.y,
-                    color: document.getElementById('color').value,
-                    width: 3
-                });
+            
+            let drawData = {
+                color: currentMode === 'eraser' ? '#ffffff' : document.getElementById('color').value,
+                width: currentMode === 'pen' ? 3 : (currentMode === 'marker' ? 15 : 30),
+                type: currentMode
+            };
+
+            if(['pen', 'marker', 'eraser'].includes(currentMode)) {
+                drawData.points = currentPath;
+                drawData.opacity = currentMode === 'marker' ? 0.3 : 1;
+            } else if(currentMode === 'text') {
+                const txt = prompt("اكتب النص هنا:");
+                if(!txt) return;
+                drawData.text = txt;
+                drawData.x1 = startPos.x; drawData.y1 = startPos.y;
+            } else {
+                drawData.x1 = startPos.x; drawData.y1 = startPos.y;
+                drawData.x2 = endPos.x; drawData.y2 = endPos.y;
             }
+
+            push(drawRef, drawData);
             isDrawing = false;
+            currentPath = [];
         });
 
-        // زووم المعلم يظهر للطلاب
         canvas.addEventListener('wheel', (e) => {
             if(!isAdmin) return;
             e.preventDefault();
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            camera.zoom = Math.min(Math.max(0.2, camera.zoom * delta), 5);
+            camera.zoom = Math.min(Math.max(0.1, camera.zoom * (e.deltaY > 0 ? 0.9 : 1.1)), 10);
             set(camRef, camera);
             redrawAll();
         }, { passive: false });
@@ -257,19 +252,17 @@
         };
 
         window.undo = async () => {
-            const q = query(drawRef, limitToLast(1));
-            const snap = await get(q);
-            if (snap.exists()) {
-                const lastKey = Object.keys(snap.val())[0];
-                remove(ref(db, `live_board/${lastKey}`));
-            }
+            const snap = await get(query(drawRef, limitToLast(1)));
+            if (snap.exists()) remove(ref(db, `live_board/${Object.keys(snap.val())[0]}`));
         };
 
-        window.clearBoard = () => {
-            if(confirm("مسح السبورة بالكامل؟")) {
-                remove(drawRef);
-                set(camRef, {x:0, y:0, zoom:1});
-            }
+        window.clearBoard = () => { if(confirm("مسح الكل؟")) { remove(drawRef); set(camRef, {x:0, y:0, zoom:1}); } };
+
+        window.downloadBoard = () => {
+            const link = document.createElement('a');
+            link.download = 'board-capture.png';
+            link.href = canvas.toDataURL();
+            link.click();
         };
 
     </script>
