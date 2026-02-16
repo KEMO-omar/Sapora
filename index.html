@@ -3,89 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sapora Rocket Turbo V2 Pro - Ultra</title>
+    <title>Sapora Rocket Turbo V3 - Ultra Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #4361ee;
-            --accent: #ff4757;
-            --bg: #f8f9fa;
-            --glass: rgba(255, 255, 255, 0.9);
-            --shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
+        :root { --primary: #4361ee; --accent: #ff4757; --glass: rgba(255, 255, 255, 0.9); --shadow: 0 8px 32px rgba(0,0,0,0.1); }
         body { margin: 0; overflow: hidden; font-family: 'Cairo', sans-serif; background: #eef2f3; touch-action: none; }
         
         /* شاشة الدخول */
-        #auth-screen {
-            position: fixed; inset: 0; background: linear-gradient(135deg, #1e3c72, #2a5298); 
-            z-index: 2000; display: flex; align-items: center; justify-content: center;
-        }
+        #auth-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #1e3c72, #2a5298); z-index: 2000; display: flex; align-items: center; justify-content: center; }
         .card { background: white; padding: 30px; border-radius: 20px; box-shadow: var(--shadow); width: 90%; max-width: 400px; text-align: center; }
-        
-        /* قائمة الطلاب (للمعلم فقط) */
-        #students-list {
-            position: fixed; top: 70px; right: 20px; background: var(--glass); 
-            padding: 10px; border-radius: 10px; box-shadow: var(--shadow);
-            max-height: 200px; overflow-y: auto; display: none; z-index: 1000; width: 150px;
-        }
-        .student-item { font-size: 12px; padding: 5px; border-bottom: 1px solid #eee; display: flex; align-items: center; }
-        .student-item::before { content: '🟢'; margin-left: 5px; font-size: 8px; }
+        .input-name { width: 90%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; font-family: 'Cairo'; }
 
-        /* نظام الإشعارات اللحظية */
-        #toast-container {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 3000; pointer-events: none;
-        }
-        .toast {
-            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
-            border-radius: 50px; margin-bottom: 10px; animation: fadeInOut 3s forwards;
-        }
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(-20px); }
-            10% { opacity: 1; transform: translateY(0); }
-            90% { opacity: 1; }
-            100% { opacity: 0; transform: translateY(-20px); }
-        }
-
-        /* تحسينات الواجهة */
-        #toolbar {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--glass); backdrop-filter: blur(10px); padding: 10px 20px;
-            border-radius: 20px; box-shadow: var(--shadow); display: none; gap: 10px; align-items: center; z-index: 1000;
-        }
-        .tool-btn { width: 45px; height: 45px; border-radius: 12px; border: none; background: white; cursor: pointer; font-size: 20px; transition: 0.2s; }
+        /* الأدوات */
+        #toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--glass); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 20px; box-shadow: var(--shadow); display: none; gap: 8px; align-items: center; z-index: 1000; flex-wrap: wrap; justify-content: center; }
+        #side-tools { position: fixed; left: 15px; top: 50%; transform: translateY(-50%); display: none; flex-direction: column; gap: 10px; z-index: 1000; }
+        .tool-btn { width: 45px; height: 45px; border-radius: 12px; border: none; background: white; cursor: pointer; font-size: 20px; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
         .tool-btn.active { background: var(--primary); color: white; }
-
-        #fullscreen-btn { position: fixed; top: 20px; right: 50%; transform: translateX(50%); z-index: 1000; padding: 8px; border-radius: 50%; border: none; background: white; cursor: pointer; box-shadow: var(--shadow); }
+        
+        /* قائمة الحضور والإشعارات */
+        #students-list { position: fixed; top: 70px; right: 20px; background: var(--glass); padding: 10px; border-radius: 15px; box-shadow: var(--shadow); width: 150px; display: none; z-index: 1000; max-height: 200px; overflow-y: auto; }
+        .toast { position: fixed; top: 20px; left: 20px; background: #333; color: white; padding: 10px 20px; border-radius: 10px; z-index: 3000; animation: fade 3s forwards; }
+        @keyframes fade { 0% { opacity: 0; } 10%, 90% { opacity: 1; } 100% { opacity: 0; } }
 
         canvas { display: block; background: white; cursor: crosshair; }
+        .zoom-info { position: fixed; bottom: 90px; right: 20px; background: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+        #full-btn { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; background: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; box-shadow: var(--shadow); display: none;}
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="card">
-            <h1>🚀 Rocket V2 Ultra</h1>
-            <input type="text" id="user-name" placeholder="أدخل اسمك هنا..." style="padding:10px; width:80%; margin-bottom:15px; border-radius:10px; border:1px solid #ccc;">
-            <button class="btn-main" onclick="beStudent()" style="background:#2ed573; color:white; padding:12px; width:100%; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">دخول كطالب</button>
-            <hr>
-            <button class="btn-main" onclick="showAdminPrompt()" style="background:#4361ee; color:white; padding:12px; width:100%; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">دخول كمعلم</button>
+            <h1>🚀 Rocket V3 Pro</h1>
+            <input type="text" id="userName" class="input-name" placeholder="اكتب اسمك هنا...">
+            <button onclick="login('student')" style="background:#2ed573; color:white; width:100%; padding:12px; border:none; border-radius:10px; cursor:pointer; font-weight:bold; margin-bottom:10px;">دخول طالب</button>
+            <button onclick="login('teacher')" style="background:#4361ee; color:white; width:100%; padding:12px; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">دخول معلم</button>
         </div>
     </div>
 
-    <div id="toast-container"></div>
-    <div id="students-list"><b>👥 الحاضرون:</b><div id="list-content"></div></div>
-    
-    <button id="fullscreen-btn" onclick="toggleFullscreen()">📺</button>
-    
+    <div id="students-list"><b>👥 الطلاب:</b><div id="list-content"></div></div>
+    <button id="full-btn" onclick="document.documentElement.requestFullscreen()">📺 ملء الشاشة</button>
+
     <div id="toolbar">
-        <input type="color" id="colorPicker" value="#000000" class="tool-btn">
-        <input type="range" id="sizePicker" min="1" max="50" value="3">
+        <input type="color" id="colorPicker" class="tool-btn" style="padding:0; width:35px; height:35px;">
+        <input type="range" id="sizePicker" min="1" max="50" value="3" style="width:60px;">
         <button class="tool-btn active" onclick="setMode('pen', this)">✏️</button>
+        <button class="tool-btn" onclick="setMode('marker', this)">🖍️</button>
         <button class="tool-btn" onclick="setMode('eraser', this)">🧽</button>
-        <button class="tool-btn" onclick="clearBoard()">🗑️</button>
+        <button class="tool-btn" onclick="setMode('text', this)">✍️</button>
+        <button class="tool-btn" onclick="setMode('move', this)">🖐️</button>
+        <button class="tool-btn" onclick="undo()">↩️</button>
+        <button class="tool-btn" style="color:red" onclick="clearBoard()">🗑️</button>
     </div>
 
+    <div id="side-tools">
+        <button class="tool-btn" onclick="setMode('line', this)">📏</button>
+        <button class="tool-btn" onclick="setMode('rect', this)">🟦</button>
+        <button class="tool-btn" onclick="setMode('circle', this)">⭕</button>
+    </div>
+
+    <div class="zoom-info" id="zoom-val">100%</div>
     <canvas id="board"></canvas>
 
     <script type="module">
@@ -104,127 +81,115 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const drawRef = ref(db, 'live_board');
+        const camRef = ref(db, 'camera_view');
         const presenceRef = ref(db, 'presence');
 
         const canvas = document.getElementById('board');
         const ctx = canvas.getContext('2d');
-        let isAdmin = false;
-        let isDrawing = false;
-        let currentMode = 'pen';
-        let userName = "";
-        let drawings = {};
+        let isAdmin = false, isDrawing = false, currentMode = 'pen';
+        let camera = { x: 0, y: 0, zoom: 1 }, drawings = {}, currentPath = [];
 
-        // --- نظام التنبيهات (Toast) ---
-        function showToast(msg) {
-            const container = document.getElementById('toast-container');
-            const div = document.createElement('div');
-            div.className = 'toast';
-            div.innerText = msg;
-            container.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
-        }
+        window.login = (role) => {
+            const name = document.getElementById('userName').value;
+            if(!name) return alert("اكتب اسمك!");
+            if(role === 'teacher' && prompt("الباسورد:") !== "123") return;
 
-        // --- نظام الحضور ---
-        function setupPresence(name) {
-            const myPresence = push(presenceRef);
-            set(myPresence, { name: name, role: isAdmin ? 'teacher' : 'student' });
-            onDisconnect(myPresence).remove();
-        }
-
-        // --- شاشة كاملة ---
-        window.toggleFullscreen = () => {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else document.exitFullscreen();
-        };
-
-        // --- دخول المستخدمين ---
-        window.beStudent = () => {
-            userName = document.getElementById('user-name').value || "طالب مجهول";
+            isAdmin = (role === 'teacher');
             document.getElementById('auth-screen').style.display = 'none';
-            setupPresence(userName);
-        };
-
-        window.showAdminPrompt = () => {
-            const pass = prompt("كلمة المرور:");
-            if(pass === "123") {
-                isAdmin = true;
-                userName = "المعلم";
-                document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('full-btn').style.display = 'block';
+            if(isAdmin) {
                 document.getElementById('toolbar').style.display = 'flex';
+                document.getElementById('side-tools').style.display = 'flex';
                 document.getElementById('students-list').style.display = 'block';
-                setupPresence(userName);
             }
+
+            const myPres = push(presenceRef);
+            set(myPres, { name: name });
+            onDisconnect(myPres).remove();
         };
 
-        // --- مراقبة الطلاب (للمعلم) ---
-        if (true) { // المعلم يراقب القائمة
-            onChildAdded(presenceRef, (snap) => {
-                if (isAdmin) showToast(`👋 دخل الآن: ${snap.val().name}`);
-                updateList();
-            });
-            onChildRemoved(presenceRef, (snap) => {
-                if (isAdmin) showToast(`🚪 خرج الآن: ${snap.val().name}`);
-                updateList();
-            });
+        function showToast(m) {
+            const t = document.createElement('div'); t.className='toast'; t.innerText=m;
+            document.body.appendChild(t); setTimeout(()=>t.remove(), 3000);
         }
 
-        function updateList() {
-            onValue(presenceRef, (snap) => {
-                const content = document.getElementById('list-content');
-                content.innerHTML = "";
-                snap.forEach(child => {
-                    content.innerHTML += `<div class="student-item">${child.val().name}</div>`;
-                });
-            });
+        onChildAdded(presenceRef, (s) => isAdmin && showToast("🟢 دخل: " + s.val().name));
+        onChildRemoved(presenceRef, (s) => isAdmin && showToast("🔴 خرج: " + s.val().name));
+        onValue(presenceRef, (s) => {
+            const cont = document.getElementById('list-content'); cont.innerHTML = "";
+            s.forEach(c => cont.innerHTML += `<div>• ${c.val().name}</div>`);
+        });
+
+        function render() {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.translate(camera.x, camera.y);
+            ctx.scale(camera.zoom, camera.zoom);
+            Object.values(drawings).forEach(drawItem);
+            if(isDrawing) drawItem({ type: currentMode, points: currentPath, color: document.getElementById('colorPicker').value, width: document.getElementById('sizePicker').value });
+            document.getElementById('zoom-val').innerText = Math.round(camera.zoom * 100) + "%";
         }
 
-        // --- محرك الرسم الحديث (يدعم ضغط القلم) ---
+        function drawItem(it) {
+            ctx.beginPath(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.strokeStyle = it.color; ctx.lineWidth = it.width;
+            if(['pen', 'marker', 'eraser'].includes(it.type) && it.points) {
+                ctx.globalAlpha = it.type === 'marker' ? 0.3 : 1;
+                ctx.moveTo(it.points[0].x, it.points[0].y);
+                it.points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.stroke();
+            } else if(it.type === 'rect') ctx.strokeRect(it.x1, it.y1, it.x2-it.x1, it.y2-it.y1);
+            else if(it.type === 'circle') {
+                let r = Math.sqrt(Math.pow(it.x2-it.x1, 2) + Math.pow(it.y2-it.y1, 2));
+                ctx.arc(it.x1, it.y1, r, 0, Math.PI*2); ctx.stroke();
+            } else if(it.type === 'text') { ctx.font = (it.width*5)+"px Cairo"; ctx.fillStyle=it.color; ctx.fillText(it.text, it.x1, it.y1); }
+            ctx.globalAlpha = 1;
+        }
+
+        onValue(drawRef, (s) => { drawings = s.val() || {}; render(); });
+        onValue(camRef, (s) => { if(!isAdmin) { camera = s.val() || camera; render(); } });
+
         canvas.addEventListener('pointerdown', (e) => {
-            if (!isAdmin) return;
+            if(!isAdmin && currentMode !== 'move') return;
             isDrawing = true;
-            ctx.beginPath();
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - camera.x) / camera.zoom;
+            const y = (e.clientY - camera.y) / camera.zoom;
+            if(currentMode === 'move') { this.startPos = {x: e.clientX - camera.x, y: e.clientY - camera.y}; }
+            else { currentPath = [{x, y}]; this.startP = {x, y}; }
         });
 
         canvas.addEventListener('pointermove', (e) => {
-            if (!isDrawing || !isAdmin) return;
-            
-            // ميزة عالمية: ضغط القلم يحول سمك الخط تلقائياً (Pressure Sensitivity)
-            const pressure = e.pressure || 0.5;
-            const baseSize = document.getElementById('sizePicker').value;
-            const dynamicSize = baseSize * pressure * 2;
-
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            ctx.lineWidth = dynamicSize;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = currentMode === 'eraser' ? '#ffffff' : document.getElementById('colorPicker').value;
-            
-            ctx.lineTo(x, y);
-            ctx.stroke();
-
-            // إرسال البيانات (تبسيطاً للسرعة في هذا المثال يتم الإرسال في النهاية أو كمسار)
+            if(!isDrawing) return;
+            if(currentMode === 'move') {
+                camera.x = e.clientX - this.startPos.x; camera.y = e.clientY - this.startPos.y;
+                if(isAdmin) set(camRef, camera);
+            } else {
+                const x = (e.clientX - camera.x) / camera.zoom;
+                const y = (e.clientY - camera.y) / camera.zoom;
+                if(['pen', 'marker', 'eraser'].includes(currentMode)) currentPath.push({x, y});
+            }
+            render();
         });
 
-        canvas.addEventListener('pointerup', () => isDrawing = false);
+        canvas.addEventListener('pointerup', (e) => {
+            if(!isDrawing || !isAdmin || currentMode === 'move') { isDrawing = false; return; }
+            isDrawing = false;
+            const x = (e.clientX - camera.x) / camera.zoom;
+            const y = (e.clientY - camera.y) / camera.zoom;
+            let data = { type: currentMode, color: currentMode==='eraser'?'#fff':document.getElementById('colorPicker').value, width: document.getElementById('sizePicker').value };
+            if(['pen', 'marker', 'eraser'].includes(currentMode)) data.points = currentPath;
+            else if(currentMode === 'text') { data.text = prompt("النص:"); data.x1 = x; data.y1 = y; }
+            else { data.x1 = this.startP.x; data.y1 = this.startP.y; data.x2 = x; data.y2 = y; }
+            push(drawRef, data);
+        });
 
-        // --- أدوات ---
-        window.setMode = (m, btn) => {
-            currentMode = m;
-            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        };
+        window.setMode = (m, b) => { currentMode = m; document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); b.classList.add('active'); };
+        window.clearBoard = () => confirm("مسح الكل؟") && remove(drawRef);
+        window.undo = () => { /* يمكن إضافة كود الحذف لآخر عنصر هنا */ };
 
-        window.clearBoard = () => { if(confirm("مسح؟")) remove(drawRef); };
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
+        function res() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; render(); }
+        window.onresize = res; res();
     </script>
 </body>
 </html>
