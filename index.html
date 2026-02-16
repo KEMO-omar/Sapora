@@ -3,95 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sapora Rocket Turbo V3 - ULTIMATE</title>
+    <title>Sapora Rocket Turbo V3 - MONSTER ELITE</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
             --primary: #4361ee; --accent: #ff4757; --dark: #0f172a;
-            --glass: rgba(255, 255, 255, 0.95); --shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            --glass: rgba(255, 255, 255, 0.98); --shadow: 0 20px 50px rgba(0,0,0,0.15); 
         }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Cairo', sans-serif; background: #f1f5f9; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Cairo', sans-serif; background: #f8fafc; }
         
         /* شاشة الدخول */
-        #auth-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #1e3c72, #2a5298); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.6s; }
-        .card { background: white; padding: 35px; border-radius: 25px; box-shadow: var(--shadow); width: 90%; max-width: 400px; text-align: center; }
-        .input-name { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #ddd; font-size: 16px; text-align: center; box-sizing: border-box; }
+        #auth-screen { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card { background: white; padding: 40px; border-radius: 30px; box-shadow: var(--shadow); width: 90%; max-width: 420px; text-align: center; }
+        .input-name { width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 15px; border: 2px solid #e2e8f0; font-size: 18px; text-align: center; outline: none; transition: 0.3s; }
+        .input-name:focus { border-color: var(--primary); }
 
         /* شريط المعلومات العلوي */
-        .top-bar { position: fixed; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
-        .badge { background: var(--glass); padding: 6px 15px; border-radius: 15px; box-shadow: var(--shadow); pointer-events: auto; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; border: 1px solid #eee; }
+        .top-bar { position: fixed; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
+        .badge-group { display: flex; gap: 10px; pointer-events: auto; }
+        .badge { background: var(--glass); padding: 8px 18px; border-radius: 20px; box-shadow: var(--shadow); font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(0,0,0,0.05); }
 
-        /* شريط الأدوات الرئيسي - مرتب */
+        /* شريط الأدوات الرئيسي - تصميم عائم */
         #main-toolbar { 
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
-            background: var(--glass); backdrop-filter: blur(15px); padding: 8px 15px; 
-            border-radius: 50px; box-shadow: var(--shadow); display: none; gap: 8px; 
-            align-items: center; z-index: 2000; border: 1px solid rgba(0,0,0,0.05);
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            background: var(--glass); backdrop-filter: blur(20px); padding: 12px 25px; 
+            border-radius: 100px; box-shadow: var(--shadow); display: none; gap: 12px; 
+            align-items: center; z-index: 2000; border: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* الأزرار الدائرية */
         .tool-btn { 
-            width: 45px; height: 45px; border-radius: 50%; border: none; 
-            background: #fff; cursor: pointer; font-size: 18px; transition: 0.3s; 
-            display: flex; align-items: center; justify-content: center; position: relative;
+            width: 50px; height: 50px; border-radius: 50%; border: none; 
+            background: transparent; cursor: pointer; font-size: 22px; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            display: flex; align-items: center; justify-content: center; position: relative; color: #475569;
         }
-        .tool-btn:hover { background: #f0f0f0; transform: translateY(-3px); }
-        .tool-btn.active { background: var(--primary); color: white; box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4); }
+        .tool-btn:hover { background: #f1f5f9; transform: scale(1.15); color: var(--primary); }
+        .tool-btn.active { background: var(--primary); color: white !important; box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3); }
 
-        /* قوائم منبثقة (Popups) */
+        /* القوائم المنبثقة */
         .popup-menu {
-            position: absolute; bottom: 70px; background: white; padding: 12px; 
-            border-radius: 20px; box-shadow: var(--shadow); display: none; 
-            grid-template-columns: repeat(3, 1fr); gap: 10px; min-width: 150px;
+            position: absolute; bottom: 80px; background: white; padding: 15px; 
+            border-radius: 25px; box-shadow: var(--shadow); display: none; 
+            grid-template-columns: repeat(3, 1fr); gap: 12px; min-width: 180px; border: 1px solid #f1f5f9;
         }
-        .show-popup { display: grid !important; }
+        .show-popup { display: grid !important; animation: popUp 0.3s ease-out; }
+        @keyframes popUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* تخصيص منقي الألوان */
+        /* نظام الصفحات */
+        #page-manager { display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 5px 15px; border-radius: 30px; margin: 0 10px; }
+
+        /* منقي الألوان الدائري */
         #colorPreview { 
-            width: 35px; height: 35px; border-radius: 50%; border: 3px solid white; 
-            cursor: pointer; box-shadow: 0 0 5px rgba(0,0,0,0.2); transition: 0.2s;
+            width: 40px; height: 40px; border-radius: 50%; border: 4px solid white; 
+            cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.1); transition: 0.3s;
         }
-        #colorPicker { position: absolute; visibility: hidden; }
+        #colorPicker { display: none; }
 
         /* القماش */
         #board { background: #ffffff; touch-action: none; cursor: crosshair; }
 
-        /* الدردشة */
-        #chat-box { 
-            position: fixed; bottom: 85px; right: 20px; width: 280px; height: 350px; 
-            background: var(--glass); border-radius: 20px; display: none; flex-direction: column; 
-            overflow: hidden; box-shadow: var(--shadow); z-index: 1000; border: 1px solid #eee;
-        }
-        #chat-msgs { flex: 1; overflow-y: auto; padding: 15px; font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { background: #eef2ff; padding: 8px 12px; border-radius: 12px; align-self: flex-start; }
-        .msg.me { background: var(--primary); color: white; align-self: flex-end; }
-        #chat-input { border: none; padding: 15px; outline: none; background: #fff; border-top: 1px solid #eee; }
-
-        /* حجم الخط */
-        .size-slider { width: 100px; accent-color: var(--primary); }
+        /* زر ملء الشاشة */
+        .fs-btn { position: fixed; bottom: 35px; right: 30px; z-index: 2000; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="card">
-            <h1 style="margin-top:0">🚀 Rocket Turbo V3</h1>
-            <p style="color:#64748b">المنصة التعليمية الأقوى - Monster Edition</p>
-            <input type="text" id="userName" class="input-name" placeholder="اسمك المستعار...">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button onclick="rocket.login('student')" style="background:#10b981; color:white; padding:12px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">طالب</button>
-                <button onclick="rocket.login('teacher')" style="background:var(--primary); color:white; padding:12px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">معلم</button>
+            <h1 style="color:var(--dark); margin-bottom:10px;">🚀 MONSTER ELITE</h1>
+            <p style="color:#64748b; margin-bottom:30px;">النسخة الاحترافية للمعلمين والمبدعين</p>
+            <input type="text" id="userName" class="input-name" placeholder="ادخل اسمك للبدء...">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <button onclick="rocket.login('student')" style="background:#10b981; color:white; padding:18px; border:none; border-radius:15px; cursor:pointer; font-weight:bold; font-size:16px;">طالب</button>
+                <button onclick="rocket.login('teacher')" style="background:var(--primary); color:white; padding:18px; border:none; border-radius:15px; cursor:pointer; font-weight:bold; font-size:16px;">معلم</button>
             </div>
         </div>
     </div>
 
     <div class="top-bar">
-        <div style="display:flex; gap:8px; pointer-events:auto;">
+        <div class="badge-group">
             <div class="badge" id="zoom-info">🔍 100%</div>
-            <div class="badge" id="status-online">🟢 متصل: 0</div>
-            <div class="badge" id="timer">⏳ 00:00</div>
+            <div class="badge" id="status-online">🟢 0 متصل</div>
+            <div class="badge">📅 <span id="live-date"></span></div>
         </div>
-        <div class="badge" id="user-tag" style="pointer-events:auto;">👤 زائر</div>
+        <div class="badge-group">
+            <div class="badge" id="timer">⏳ 00:00</div>
+            <div class="badge" id="user-tag">👤 زائر</div>
+        </div>
     </div>
 
     <div id="main-toolbar">
@@ -100,10 +97,8 @@
             <input type="color" id="colorPicker" onchange="rocket.updateColor(this.value)">
         </div>
 
-        <div style="width:1px; height:30px; background:#ddd; margin:0 5px;"></div>
-
         <div style="position:relative">
-            <button class="tool-btn active" id="btn-brush" onclick="rocket.togglePopup('brush-menu')" title="أدوات الرسم">🖌️</button>
+            <button class="tool-btn active" id="btn-brush" onclick="rocket.togglePopup('brush-menu')" title="الفرش">🖌️</button>
             <div id="brush-menu" class="popup-menu">
                 <button class="tool-btn" onclick="rocket.setMode('pen', '✏️')">✏️</button>
                 <button class="tool-btn" onclick="rocket.setMode('calligraphy', '🖋️')">🖋️</button>
@@ -114,7 +109,7 @@
         </div>
 
         <div style="position:relative">
-            <button class="tool-btn" onclick="rocket.togglePopup('shape-menu')" title="أشكال هندسية">📐</button>
+            <button class="tool-btn" onclick="rocket.togglePopup('shape-menu')" title="أشكال">📐</button>
             <div id="shape-menu" class="popup-menu">
                 <button class="tool-btn" onclick="rocket.setMode('rect', '⬜')">⬜</button>
                 <button class="tool-btn" onclick="rocket.setMode('circle', '⭕')">⭕</button>
@@ -125,25 +120,20 @@
         <button class="tool-btn" onclick="rocket.setMode('eraser', '🧽')" title="ممحاة">🧽</button>
         <button class="tool-btn" onclick="rocket.setMode('move', '🖐️')" title="تحريك">🖐️</button>
         
-        <div style="width:1px; height:30px; background:#ddd; margin:0 5px;"></div>
+        <div id="page-manager">
+            <button class="tool-btn" style="width:30px; height:30px; font-size:14px" onclick="rocket.prevPage()">◀</button>
+            <span id="page-num" style="font-weight:bold; min-width:60px; text-align:center">صفحة 1</span>
+            <button class="tool-btn" style="width:30px; height:30px; font-size:14px" onclick="rocket.nextPage()">▶</button>
+        </div>
 
-        <input type="range" id="sizePicker" class="size-slider" min="1" max="50" value="5">
-
-        <div style="width:1px; height:30px; background:#ddd; margin:0 5px;"></div>
+        <input type="range" id="sizePicker" style="width:80px; accent-color:var(--primary);" min="1" max="80" value="5">
 
         <button class="tool-btn" onclick="rocket.undo()" title="تراجع">↩️</button>
-        <button class="tool-btn" onclick="rocket.toggleChat()" title="دردشة">💬</button>
-        <button class="tool-btn" onclick="rocket.clearBoard()" style="color:red" title="مسح">🗑️</button>
+        <button class="tool-btn" onclick="rocket.download()" title="تحميل كصورة">📸</button>
+        <button class="tool-btn" onclick="rocket.clearBoard()" style="color:var(--accent)" title="مسح الكل">🗑️</button>
     </div>
 
-    <div id="chat-box">
-        <div style="background:var(--primary); color:white; padding:12px; font-weight:bold; display:flex; justify-content:space-between;">
-            <span>الدردشة الحية</span>
-            <span onclick="rocket.toggleChat()" style="cursor:pointer">✕</span>
-        </div>
-        <div id="chat-msgs"></div>
-        <input type="text" id="chat-input" placeholder="اكتب شيئاً..." onkeypress="rocket.sendChat(event)">
-    </div>
+    <button class="tool-btn fs-btn" style="background:white; box-shadow:var(--shadow)" onclick="rocket.toggleFS()">📺</button>
 
     <canvas id="board"></canvas>
 
@@ -171,12 +161,14 @@
             camera: { x: 0, y: 0, zoom: 1 },
             userName: "زائر",
             currentColor: '#4361ee',
+            currentPage: 1,
             currentPath: [],
 
             init() {
                 this.resize();
                 window.onresize = () => this.resize();
                 document.getElementById('colorPreview').style.background = this.currentColor;
+                document.getElementById('live-date').innerText = new Date().toLocaleDateString('ar-EG');
                 this.setupEvents();
                 this.syncData();
                 this.render();
@@ -185,22 +177,21 @@
 
             login(role) {
                 const name = document.getElementById('userName').value.trim();
-                if(!name) return alert("من فضلك أدخل اسمك");
-                if(role === 'teacher' && prompt("كلمة سر المعلم:") !== "123") return;
+                if(!name) return alert("ادخل اسمك أولاً");
+                if(role === 'teacher' && prompt("باسوورد المعلم:") !== "123") return;
                 
                 this.isAdmin = (role === 'teacher');
                 this.userName = name;
+                document.getElementById('auth-screen').style.transform = 'scale(1.2)';
                 document.getElementById('auth-screen').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('main-toolbar').style.display = 'flex';
                 }, 600);
                 
-                document.getElementById('user-tag').innerText = `👤 ${name} (${this.isAdmin ? 'معلم' : 'طالب'})`;
-                
-                const presenceRef = ref(db, `presence/${name}`);
-                set(presenceRef, { active: true, role: role });
-                onDisconnect(presenceRef).remove();
+                document.getElementById('user-tag').innerText = `👤 ${name}`;
+                set(ref(db, `presence/${name}`), { active: true, role });
+                onDisconnect(ref(db, `presence/${name}`)).remove();
             },
 
             resize() {
@@ -214,7 +205,6 @@
                 this.canvas.addEventListener('pointerup', () => this.onEnd());
                 window.addEventListener('wheel', e => this.onZoom(e), { passive: false });
                 
-                // إغلاق القوائم عند الضغط في أي مكان
                 document.addEventListener('click', (e) => {
                     if(!e.target.closest('.tool-btn') && !e.target.closest('.popup-menu')) {
                         document.querySelectorAll('.popup-menu').forEach(m => m.classList.remove('show-popup'));
@@ -237,6 +227,8 @@
             setMode(m, icon) {
                 this.mode = m;
                 document.getElementById('btn-brush').innerText = icon;
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                if(m !== 'move' && m !== 'eraser') document.getElementById('btn-brush').classList.add('active');
                 document.querySelectorAll('.popup-menu').forEach(m => m.classList.remove('show-popup'));
             },
 
@@ -273,12 +265,11 @@
                 this.isDrawing = false;
                 if(this.mode !== 'move') {
                     const data = {
-                        type: this.mode,
-                        color: this.currentColor,
+                        type: this.mode, color: this.currentColor,
                         size: document.getElementById('sizePicker').value,
-                        points: this.currentPath,
-                        startX: this.startX, startY: this.startY,
-                        endX: this.tempEnd?.x, endY: this.tempEnd?.y
+                        points: this.currentPath, startX: this.startX, startY: this.startY,
+                        endX: this.tempEnd?.x, endY: this.tempEnd?.y,
+                        page: this.currentPage
                     };
                     push(ref(db, 'board_data'), data);
                 }
@@ -286,7 +277,7 @@
 
             onZoom(e) {
                 e.preventDefault();
-                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const delta = e.deltaY > 0 ? 0.95 : 1.05;
                 this.camera.zoom *= delta;
                 document.getElementById('zoom-info').innerText = `🔍 ${Math.round(this.camera.zoom*100)}%`;
             },
@@ -294,36 +285,24 @@
             syncData() {
                 onValue(ref(db, 'board_data'), s => { this.drawings = s.val() || {}; });
                 onValue(ref(db, 'presence'), s => {
-                    document.getElementById('status-online').innerText = `🟢 متصل: ${s.size || 0}`;
-                });
-                onValue(ref(db, 'chat'), s => {
-                    const cont = document.getElementById('chat-msgs');
-                    cont.innerHTML = "";
-                    s.forEach(c => {
-                        const m = c.val();
-                        const isMe = m.user === this.userName;
-                        cont.innerHTML += `<div class="msg ${isMe?'me':''}"><b>${m.user}:</b><br>${m.msg}</div>`;
-                    });
-                    cont.scrollTop = cont.scrollHeight;
+                    document.getElementById('status-online').innerText = `🟢 ${s.size || 0} متصل`;
                 });
             },
 
             drawItem(it) {
+                if(it.page !== this.currentPage) return;
                 this.ctx.beginPath();
                 this.ctx.strokeStyle = it.color;
                 this.ctx.lineWidth = it.size;
                 this.ctx.lineCap = 'round';
                 this.ctx.lineJoin = 'round';
 
-                const isPath = ['pen', 'neon', 'highlighter', 'calligraphy', 'oil', 'eraser'].includes(it.type);
-
-                if(isPath) {
+                if(['pen', 'neon', 'highlighter', 'calligraphy', 'oil', 'eraser'].includes(it.type)) {
                     if(it.type === 'eraser') this.ctx.strokeStyle = '#ffffff';
-                    if(it.type === 'neon') { this.ctx.shadowBlur = 15; this.ctx.shadowColor = it.color; }
+                    if(it.type === 'neon') { this.ctx.shadowBlur = 20; this.ctx.shadowColor = it.color; }
                     if(it.type === 'highlighter') this.ctx.globalAlpha = 0.3;
-                    if(it.type === 'calligraphy') this.ctx.lineWidth = it.size * 2;
-                    if(it.type === 'oil') this.ctx.lineCap = 'square';
-
+                    if(it.type === 'calligraphy') this.ctx.lineWidth = it.size * 2.5;
+                    
                     this.ctx.moveTo(it.points[0].x, it.points[0].y);
                     it.points.forEach(p => this.ctx.lineTo(p.x, p.y));
                     this.ctx.stroke();
@@ -354,39 +333,44 @@
                         type: this.mode, color: this.currentColor,
                         size: document.getElementById('sizePicker').value,
                         points: this.currentPath, startX: this.startX, startY: this.startY,
-                        endX: this.tempEnd?.x, endY: this.tempEnd?.y
+                        endX: this.tempEnd?.x, endY: this.tempEnd?.y,
+                        page: this.currentPage
                     });
                 }
                 requestAnimationFrame(() => this.render());
             },
+
+            nextPage() { this.currentPage++; document.getElementById('page-num').innerText = `صفحة ${this.currentPage}`; },
+            prevPage() { if(this.currentPage > 1) { this.currentPage--; document.getElementById('page-num').innerText = `صفحة ${this.currentPage}`; } },
 
             undo() {
                 const q = query(ref(db, 'board_data'), limitToLast(1));
                 get(q).then(s => { if(s.exists()) remove(ref(db, `board_data/${Object.keys(s.val())[0]}`)); });
             },
 
-            clearBoard() { 
-                if(this.isAdmin && confirm("مسح السبورة للجميع؟")) remove(ref(db, 'board_data')); 
+            clearBoard() { if(this.isAdmin && confirm("حذف الصفحة الحالية؟")) {
+                Object.keys(this.drawings).forEach(key => {
+                    if(this.drawings[key].page === this.currentPage) remove(ref(db, `board_data/${key}`));
+                });
+            }},
+
+            download() {
+                const link = document.createElement('a');
+                link.download = `sapora-page-${this.currentPage}.png`;
+                link.href = this.canvas.toDataURL();
+                link.click();
             },
 
-            toggleChat() {
-                const c = document.getElementById('chat-box');
-                c.style.display = (c.style.display === 'flex') ? 'none' : 'flex';
-            },
-
-            sendChat(e) {
-                if(e.key === 'Enter' && e.target.value.trim()) {
-                    push(ref(db, 'chat'), { user: this.userName, msg: e.target.value });
-                    e.target.value = "";
-                }
+            toggleFS() {
+                if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+                else document.exitFullscreen();
             },
 
             startTimer() {
                 let sec = 0;
                 setInterval(() => {
                     sec++;
-                    let m = Math.floor(sec/60);
-                    let s = sec%60;
+                    let m = Math.floor(sec/60), s = sec%60;
                     document.getElementById('timer').innerText = `⏳ ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
                 }, 1000);
             }
