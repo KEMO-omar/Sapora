@@ -8,57 +8,73 @@
     <style>
         :root { 
             --primary: #4361ee; --accent: #ff4757; --dark: #0f172a;
-            --glass: rgba(255, 255, 255, 0.95); --shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            --glass: rgba(255, 255, 255, 0.98); --shadow: 0 15px 35px rgba(0,0,0,0.2); 
         }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Cairo', sans-serif; background: #f1f5f9; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Cairo', sans-serif; background: #e2e8f0; }
         
-        #auth-screen { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .card { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; }
-        
-        /* الترويسة */
-        .top-bar { position: fixed; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
-        .badge { background: var(--glass); padding: 5px 15px; border-radius: 15px; font-size: 13px; font-weight: bold; pointer-events: auto; box-shadow: var(--shadow); border: 1px solid #eee; margin-bottom: 5px; }
+        /* شاشة الدخول */
+        #auth-screen { position: fixed; inset: 0; background: var(--dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .card { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: var(--shadow); }
 
-        /* شريط الأدوات المطور */
+        /* شريط المعلومات العلوي */
+        .top-bar { position: fixed; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
+        .badge { background: var(--glass); padding: 6px 14px; border-radius: 12px; font-size: 13px; font-weight: bold; pointer-events: auto; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 5px; display: inline-flex; align-items: center; gap: 5px; }
+
+        /* شريط الأدوات الذكي */
         #main-toolbar { 
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
             background: var(--glass); padding: 10px; border-radius: 20px; 
             box-shadow: var(--shadow); display: none; gap: 8px; align-items: center; z-index: 2000;
-            transition: all 0.3s ease; border: 1px solid #ddd;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #fff;
+            flex-direction: row;
         }
         .toolbar-minimized { width: 50px !important; height: 50px !important; overflow: hidden; border-radius: 50% !important; }
 
         .tool-btn { 
-            width: 42px; height: 42px; border-radius: 12px; border: none; 
-            background: #f8fafc; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
+            width: 44px; height: 44px; border-radius: 12px; border: none; 
+            background: #f1f5f9; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; position: relative;
         }
-        .tool-btn.active { background: var(--primary); color: white; }
-        
-        .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        .tool-btn:hover { background: #e2e8f0; transform: scale(1.1); }
+        .tool-btn.active { background: var(--primary); color: white; box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4); }
+
+        /* القوائم الفرعية */
+        .sub-menu {
+            position: absolute; bottom: 60px; background: white; padding: 8px; border-radius: 15px;
+            display: none; grid-template-columns: repeat(2, 1fr); gap: 5px; box-shadow: var(--shadow);
+        }
+        .show-menu { display: grid; }
+
+        .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
 
         /* الأدوات الهندسية */
         .geo-tool {
-            position: absolute; background: rgba(200, 230, 255, 0.4); border: 1px solid var(--primary);
-            backdrop-filter: blur(2px); cursor: move; display: none; z-index: 500;
+            position: absolute; background: rgba(255, 255, 255, 0.6); border: 2px solid var(--primary);
+            backdrop-filter: blur(4px); cursor: move; display: none; z-index: 500; touch-action: none;
         }
-        .ruler { height: 50px; width: 300px; background-image: linear-gradient(90deg, #333 1px, transparent 1px); background-size: 10px 20px; background-repeat: repeat-x; background-position: bottom; }
-        .resizer { position: absolute; right: 0; top: 0; bottom: 0; width: 10px; cursor: ew-resize; background: var(--primary); opacity: 0.5; }
+        .ruler { height: 60px; width: 400px; background-image: linear-gradient(90deg, #333 2px, transparent 2px); background-size: 20px 30px; background-repeat: repeat-x; background-position: bottom; }
+        .protractor { width: 300px; height: 150px; border-radius: 150px 150px 0 0; border-bottom: 3px solid #333; }
+        .triangle { width: 200px; height: 200px; clip-path: polygon(0% 100%, 100% 100%, 0% 0%); background: rgba(200, 230, 255, 0.5); }
+        .circle-tool { width: 200px; height: 200px; border-radius: 50%; border: 2px dashed var(--primary); }
 
-        #board { background: white; touch-action: none; }
+        .resizer { position: absolute; right: -5px; bottom: -5px; width: 15px; height: 15px; cursor: nwse-resize; background: var(--primary); border-radius: 50%; }
+
+        #board { background: white; cursor: crosshair; display: block; }
         
-        .footer-rights { position: fixed; bottom: 5px; left: 10px; font-size: 10px; color: #94a3b8; z-index: 50; }
-        .personal-link { position: fixed; bottom: 5px; right: 10px; z-index: 50; text-decoration: none; font-size: 12px; background: white; padding: 2px 8px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .footer-rights { position: fixed; bottom: 5px; left: 10px; font-size: 10px; color: #64748b; z-index: 50; }
+        .personal-link { position: fixed; bottom: 5px; right: 10px; z-index: 50; text-decoration: none; font-size: 11px; background: white; padding: 3px 8px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="card">
-            <h2 style="margin-top:0">🚀 MONSTER ELITE</h2>
-            <input type="text" id="userName" style="width:100%; padding:12px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd;" placeholder="اسمك هنا...">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button onclick="rocket.login('student')" style="background:#10b981; color:white; padding:12px; border:none; border-radius:10px; cursor:pointer;">طالب</button>
-                <button onclick="rocket.login('teacher')" style="background:var(--primary); color:white; padding:12px; border:none; border-radius:10px; cursor:pointer;">معلم</button>
+            <h1 style="color:var(--dark); margin-bottom:5px;">🚀 MONSTER ELITE</h1>
+            <p style="font-size:12px; color:#64748b; margin-bottom:20px;">الجيل الثالث من سبورة الصقورة</p>
+            <input type="text" id="userName" style="width:100%; padding:15px; margin-bottom:15px; border-radius:12px; border:2px solid #f1f5f9; box-sizing: border-box; outline:none;" placeholder="ادخل اسمك للبدء...">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <button onclick="rocket.login('student')" style="background:#10b981; color:white; padding:15px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">دخول كطالب</button>
+                <button onclick="rocket.login('teacher')" style="background:var(--primary); color:white; padding:15px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">دخول كمعلم</button>
             </div>
         </div>
     </div>
@@ -66,54 +82,85 @@
     <div class="top-bar">
         <div>
             <div class="badge" id="zoom-info">🔍 100%</div>
-            <div class="badge" id="sync-status" onclick="rocket.toggleSync()" style="cursor:pointer; background:#dcfce7">🔄 متصل بالمستر</div>
+            <div class="badge" id="sync-status" onclick="rocket.toggleSync()" style="cursor:pointer; background:#dcfce7">🔄 مزامنة: متصل</div>
         </div>
         <div>
             <div class="badge" id="timer">⏳ 00:00</div>
             <div class="badge" id="user-tag">👤 زائر</div>
+            <button class="badge" onclick="rocket.toggleFS()" style="cursor:pointer;">📺 ملء الشاشة</button>
         </div>
     </div>
 
-    <div id="ruler" class="geo-tool ruler"><div class="resizer" onmousedown="rocket.startResize(event, 'ruler')"></div></div>
-    <div id="protractor" class="geo-tool" style="width:200px; height:100px; border-radius:100px 100px 0 0; border-bottom: 2px solid var(--primary);"></div>
+    <div id="tool-ruler" class="geo-tool ruler"><div class="resizer" onmousedown="rocket.startResize(event, 'tool-ruler')"></div></div>
+    <div id="tool-protractor" class="geo-tool protractor"><div class="resizer" onmousedown="rocket.startResize(event, 'tool-protractor')"></div></div>
+    <div id="tool-triangle" class="geo-tool triangle"><div class="resizer" onmousedown="rocket.startResize(event, 'tool-triangle')"></div></div>
+    <div id="tool-circle" class="geo-tool circle-tool"><div class="resizer" onmousedown="rocket.startResize(event, 'tool-circle')"></div></div>
 
     <div id="main-toolbar">
-        <button class="tool-btn" onclick="rocket.toggleMinimize()" title="تصغير">📦</button>
+        <button class="tool-btn" onclick="rocket.toggleMinimize()" title="تصغير القائمة">📦</button>
         
-        <div id="teacher-controls" style="display:none; flex-direction:row; align-items:center; gap:8px;">
-            <div class="color-dot" style="background:#000000" onclick="rocket.updateColor('#000000')"></div>
-            <div class="color-dot" style="background:#ff4757" onclick="rocket.updateColor('#ff4757')"></div>
-            <div class="color-dot" style="background:#2ed573" onclick="rocket.updateColor('#2ed573')"></div>
-            <div class="color-dot" style="background:#4361ee" onclick="rocket.updateColor('#4361ee')"></div>
-            <input type="color" id="colorPicker" onchange="rocket.updateColor(this.value)" style="width:30px; height:30px; border:none; cursor:pointer;">
+        <div id="teacher-controls" style="display:none; align-items:center; gap:8px;">
+            <div style="display:flex; flex-direction:column; gap:3px;">
+                <div style="display:flex; gap:3px;">
+                    <div class="color-dot" style="background:#000" onclick="rocket.updateColor('#000')"></div>
+                    <div class="color-dot" style="background:#f00" onclick="rocket.updateColor('#f00')"></div>
+                </div>
+                <div style="display:flex; gap:3px;">
+                    <div class="color-dot" style="background:#00b7ff" onclick="rocket.updateColor('#00b7ff')"></div>
+                    <div class="color-dot" style="background:#2ed573" onclick="rocket.updateColor('#2ed573')"></div>
+                </div>
+            </div>
             
-            <button class="tool-btn" onclick="rocket.setMode('pen')" id="pen-btn">✏️</button>
-            <button class="tool-btn" onclick="rocket.toggleGeo('ruler')">📏</button>
+            <div style="position:relative;">
+                <button class="tool-btn active" id="btn-pen" onclick="rocket.toggleSubMenu('pen-menu')">✏️</button>
+                <div id="pen-menu" class="sub-menu">
+                    <button class="tool-btn" onclick="rocket.setMode('pen', '✏️')">✏️</button>
+                    <button class="tool-btn" onclick="rocket.setMode('marker', '🖍️')">🖍️</button>
+                    <button class="tool-btn" onclick="rocket.setMode('neon', '🌟')">🌟</button>
+                    <button class="tool-btn" onclick="rocket.setMode('brush', '🖌️')">🖌️</button>
+                </div>
+            </div>
+
+            <div style="position:relative;">
+                <button class="tool-btn" onclick="rocket.toggleSubMenu('geo-menu')">📏</button>
+                <div id="geo-menu" class="sub-menu">
+                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-ruler')">📏</button>
+                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-protractor')">🧭</button>
+                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-triangle')">📐</button>
+                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-circle')">⭕</button>
+                </div>
+            </div>
+
             <button class="tool-btn" onclick="rocket.setMode('eraser')">🧽</button>
             <button class="tool-btn" onclick="rocket.undo()">↩️</button>
             <button class="tool-btn" onclick="rocket.redo()">↪️</button>
             <button class="tool-btn" onclick="rocket.clearBoard()" style="color:red">🗑️</button>
             
-            <select onchange="rocket.moveToolbar(this.value)" style="padding:5px; border-radius:5px;">
-                <option value="bottom">أسفل</option>
-                <option value="top">أعلى</option>
-                <option value="right">يمين</option>
-                <option value="left">يسار</option>
+            <select onchange="rocket.moveToolbar(this.value)" style="border-radius:8px; padding:2px; font-size:10px;">
+                <option value="bottom">👇 أسفل</option>
+                <option value="top">👆 أعلى</option>
+                <option value="right">👉 يمين</option>
+                <option value="left">👈 يسار</option>
             </select>
         </div>
 
-        <button class="tool-btn" onclick="rocket.setMode('move')">🖐️</button>
-        <span id="page-label" style="font-size:12px; font-weight:bold;">ص 1</span>
+        <button class="tool-btn" onclick="rocket.setMode('move')" id="btn-move">🖐️</button>
+
+        <div style="display:flex; align-items:center; background:#f1f5f9; padding:2px 8px; border-radius:10px; gap:5px;">
+            <button class="tool-btn" style="width:25px; height:25px; font-size:12px;" onclick="rocket.changePage(-1)">◀</button>
+            <span id="page-label" style="font-size:12px; font-weight:bold; min-width:40px; text-align:center;">ص 1</span>
+            <button class="tool-btn" style="width:25px; height:25px; font-size:12px;" onclick="rocket.changePage(1)">▶</button>
+        </div>
     </div>
 
-    <div class="footer-rights">جميع الحقوق محفوظة لـ KAREEM OMAR © 2024</div>
-    <a href="https://kemo-omar.github.io/Kareem/" target="_blank" class="personal-link">🌐 Kemo Profile</a>
+    <div class="footer-rights">جميع الحقوق محفوظة لـ KAREEM OMAR © 2026</div>
+    <a href="https://kemo-omar.github.io/Kareem/" target="_blank" class="personal-link">🔗 KEMO WEB</a>
 
     <canvas id="board"></canvas>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, remove, query, limitToLast, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, remove, query, limitToLast, get, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAVFNJhGIlOjyJgSGj9MqK4Xt89p_irSEQ",
@@ -130,8 +177,9 @@
             canvas: document.getElementById('board'),
             ctx: document.getElementById('board').getContext('2d'),
             camera: { x: 0, y: 0, zoom: 1 },
-            drawings: {}, history: [], redoStack: [],
-            currentColor: '#4361ee', currentPage: 1,
+            drawings: {}, redoStack: [],
+            currentColor: '#000', currentPage: 1,
+            isDrawing: false,
 
             init() {
                 this.resize();
@@ -140,8 +188,9 @@
                 this.syncData();
                 this.render();
                 this.startTimer();
-                this.makeDraggable(document.getElementById('ruler'));
-                this.makeDraggable(document.getElementById('protractor'));
+                
+                // تفعيل السحب للأدوات الهندسية
+                document.querySelectorAll('.geo-tool').forEach(tool => this.makeDraggable(tool));
             },
 
             login(role) {
@@ -150,7 +199,12 @@
                 if(role === 'teacher' && prompt("باسوورد المعلم:") !== "123") return;
                 
                 this.isAdmin = (role === 'teacher');
-                if(this.isAdmin) document.getElementById('teacher-controls').style.display = 'flex';
+                if(this.isAdmin) {
+                    document.getElementById('teacher-controls').style.display = 'flex';
+                    this.mode = 'pen';
+                    document.getElementById('btn-pen').classList.add('active');
+                    document.getElementById('btn-move').classList.remove('active');
+                }
                 
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-toolbar').style.display = 'flex';
@@ -160,46 +214,63 @@
             toggleSync() {
                 this.isSyncing = !this.isSyncing;
                 const status = document.getElementById('sync-status');
-                status.innerText = this.isSyncing ? "🔄 متصل بالمستر" : "🚫 المزامنة متوقفة";
+                status.innerText = this.isSyncing ? "🔄 مزامنة: متصل" : "🚫 مزامنة: متوقفة";
                 status.style.background = this.isSyncing ? "#dcfce7" : "#fee2e2";
             },
 
             moveToolbar(pos) {
                 const bar = document.getElementById('main-toolbar');
-                bar.style.bottom = bar.style.top = bar.style.left = bar.style.right = 'auto';
-                bar.style.transform = 'none';
-                if(pos === 'bottom') { bar.style.bottom = '20px'; bar.style.left = '50%'; bar.style.transform = 'translateX(-50%)'; bar.style.flexDirection = 'row'; }
-                if(pos === 'top') { bar.style.top = '70px'; bar.style.left = '50%'; bar.style.transform = 'translateX(-50%)'; bar.style.flexDirection = 'row'; }
-                if(pos === 'left') { bar.style.left = '20px'; bar.style.top = '50%'; bar.style.transform = 'translateY(-50%)'; bar.style.flexDirection = 'column'; }
-                if(pos === 'right') { bar.style.right = '20px'; bar.style.top = '50%'; bar.style.transform = 'translateY(-50%)'; bar.style.flexDirection = 'column'; }
+                const teacher = document.getElementById('teacher-controls');
+                bar.style = ""; bar.className = "";
+                bar.style.position = 'fixed'; bar.style.display = 'flex'; bar.style.background = 'var(--glass)';
+                bar.style.padding = '10px'; bar.style.borderRadius = '20px'; bar.style.zIndex = '2000';
+
+                if(pos === 'bottom' || pos === 'top') {
+                    bar.style.flexDirection = 'row';
+                    teacher.style.flexDirection = 'row';
+                    bar.style.left = '50%'; bar.style.transform = 'translateX(-50%)';
+                    pos === 'bottom' ? bar.style.bottom = '20px' : bar.style.top = '70px';
+                } else {
+                    bar.style.flexDirection = 'column';
+                    teacher.style.flexDirection = 'column';
+                    bar.style.top = '50%'; bar.style.transform = 'translateY(-50%)';
+                    pos === 'right' ? bar.style.right = '20px' : bar.style.left = '20px';
+                }
             },
 
             toggleMinimize() {
                 document.getElementById('main-toolbar').classList.toggle('toolbar-minimized');
             },
 
-            undo() {
-                const keys = Object.keys(this.drawings);
-                if(keys.length > 0) {
-                    const lastKey = keys[keys.length-1];
-                    this.redoStack.push({key: lastKey, data: this.drawings[lastKey]});
-                    remove(ref(db, `board_data/${lastKey}`));
-                }
+            toggleSubMenu(id) {
+                const menu = document.getElementById(id);
+                const isShow = menu.classList.contains('show-menu');
+                document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu'));
+                if(!isShow) menu.classList.add('show-menu');
             },
 
-            redo() {
-                if(this.redoStack.length > 0) {
-                    const item = this.redoStack.pop();
-                    set(ref(db, `board_data/${item.key}`), item.data);
+            setMode(m, icon) {
+                this.mode = m;
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                if(m === 'move') document.getElementById('btn-move').classList.add('active');
+                else {
+                    document.getElementById('btn-pen').classList.add('active');
+                    if(icon) document.getElementById('btn-pen').innerText = icon;
                 }
+                document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu'));
             },
 
-            // --- نظام الرسم والتحريك ---
+            changePage(dir) {
+                this.currentPage = Math.max(1, this.currentPage + dir);
+                document.getElementById('page-label').innerText = `ص ${this.currentPage}`;
+            },
+
+            // --- نظام الرسم المتطور ---
             setupEvents() {
                 this.canvas.addEventListener('pointerdown', e => {
                     if(this.mode === 'move' || !this.isAdmin) {
                         this.isDragging = true;
-                    } else if(this.isAdmin) {
+                    } else {
                         this.isDrawing = true;
                         const pos = this.getPos(e);
                         this.currentPath = [{x: pos.x, y: pos.y}];
@@ -218,22 +289,25 @@
 
                 this.canvas.addEventListener('pointerup', () => {
                     if(this.isDrawing) {
-                        push(ref(db, 'board_data'), {
+                        const pathData = {
                             points: this.currentPath,
-                            color: this.currentColor,
-                            size: 3,
+                            color: this.mode === 'eraser' ? '#ffffff' : this.currentColor,
+                            size: this.mode === 'marker' ? 10 : (this.mode === 'brush' ? 6 : 3),
+                            mode: this.mode,
                             page: this.currentPage
-                        });
+                        };
+                        push(ref(db, 'board_data'), pathData);
                         this.redoStack = [];
                     }
                     this.isDrawing = this.isDragging = false;
                 });
 
                 window.addEventListener('wheel', e => {
+                    e.preventDefault();
                     const delta = e.deltaY > 0 ? 0.9 : 1.1;
                     this.camera.zoom *= delta;
                     document.getElementById('zoom-info').innerText = `🔍 ${Math.round(this.camera.zoom*100)}%`;
-                });
+                }, {passive: false});
             },
 
             getPos(e) {
@@ -244,6 +318,7 @@
             },
 
             syncData() {
+                // استخدام مستمع واحد مستمر لتجنب التعليق
                 onValue(ref(db, 'board_data'), s => {
                     if(this.isSyncing || this.isAdmin) {
                         this.drawings = s.val() || {};
@@ -257,62 +332,113 @@
                 this.ctx.translate(this.camera.x, this.camera.y);
                 this.ctx.scale(this.camera.zoom, this.camera.zoom);
 
+                // رسم العناصر المخزنة
                 Object.values(this.drawings).forEach(draw => {
                     if(draw.page === this.currentPage) this.drawPath(draw);
                 });
 
-                if(this.isDrawing) this.drawPath({points: this.currentPath, color: this.currentColor, size: 3});
+                // رسم الخط الحالي
+                if(this.isDrawing) {
+                    this.drawPath({
+                        points: this.currentPath, 
+                        color: this.mode === 'eraser' ? '#ffffff' : this.currentColor, 
+                        size: this.mode === 'marker' ? 10 : (this.mode === 'brush' ? 6 : 3),
+                        mode: this.mode
+                    });
+                }
                 
                 requestAnimationFrame(() => this.render());
             },
 
             drawPath(draw) {
                 this.ctx.beginPath();
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
                 this.ctx.strokeStyle = draw.color;
                 this.ctx.lineWidth = draw.size;
-                this.ctx.lineCap = 'round';
+
+                if(draw.mode === 'neon') {
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.shadowColor = draw.color;
+                } else {
+                    this.ctx.shadowBlur = 0;
+                }
+
+                if(draw.mode === 'brush') this.ctx.globalAlpha = 0.6;
+                else this.ctx.globalAlpha = 1;
+
                 this.ctx.moveTo(draw.points[0].x, draw.points[0].y);
                 draw.points.forEach(p => this.ctx.lineTo(p.x, p.y));
                 this.ctx.stroke();
             },
 
-            // --- أدوات الهندسة ---
+            // --- الأدوات الهندسية ---
             toggleGeo(id) {
                 const el = document.getElementById(id);
                 el.style.display = el.style.display === 'block' ? 'none' : 'block';
-                el.style.left = '100px'; el.style.top = '100px';
+                el.style.left = '200px'; el.style.top = '200px';
             },
 
             makeDraggable(el) {
                 let px = 0, py = 0;
-                el.onmousedown = (e) => {
+                el.onpointerdown = (e) => {
                     if(e.target.className === 'resizer') return;
-                    e.preventDefault();
+                    el.setPointerCapture(e.pointerId);
                     px = e.clientX; py = e.clientY;
-                    document.onmousemove = (e) => {
+                    el.onpointermove = (e) => {
                         el.style.left = (el.offsetLeft - (px - e.clientX)) + "px";
                         el.style.top = (el.offsetTop - (py - e.clientY)) + "px";
                         px = e.clientX; py = e.clientY;
                     };
-                    document.onmouseup = () => document.onmousemove = null;
                 };
+                el.onpointerup = () => { el.onpointermove = null; };
             },
 
             startResize(e, id) {
                 e.stopPropagation();
                 const el = document.getElementById(id);
                 const startW = el.offsetWidth;
+                const startH = el.offsetHeight;
                 const startX = e.clientX;
-                const doResize = (ee) => { el.style.width = (startW + (ee.clientX - startX)) + "px"; };
-                const stop = () => { window.removeEventListener('mousemove', doResize); };
-                window.addEventListener('mousemove', doResize);
-                window.addEventListener('mouseup', stop);
+                const startY = e.clientY;
+                
+                const doResize = (ee) => { 
+                    el.style.width = (startW + (ee.clientX - startX)) + "px";
+                    el.style.height = (startH + (ee.clientY - startY)) + "px";
+                };
+                const stop = () => { window.removeEventListener('pointermove', doResize); };
+                window.addEventListener('pointermove', doResize);
+                window.addEventListener('pointerup', stop);
+            },
+
+            undo() {
+                const keys = Object.keys(this.drawings);
+                if(keys.length > 0) {
+                    const lastKey = keys[keys.length-1];
+                    this.redoStack.push({key: lastKey, data: this.drawings[lastKey]});
+                    remove(ref(db, `board_data/${lastKey}`));
+                }
+            },
+
+            redo() {
+                if(this.redoStack.length > 0) {
+                    const item = this.redoStack.pop();
+                    set(ref(db, `board_data/${item.key}`), item.data);
+                }
+            },
+
+            toggleFS() {
+                if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+                else document.exitFullscreen();
             },
 
             resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
             updateColor(c) { this.currentColor = c; },
-            setMode(m) { this.mode = m; },
-            clearBoard() { if(confirm("مسح الكل؟")) remove(ref(db, 'board_data')); },
+            clearBoard() { if(confirm("سيتم مسح الصفحة الحالية نهائياً، هل أنت متأكد؟")) {
+                Object.keys(this.drawings).forEach(key => {
+                    if(this.drawings[key].page === this.currentPage) remove(ref(db, `board_data/${key}`));
+                });
+            }},
             startTimer() {
                 let s = 0; setInterval(() => {
                     s++; let min = Math.floor(s/60), sec = s%60;
