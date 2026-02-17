@@ -18,18 +18,26 @@
         .top-bar { position: fixed; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
         .badge { background: var(--glass); padding: 6px 14px; border-radius: 12px; font-size: 13px; font-weight: bold; pointer-events: auto; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 5px; display: inline-flex; align-items: center; gap: 5px; }
 
+        /* قائمة الطلاب المتصلين */
+        #users-list-panel {
+            position: absolute; top: 50px; left: 0; background: white; width: 180px; 
+            border-radius: 15px; box-shadow: var(--shadow); display: none; 
+            padding: 10px; max-height: 300px; overflow-y: auto; z-index: 2005;
+        }
+        .user-item { padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .user-status { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
+
         #main-toolbar { 
             position: fixed; background: var(--glass); padding: 12px; border-radius: 24px; 
             box-shadow: var(--shadow); display: none; gap: 10px; align-items: center; z-index: 2000;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #fff;
+            bottom: 20px; left: 50%; transform: translateX(-50%);
         }
         
-        /* زر استعادة القائمة عند الاختفاء */
         #restore-btn { position: fixed; bottom: 20px; left: 20px; z-index: 3000; display: none; width: 50px; height: 50px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; box-shadow: var(--shadow); font-size: 20px; }
 
         .toolbar-vertical { flex-direction: column !important; padding: 15px 10px !important; }
         .toolbar-vertical #teacher-controls { flex-direction: column !important; }
-        .toolbar-vertical .sub-menu { right: 65px; bottom: auto; }
 
         .tool-btn { 
             width: 46px; height: 46px; border-radius: 14px; border: none; 
@@ -48,32 +56,31 @@
         .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
 
         .geo-tool {
-            position: absolute; background: rgba(255, 255, 255, 0.4); border: 2px solid var(--primary);
-            backdrop-filter: blur(2px); cursor: move; display: none; z-index: 500; touch-action: none;
+            position: absolute; background: rgba(255, 255, 255, 0.2); border: 2px solid var(--primary);
+            backdrop-filter: blur(4px); cursor: move; display: none; z-index: 500; touch-action: none;
         }
-        .drawing-active .geo-tool { pointer-events: none; }
-
         .ruler { height: 60px; width: 400px; background-image: linear-gradient(90deg, #333 2px, transparent 2px); background-size: 20px 30px; background-repeat: repeat-x; background-position: bottom; }
         .protractor { width: 300px; height: 150px; border-radius: 150px 150px 0 0; border-bottom: 3px solid #333; }
-        .triangle { width: 200px; height: 200px; clip-path: polygon(0% 100%, 100% 100%, 0% 0%); background: rgba(67, 97, 238, 0.2); }
+        .triangle { width: 200px; height: 200px; clip-path: polygon(0% 100%, 100% 100%, 0% 0%); background: rgba(67, 97, 238, 0.1); }
         .circle-tool { width: 200px; height: 200px; border-radius: 50%; border: 2px dashed var(--primary); }
 
-        .resizer { position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; cursor: nwse-resize; background: var(--primary); border-radius: 50%; pointer-events: auto !important; }
+        .resizer { position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; cursor: nwse-resize; background: var(--primary); border-radius: 50%; pointer-events: auto !important; z-index: 600; }
 
         #board { background: white; cursor: crosshair; display: block; touch-action: none; }
         .footer-rights { position: fixed; bottom: 5px; left: 10px; font-size: 10px; color: #64748b; z-index: 50; }
         
-        /* شريط التحكم في السمك */
         .size-slider-cont { display: flex; flex-direction: column; align-items: center; background: #f8fafc; padding: 5px; border-radius: 10px; gap: 2px; }
         .size-slider-cont input { writing-mode: bt-lr; -webkit-appearance: slider-vertical; width: 8px; height: 80px; }
+
+        .zoom-controls { position: fixed; right: 20px; bottom: 100px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="card">
-            <h1>🚀 Sapora</h1>
-            <p>كريم</p>
+            <h1>🚀 MONSTER ELITE</h1>
+            <p>الجيل الثالث المطور</p>
             <input type="text" id="userName" style="width:100%; padding:15px; margin-bottom:15px; border-radius:12px; border:2px solid #f1f5f9; outline:none;" placeholder="ادخل اسمك...">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                 <button onclick="rocket.login('student')" style="background:#10b981; color:white; padding:15px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">طالب</button>
@@ -87,13 +94,28 @@
     <div class="top-bar">
         <div>
             <div class="badge" id="zoom-info">🔍 100%</div>
-            <div class="badge" id="sync-status" onclick="rocket.toggleSync()" style="cursor:pointer; background:#dcfce7">🔄 متصل</div>
+            <div class="badge" id="sync-status" style="background:#dcfce7">🔄 متصل</div>
         </div>
         <div>
             <div class="badge" id="timer">⏳ 00:00</div>
-            <div class="badge" id="user-tag">👤 زائر</div>
-            <button class="badge" onclick="rocket.toggleFS()">📺</button>
+            <div style="position: relative; display: inline-block; pointer-events: auto;">
+                <button class="badge" onclick="rocket.toggleUsersList()" style="cursor:pointer; border:none;">
+                    <span id="user-tag">👤 زائر</span>
+                    <span id="online-count" style="background:var(--primary); color:white; border-radius:50%; width:18px; height:18px; font-size:10px; display:flex; align-items:center; justify-content:center; margin-right:5px;">0</span>
+                </button>
+                <div id="users-list-panel">
+                    <div style="font-weight:bold; font-size:12px; border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:5px;">المتواجدون الآن:</div>
+                    <div id="users-container"></div>
+                </div>
+            </div>
+            <button class="badge" onclick="rocket.toggleFS()" style="pointer-events: auto;">📺</button>
         </div>
+    </div>
+
+    <div class="zoom-controls">
+        <button class="tool-btn" onclick="rocket.adjustZoom(1.1)">➕</button>
+        <button class="tool-btn" onclick="rocket.adjustZoom(0.9)">➖</button>
+        <button class="tool-btn" onclick="rocket.resetZoom()">🏠</button>
     </div>
 
     <div id="tool-ruler" class="geo-tool ruler"><div class="resizer"></div></div>
@@ -132,7 +154,7 @@
             </div>
 
             <div style="position:relative;">
-                <button class="tool-btn" onclick="rocket.toggleSubMenu('geo-menu')">📏</button>
+                <button class="tool-btn" onclick="rocket.toggleSubMenu('geo-menu')">📐</button>
                 <div id="geo-menu" class="sub-menu">
                     <button class="tool-btn" onclick="rocket.toggleGeo('tool-ruler')">📏</button>
                     <button class="tool-btn" onclick="rocket.toggleGeo('tool-protractor')">🧭</button>
@@ -141,7 +163,7 @@
                 </div>
             </div>
 
-            <button class="tool-btn" onclick="rocket.setMode('eraser')" title="ممحاة">🧽</button>
+            <button class="tool-btn" id="btn-eraser" onclick="rocket.setMode('eraser')" title="ممحاة">🧽</button>
             <button class="tool-btn" onclick="rocket.undo()" title="تراجع">↩️</button>
             <button class="tool-btn" onclick="rocket.redo()" title="إعادة">↪️</button>
             <button class="tool-btn" onclick="rocket.clearBoard()" style="color:red" title="مسح الكل">🗑️</button>
@@ -168,7 +190,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, set, onChildAdded, onChildRemoved, remove, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAVFNJhGIlOjyJgSGj9MqK4Xt89p_irSEQ",
@@ -181,12 +203,13 @@
         const db = getDatabase(app);
 
         const rocket = {
-            isAdmin: false, isSyncing: true, mode: 'move',
+            isAdmin: false, mode: 'move',
             canvas: document.getElementById('board'),
             ctx: document.getElementById('board').getContext('2d'),
             camera: { x: 0, y: 0, zoom: 1 },
             drawings: {}, redoStack: [], currentColor: '#000', currentLineWidth: 3, currentPage: 1,
-            isDrawing: false, isDragging: false, currentPath: [],
+            isDrawing: false, isDragging: false, currentPath: [], lastMouse: {x:0, y:0},
+            userName: '',
 
             init() {
                 this.resize();
@@ -195,6 +218,7 @@
                 this.syncData();
                 this.render();
                 this.startTimer();
+                this.syncUsers();
                 document.querySelectorAll('.geo-tool').forEach(tool => this.makeDraggable(tool));
                 this.makeResizable();
             },
@@ -204,7 +228,14 @@
                 if(!name) return alert("الاسم مطلوب");
                 if(role === 'teacher' && prompt("كلمة السر:") !== "123") return;
                 
+                this.userName = name;
                 this.isAdmin = (role === 'teacher');
+                
+                // إضافة المستخدم لقائمة المتصلين في الفايربيس
+                const userRef = push(ref(db, 'online_users'));
+                set(userRef, { name: name, role: role });
+                onDisconnect(userRef).remove();
+
                 if(this.isAdmin) {
                     document.getElementById('teacher-controls').style.display = 'flex';
                     this.setMode('pen');
@@ -214,32 +245,52 @@
                 document.getElementById('user-tag').innerText = `👤 ${name}`;
             },
 
-            moveToolbar(pos) {
-                const bar = document.getElementById('main-toolbar');
-                bar.className = ""; 
-                bar.style = "position: fixed; display: flex; background: var(--glass); padding: 12px; border-radius: 24px; box-shadow: var(--shadow); z-index: 2000; transition: all 0.3s ease; border: 1px solid #fff;";
-                
-                if(pos === 'bottom' || pos === 'top') {
-                    bar.style.flexDirection = 'row';
-                    bar.style.left = '50%'; bar.style.transform = 'translateX(-50%)';
-                    pos === 'bottom' ? bar.style.bottom = '20px' : bar.style.top = '20px';
-                } else {
-                    bar.classList.add('toolbar-vertical');
-                    bar.style.top = '50%'; bar.style.transform = 'translateY(-50%)';
-                    pos === 'right' ? bar.style.right = '20px' : bar.style.left = '20px';
-                }
+            syncUsers() {
+                const usersRef = ref(db, 'online_users');
+                onValue(usersRef, (snapshot) => {
+                    const users = snapshot.val() || {};
+                    const container = document.getElementById('users-container');
+                    const countBadge = document.getElementById('online-count');
+                    container.innerHTML = '';
+                    const usersArray = Object.values(users);
+                    countBadge.innerText = usersArray.length;
+
+                    usersArray.forEach(user => {
+                        const div = document.createElement('div');
+                        div.className = 'user-item';
+                        div.innerHTML = `<span class="user-status"></span> ${user.name} (${user.role === 'teacher' ? 'معلم' : 'طالب'})`;
+                        container.appendChild(div);
+                    });
+                });
             },
+
+            toggleUsersList() {
+                const panel = document.getElementById('users-list-panel');
+                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+            },
+
+            adjustZoom(factor, centerX, centerY) {
+                const oldZoom = this.camera.zoom;
+                const newZoom = Math.min(Math.max(oldZoom * factor, 0.1), 10);
+                centerX = centerX || window.innerWidth / 2;
+                centerY = centerY || window.innerHeight / 2;
+                this.camera.x -= (centerX - this.camera.x) * (newZoom / oldZoom - 1);
+                this.camera.y -= (centerY - this.camera.y) * (newZoom / oldZoom - 1);
+                this.camera.zoom = newZoom;
+                document.getElementById('zoom-info').innerText = `🔍 ${Math.round(this.camera.zoom * 100)}%`;
+            },
+
+            resetZoom() { this.camera = { x: 0, y: 0, zoom: 1 }; document.getElementById('zoom-info').innerText = `🔍 100%`; },
 
             setupEvents() {
                 const handleDown = (e) => {
-                    if (e.target.closest('.tool-btn, .sub-menu, .badge, select, input, .geo-tool')) return;
+                    if (e.target.closest('.tool-btn, .sub-menu, .badge, select, input, .geo-tool, .resizer, #users-list-panel')) return;
                     const pos = this.getPos(e);
                     if(this.mode === 'move' || !this.isAdmin) {
                         this.isDragging = true;
                         this.lastMouse = { x: e.clientX, y: e.clientY };
                     } else {
                         this.isDrawing = true;
-                        document.body.classList.add('drawing-active');
                         this.currentPath = [{x: pos.x, y: pos.y}];
                     }
                 };
@@ -256,10 +307,10 @@
                 };
 
                 const handleUp = () => {
-                    if(this.isDrawing) {
+                    if(this.isDrawing && this.currentPath.length > 1) {
                         const pathData = {
                             points: this.currentPath,
-                            color: this.mode === 'eraser' ? '#ffffff' : this.currentColor,
+                            color: this.currentColor,
                             size: this.currentLineWidth,
                             mode: this.mode,
                             page: this.currentPage,
@@ -269,33 +320,31 @@
                         this.redoStack = [];
                     }
                     this.isDrawing = this.isDragging = false;
-                    document.body.classList.remove('drawing-active');
                 };
 
                 this.canvas.addEventListener('pointerdown', handleDown);
                 window.addEventListener('pointermove', handleMove);
                 window.addEventListener('pointerup', handleUp);
-
                 window.addEventListener('wheel', e => {
                     e.preventDefault();
-                    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-                    const oldZoom = this.camera.zoom;
-                    this.camera.zoom = Math.min(Math.max(this.camera.zoom * delta, 0.1), 10);
-                    document.getElementById('zoom-info').innerText = `🔍 ${Math.round(this.camera.zoom*100)}%`;
+                    this.adjustZoom(e.deltaY > 0 ? 0.9 : 1.1, e.clientX, e.clientY);
                 }, {passive: false});
             },
 
             getPos(e) {
-                const rect = this.canvas.getBoundingClientRect();
                 return {
-                    x: (e.clientX - rect.left - this.camera.x) / this.camera.zoom,
-                    y: (e.clientY - rect.top - this.camera.y) / this.camera.zoom
+                    x: (e.clientX - this.camera.x) / this.camera.zoom,
+                    y: (e.clientY - this.camera.y) / this.camera.zoom
                 };
             },
 
             syncData() {
-                onValue(ref(db, 'board_data'), s => {
-                    if(this.isSyncing) this.drawings = s.val() || {};
+                const dbRef = ref(db, 'board_data');
+                onChildAdded(dbRef, (snapshot) => {
+                    this.drawings[snapshot.key] = snapshot.val();
+                });
+                onChildRemoved(dbRef, (snapshot) => {
+                    delete this.drawings[snapshot.key];
                 });
             },
 
@@ -313,7 +362,7 @@
                 if(this.isDrawing) {
                     this.drawPath({
                         points: this.currentPath, 
-                        color: this.mode === 'eraser' ? '#ffffff' : this.currentColor, 
+                        color: this.currentColor, 
                         size: this.currentLineWidth,
                         mode: this.mode
                     });
@@ -323,18 +372,25 @@
 
             drawPath(draw) {
                 if(!draw.points || draw.points.length < 2) return;
+                this.ctx.save();
                 this.ctx.beginPath();
                 this.ctx.lineCap = 'round';
                 this.ctx.lineJoin = 'round';
-                this.ctx.strokeStyle = draw.color;
+                
+                if(draw.mode === 'eraser') {
+                    this.ctx.globalCompositeOperation = 'destination-out';
+                    this.ctx.strokeStyle = 'rgba(0,0,0,1)';
+                } else {
+                    this.ctx.globalCompositeOperation = 'source-over';
+                    this.ctx.strokeStyle = draw.color;
+                }
+
                 this.ctx.lineWidth = draw.size;
                 this.ctx.globalAlpha = draw.mode === 'brush' ? 0.5 : 1;
                 
                 if(draw.mode === 'neon') {
                     this.ctx.shadowBlur = 15;
                     this.ctx.shadowColor = draw.color;
-                } else {
-                    this.ctx.shadowBlur = 0;
                 }
 
                 this.ctx.moveTo(draw.points[0].x, draw.points[0].y);
@@ -342,8 +398,7 @@
                     this.ctx.lineTo(draw.points[i].x, draw.points[i].y);
                 }
                 this.ctx.stroke();
-                this.ctx.globalAlpha = 1;
-                this.ctx.shadowBlur = 0;
+                this.ctx.restore();
             },
 
             undo() {
@@ -371,9 +426,9 @@
 
             toggleGeo(id) {
                 const el = document.getElementById(id);
-                el.style.display = el.style.display === 'block' ? 'none' : 'block';
-                el.style.left = '200px'; el.style.top = '200px';
-                document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu'));
+                el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+                el.style.left = '100px'; el.style.top = '100px';
+                this.toggleSubMenu('geo-menu');
             },
 
             makeDraggable(el) {
@@ -406,8 +461,8 @@
                         el.setPointerCapture(e.pointerId);
                         let sx = e.clientX, sy = e.clientY, sw = el.offsetWidth, sh = el.offsetHeight;
                         const resize = (ee) => {
-                            el.style.width = (sw + (ee.clientX - sx)) + "px";
-                            el.style.height = (sh + (ee.clientY - sy)) + "px";
+                            el.style.width = Math.max(50, sw + (ee.clientX - sx)) + "px";
+                            el.style.height = Math.max(50, sh + (ee.clientY - sy)) + "px";
                         };
                         const stop = () => { 
                             el.releasePointerCapture(e.pointerId);
@@ -425,6 +480,8 @@
                 document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
                 if(m === 'move') {
                     document.getElementById('btn-move').classList.add('active');
+                } else if (m === 'eraser') {
+                    document.getElementById('btn-eraser').classList.add('active');
                 } else {
                     document.getElementById('btn-pen').classList.add('active');
                     if(icon) document.getElementById('btn-pen').innerText = icon;
@@ -440,10 +497,16 @@
             },
 
             resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
-            updateColor(c) { this.currentColor = c; },
+            updateColor(c) { this.currentColor = c; if(this.mode === 'eraser') this.setMode('pen'); },
             updateLineWidth(v) { this.currentLineWidth = parseInt(v); },
             changePage(dir) { this.currentPage = Math.max(1, this.currentPage + dir); document.getElementById('page-label').innerText = this.currentPage; },
-            toggleFS() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); },
+            toggleFS() { 
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(e => console.log(e));
+                } else {
+                    document.exitFullscreen();
+                }
+            },
             
             toggleMinimize() { 
                 const bar = document.getElementById('main-toolbar');
@@ -454,6 +517,22 @@
                 } else {
                     bar.style.display = 'none';
                     rest.style.display = 'block';
+                }
+            },
+
+            moveToolbar(pos) {
+                const bar = document.getElementById('main-toolbar');
+                bar.classList.remove('toolbar-vertical');
+                bar.style.top = bar.style.bottom = bar.style.left = bar.style.right = 'auto';
+                bar.style.transform = 'none';
+
+                if(pos === 'bottom' || pos === 'top') {
+                    bar.style.left = '50%'; bar.style.transform = 'translateX(-50%)';
+                    pos === 'bottom' ? bar.style.bottom = '20px' : bar.style.top = '20px';
+                } else {
+                    bar.classList.add('toolbar-vertical');
+                    bar.style.top = '50%'; bar.style.transform = 'translateY(-50%)';
+                    pos === 'right' ? bar.style.right = '20px' : bar.style.left = '20px';
                 }
             },
             
