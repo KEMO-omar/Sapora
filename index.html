@@ -8,132 +8,106 @@
     <style>
         :root { 
             --primary: #4361ee; --accent: #ff4757; --dark: #0f172a;
-            --glass: rgba(255, 255, 255, 0.98); --shadow: 0 20px 50px rgba(0,0,0,0.15); 
+            --glass: rgba(255, 255, 255, 0.95); --shadow: 0 10px 30px rgba(0,0,0,0.1); 
         }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Cairo', sans-serif; background: #f8fafc; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Cairo', sans-serif; background: #f1f5f9; }
         
-        /* شاشة الدخول */
-        #auth-screen { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card { background: white; padding: 40px; border-radius: 30px; box-shadow: var(--shadow); width: 90%; max-width: 420px; text-align: center; }
-        .input-name { width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 15px; border: 2px solid #e2e8f0; font-size: 18px; text-align: center; outline: none; transition: 0.3s; }
-        .input-name:focus { border-color: var(--primary); }
+        #auth-screen { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .card { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; }
+        
+        /* الترويسة */
+        .top-bar { position: fixed; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
+        .badge { background: var(--glass); padding: 5px 15px; border-radius: 15px; font-size: 13px; font-weight: bold; pointer-events: auto; box-shadow: var(--shadow); border: 1px solid #eee; margin-bottom: 5px; }
 
-        /* شريط المعلومات العلوي */
-        .top-bar { position: fixed; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
-        .badge-group { display: flex; gap: 10px; pointer-events: auto; }
-        .badge { background: var(--glass); padding: 8px 18px; border-radius: 20px; box-shadow: var(--shadow); font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(0,0,0,0.05); }
-
-        /* شريط الأدوات الرئيسي - تصميم عائم */
+        /* شريط الأدوات المطور */
         #main-toolbar { 
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            background: var(--glass); backdrop-filter: blur(20px); padding: 12px 25px; 
-            border-radius: 100px; box-shadow: var(--shadow); display: none; gap: 12px; 
-            align-items: center; z-index: 2000; border: 1px solid rgba(255,255,255,0.2);
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            background: var(--glass); padding: 10px; border-radius: 20px; 
+            box-shadow: var(--shadow); display: none; gap: 8px; align-items: center; z-index: 2000;
+            transition: all 0.3s ease; border: 1px solid #ddd;
         }
+        .toolbar-minimized { width: 50px !important; height: 50px !important; overflow: hidden; border-radius: 50% !important; }
 
         .tool-btn { 
-            width: 50px; height: 50px; border-radius: 50%; border: none; 
-            background: transparent; cursor: pointer; font-size: 22px; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            display: flex; align-items: center; justify-content: center; position: relative; color: #475569;
+            width: 42px; height: 42px; border-radius: 12px; border: none; 
+            background: #f8fafc; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
         }
-        .tool-btn:hover { background: #f1f5f9; transform: scale(1.15); color: var(--primary); }
-        .tool-btn.active { background: var(--primary); color: white !important; box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3); }
+        .tool-btn.active { background: var(--primary); color: white; }
+        
+        .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
 
-        /* القوائم المنبثقة */
-        .popup-menu {
-            position: absolute; bottom: 80px; background: white; padding: 15px; 
-            border-radius: 25px; box-shadow: var(--shadow); display: none; 
-            grid-template-columns: repeat(3, 1fr); gap: 12px; min-width: 180px; border: 1px solid #f1f5f9;
+        /* الأدوات الهندسية */
+        .geo-tool {
+            position: absolute; background: rgba(200, 230, 255, 0.4); border: 1px solid var(--primary);
+            backdrop-filter: blur(2px); cursor: move; display: none; z-index: 500;
         }
-        .show-popup { display: grid !important; animation: popUp 0.3s ease-out; }
-        @keyframes popUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .ruler { height: 50px; width: 300px; background-image: linear-gradient(90deg, #333 1px, transparent 1px); background-size: 10px 20px; background-repeat: repeat-x; background-position: bottom; }
+        .resizer { position: absolute; right: 0; top: 0; bottom: 0; width: 10px; cursor: ew-resize; background: var(--primary); opacity: 0.5; }
 
-        /* نظام الصفحات */
-        #page-manager { display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 5px 15px; border-radius: 30px; margin: 0 10px; }
-
-        /* منقي الألوان الدائري */
-        #colorPreview { 
-            width: 40px; height: 40px; border-radius: 50%; border: 4px solid white; 
-            cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.1); transition: 0.3s;
-        }
-        #colorPicker { display: none; }
-
-        /* القماش */
-        #board { background: #ffffff; touch-action: none; cursor: crosshair; }
-
-        /* زر ملء الشاشة */
-        .fs-btn { position: fixed; bottom: 35px; right: 30px; z-index: 2000; }
+        #board { background: white; touch-action: none; }
+        
+        .footer-rights { position: fixed; bottom: 5px; left: 10px; font-size: 10px; color: #94a3b8; z-index: 50; }
+        .personal-link { position: fixed; bottom: 5px; right: 10px; z-index: 50; text-decoration: none; font-size: 12px; background: white; padding: 2px 8px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="card">
-            <h1 style="color:var(--dark); margin-bottom:10px;">🚀 MONSTER ELITE</h1>
-            <p style="color:#64748b; margin-bottom:30px;">النسخة الاحترافية للمعلمين والمبدعين</p>
-            <input type="text" id="userName" class="input-name" placeholder="ادخل اسمك للبدء...">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                <button onclick="rocket.login('student')" style="background:#10b981; color:white; padding:18px; border:none; border-radius:15px; cursor:pointer; font-weight:bold; font-size:16px;">طالب</button>
-                <button onclick="rocket.login('teacher')" style="background:var(--primary); color:white; padding:18px; border:none; border-radius:15px; cursor:pointer; font-weight:bold; font-size:16px;">معلم</button>
+            <h2 style="margin-top:0">🚀 MONSTER ELITE</h2>
+            <input type="text" id="userName" style="width:100%; padding:12px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd;" placeholder="اسمك هنا...">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button onclick="rocket.login('student')" style="background:#10b981; color:white; padding:12px; border:none; border-radius:10px; cursor:pointer;">طالب</button>
+                <button onclick="rocket.login('teacher')" style="background:var(--primary); color:white; padding:12px; border:none; border-radius:10px; cursor:pointer;">معلم</button>
             </div>
         </div>
     </div>
 
     <div class="top-bar">
-        <div class="badge-group">
+        <div>
             <div class="badge" id="zoom-info">🔍 100%</div>
-            <div class="badge" id="status-online">🟢 0 متصل</div>
-            <div class="badge">📅 <span id="live-date"></span></div>
+            <div class="badge" id="sync-status" onclick="rocket.toggleSync()" style="cursor:pointer; background:#dcfce7">🔄 متصل بالمستر</div>
         </div>
-        <div class="badge-group">
+        <div>
             <div class="badge" id="timer">⏳ 00:00</div>
             <div class="badge" id="user-tag">👤 زائر</div>
         </div>
     </div>
 
+    <div id="ruler" class="geo-tool ruler"><div class="resizer" onmousedown="rocket.startResize(event, 'ruler')"></div></div>
+    <div id="protractor" class="geo-tool" style="width:200px; height:100px; border-radius:100px 100px 0 0; border-bottom: 2px solid var(--primary);"></div>
+
     <div id="main-toolbar">
-        <div style="position:relative">
-            <div id="colorPreview" onclick="document.getElementById('colorPicker').click()"></div>
-            <input type="color" id="colorPicker" onchange="rocket.updateColor(this.value)">
-        </div>
-
-        <div style="position:relative">
-            <button class="tool-btn active" id="btn-brush" onclick="rocket.togglePopup('brush-menu')" title="الفرش">🖌️</button>
-            <div id="brush-menu" class="popup-menu">
-                <button class="tool-btn" onclick="rocket.setMode('pen', '✏️')">✏️</button>
-                <button class="tool-btn" onclick="rocket.setMode('calligraphy', '🖋️')">🖋️</button>
-                <button class="tool-btn" onclick="rocket.setMode('neon', '🌟')">🌟</button>
-                <button class="tool-btn" onclick="rocket.setMode('highlighter', '🖍️')">🖍️</button>
-                <button class="tool-btn" onclick="rocket.setMode('oil', '🎨')">🎨</button>
-            </div>
-        </div>
-
-        <div style="position:relative">
-            <button class="tool-btn" onclick="rocket.togglePopup('shape-menu')" title="أشكال">📐</button>
-            <div id="shape-menu" class="popup-menu">
-                <button class="tool-btn" onclick="rocket.setMode('rect', '⬜')">⬜</button>
-                <button class="tool-btn" onclick="rocket.setMode('circle', '⭕')">⭕</button>
-                <button class="tool-btn" onclick="rocket.setMode('line', '📏')">📏</button>
-            </div>
-        </div>
-
-        <button class="tool-btn" onclick="rocket.setMode('eraser', '🧽')" title="ممحاة">🧽</button>
-        <button class="tool-btn" onclick="rocket.setMode('move', '🖐️')" title="تحريك">🖐️</button>
+        <button class="tool-btn" onclick="rocket.toggleMinimize()" title="تصغير">📦</button>
         
-        <div id="page-manager">
-            <button class="tool-btn" style="width:30px; height:30px; font-size:14px" onclick="rocket.prevPage()">◀</button>
-            <span id="page-num" style="font-weight:bold; min-width:60px; text-align:center">صفحة 1</span>
-            <button class="tool-btn" style="width:30px; height:30px; font-size:14px" onclick="rocket.nextPage()">▶</button>
+        <div id="teacher-controls" style="display:none; flex-direction:row; align-items:center; gap:8px;">
+            <div class="color-dot" style="background:#000000" onclick="rocket.updateColor('#000000')"></div>
+            <div class="color-dot" style="background:#ff4757" onclick="rocket.updateColor('#ff4757')"></div>
+            <div class="color-dot" style="background:#2ed573" onclick="rocket.updateColor('#2ed573')"></div>
+            <div class="color-dot" style="background:#4361ee" onclick="rocket.updateColor('#4361ee')"></div>
+            <input type="color" id="colorPicker" onchange="rocket.updateColor(this.value)" style="width:30px; height:30px; border:none; cursor:pointer;">
+            
+            <button class="tool-btn" onclick="rocket.setMode('pen')" id="pen-btn">✏️</button>
+            <button class="tool-btn" onclick="rocket.toggleGeo('ruler')">📏</button>
+            <button class="tool-btn" onclick="rocket.setMode('eraser')">🧽</button>
+            <button class="tool-btn" onclick="rocket.undo()">↩️</button>
+            <button class="tool-btn" onclick="rocket.redo()">↪️</button>
+            <button class="tool-btn" onclick="rocket.clearBoard()" style="color:red">🗑️</button>
+            
+            <select onchange="rocket.moveToolbar(this.value)" style="padding:5px; border-radius:5px;">
+                <option value="bottom">أسفل</option>
+                <option value="top">أعلى</option>
+                <option value="right">يمين</option>
+                <option value="left">يسار</option>
+            </select>
         </div>
 
-        <input type="range" id="sizePicker" style="width:80px; accent-color:var(--primary);" min="1" max="80" value="5">
-
-        <button class="tool-btn" onclick="rocket.undo()" title="تراجع">↩️</button>
-        <button class="tool-btn" onclick="rocket.download()" title="تحميل كصورة">📸</button>
-        <button class="tool-btn" onclick="rocket.clearBoard()" style="color:var(--accent)" title="مسح الكل">🗑️</button>
+        <button class="tool-btn" onclick="rocket.setMode('move')">🖐️</button>
+        <span id="page-label" style="font-size:12px; font-weight:bold;">ص 1</span>
     </div>
 
-    <button class="tool-btn fs-btn" style="background:white; box-shadow:var(--shadow)" onclick="rocket.toggleFS()">📺</button>
+    <div class="footer-rights">جميع الحقوق محفوظة لـ KAREEM OMAR © 2024</div>
+    <a href="https://kemo-omar.github.io/Kareem/" target="_blank" class="personal-link">🌐 Kemo Profile</a>
 
     <canvas id="board"></canvas>
 
@@ -152,84 +126,114 @@
         const db = getDatabase(app);
 
         const rocket = {
+            isAdmin: false, isSyncing: true, mode: 'move',
             canvas: document.getElementById('board'),
             ctx: document.getElementById('board').getContext('2d'),
-            isAdmin: false,
-            mode: 'pen',
-            isDrawing: false,
-            drawings: {},
             camera: { x: 0, y: 0, zoom: 1 },
-            userName: "زائر",
-            currentColor: '#4361ee',
-            currentPage: 1,
-            currentPath: [],
+            drawings: {}, history: [], redoStack: [],
+            currentColor: '#4361ee', currentPage: 1,
 
             init() {
                 this.resize();
                 window.onresize = () => this.resize();
-                document.getElementById('colorPreview').style.background = this.currentColor;
-                document.getElementById('live-date').innerText = new Date().toLocaleDateString('ar-EG');
                 this.setupEvents();
                 this.syncData();
                 this.render();
                 this.startTimer();
+                this.makeDraggable(document.getElementById('ruler'));
+                this.makeDraggable(document.getElementById('protractor'));
             },
 
             login(role) {
                 const name = document.getElementById('userName').value.trim();
-                if(!name) return alert("ادخل اسمك أولاً");
+                if(!name) return alert("من فضلك اكتب اسمك");
                 if(role === 'teacher' && prompt("باسوورد المعلم:") !== "123") return;
                 
                 this.isAdmin = (role === 'teacher');
-                this.userName = name;
-                document.getElementById('auth-screen').style.transform = 'scale(1.2)';
-                document.getElementById('auth-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('main-toolbar').style.display = 'flex';
-                }, 600);
+                if(this.isAdmin) document.getElementById('teacher-controls').style.display = 'flex';
                 
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-toolbar').style.display = 'flex';
                 document.getElementById('user-tag').innerText = `👤 ${name}`;
-                set(ref(db, `presence/${name}`), { active: true, role });
-                onDisconnect(ref(db, `presence/${name}`)).remove();
             },
 
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
+            toggleSync() {
+                this.isSyncing = !this.isSyncing;
+                const status = document.getElementById('sync-status');
+                status.innerText = this.isSyncing ? "🔄 متصل بالمستر" : "🚫 المزامنة متوقفة";
+                status.style.background = this.isSyncing ? "#dcfce7" : "#fee2e2";
             },
 
+            moveToolbar(pos) {
+                const bar = document.getElementById('main-toolbar');
+                bar.style.bottom = bar.style.top = bar.style.left = bar.style.right = 'auto';
+                bar.style.transform = 'none';
+                if(pos === 'bottom') { bar.style.bottom = '20px'; bar.style.left = '50%'; bar.style.transform = 'translateX(-50%)'; bar.style.flexDirection = 'row'; }
+                if(pos === 'top') { bar.style.top = '70px'; bar.style.left = '50%'; bar.style.transform = 'translateX(-50%)'; bar.style.flexDirection = 'row'; }
+                if(pos === 'left') { bar.style.left = '20px'; bar.style.top = '50%'; bar.style.transform = 'translateY(-50%)'; bar.style.flexDirection = 'column'; }
+                if(pos === 'right') { bar.style.right = '20px'; bar.style.top = '50%'; bar.style.transform = 'translateY(-50%)'; bar.style.flexDirection = 'column'; }
+            },
+
+            toggleMinimize() {
+                document.getElementById('main-toolbar').classList.toggle('toolbar-minimized');
+            },
+
+            undo() {
+                const keys = Object.keys(this.drawings);
+                if(keys.length > 0) {
+                    const lastKey = keys[keys.length-1];
+                    this.redoStack.push({key: lastKey, data: this.drawings[lastKey]});
+                    remove(ref(db, `board_data/${lastKey}`));
+                }
+            },
+
+            redo() {
+                if(this.redoStack.length > 0) {
+                    const item = this.redoStack.pop();
+                    set(ref(db, `board_data/${item.key}`), item.data);
+                }
+            },
+
+            // --- نظام الرسم والتحريك ---
             setupEvents() {
-                this.canvas.addEventListener('pointerdown', e => this.onStart(e));
-                this.canvas.addEventListener('pointermove', e => this.onMove(e));
-                this.canvas.addEventListener('pointerup', () => this.onEnd());
-                window.addEventListener('wheel', e => this.onZoom(e), { passive: false });
-                
-                document.addEventListener('click', (e) => {
-                    if(!e.target.closest('.tool-btn') && !e.target.closest('.popup-menu')) {
-                        document.querySelectorAll('.popup-menu').forEach(m => m.classList.remove('show-popup'));
+                this.canvas.addEventListener('pointerdown', e => {
+                    if(this.mode === 'move' || !this.isAdmin) {
+                        this.isDragging = true;
+                    } else if(this.isAdmin) {
+                        this.isDrawing = true;
+                        const pos = this.getPos(e);
+                        this.currentPath = [{x: pos.x, y: pos.y}];
                     }
                 });
-            },
 
-            togglePopup(id) {
-                const menu = document.getElementById(id);
-                const isOpen = menu.classList.contains('show-popup');
-                document.querySelectorAll('.popup-menu').forEach(m => m.classList.remove('show-popup'));
-                if(!isOpen) menu.classList.add('show-popup');
-            },
+                this.canvas.addEventListener('pointermove', e => {
+                    if(this.isDragging) {
+                        this.camera.x += e.movementX;
+                        this.camera.y += e.movementY;
+                    } else if(this.isDrawing) {
+                        const pos = this.getPos(e);
+                        this.currentPath.push({x: pos.x, y: pos.y});
+                    }
+                });
 
-            updateColor(val) {
-                this.currentColor = val;
-                document.getElementById('colorPreview').style.background = val;
-            },
+                this.canvas.addEventListener('pointerup', () => {
+                    if(this.isDrawing) {
+                        push(ref(db, 'board_data'), {
+                            points: this.currentPath,
+                            color: this.currentColor,
+                            size: 3,
+                            page: this.currentPage
+                        });
+                        this.redoStack = [];
+                    }
+                    this.isDrawing = this.isDragging = false;
+                });
 
-            setMode(m, icon) {
-                this.mode = m;
-                document.getElementById('btn-brush').innerText = icon;
-                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-                if(m !== 'move' && m !== 'eraser') document.getElementById('btn-brush').classList.add('active');
-                document.querySelectorAll('.popup-menu').forEach(m => m.classList.remove('show-popup'));
+                window.addEventListener('wheel', e => {
+                    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                    this.camera.zoom *= delta;
+                    document.getElementById('zoom-info').innerText = `🔍 ${Math.round(this.camera.zoom*100)}%`;
+                });
             },
 
             getPos(e) {
@@ -239,85 +243,12 @@
                 };
             },
 
-            onStart(e) {
-                if(!this.isAdmin && this.mode !== 'move') return;
-                this.isDrawing = true;
-                const pos = this.getPos(e);
-                this.startX = pos.x;
-                this.startY = pos.y;
-                this.currentPath = [{x: pos.x, y: pos.y}];
-            },
-
-            onMove(e) {
-                if(!this.isDrawing) return;
-                const pos = this.getPos(e);
-                if(this.mode === 'move') {
-                    this.camera.x += e.movementX;
-                    this.camera.y += e.movementY;
-                } else {
-                    this.currentPath.push({x: pos.x, y: pos.y});
-                    this.tempEnd = pos;
-                }
-            },
-
-            onEnd() {
-                if(!this.isDrawing) return;
-                this.isDrawing = false;
-                if(this.mode !== 'move') {
-                    const data = {
-                        type: this.mode, color: this.currentColor,
-                        size: document.getElementById('sizePicker').value,
-                        points: this.currentPath, startX: this.startX, startY: this.startY,
-                        endX: this.tempEnd?.x, endY: this.tempEnd?.y,
-                        page: this.currentPage
-                    };
-                    push(ref(db, 'board_data'), data);
-                }
-            },
-
-            onZoom(e) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? 0.95 : 1.05;
-                this.camera.zoom *= delta;
-                document.getElementById('zoom-info').innerText = `🔍 ${Math.round(this.camera.zoom*100)}%`;
-            },
-
             syncData() {
-                onValue(ref(db, 'board_data'), s => { this.drawings = s.val() || {}; });
-                onValue(ref(db, 'presence'), s => {
-                    document.getElementById('status-online').innerText = `🟢 ${s.size || 0} متصل`;
+                onValue(ref(db, 'board_data'), s => {
+                    if(this.isSyncing || this.isAdmin) {
+                        this.drawings = s.val() || {};
+                    }
                 });
-            },
-
-            drawItem(it) {
-                if(it.page !== this.currentPage) return;
-                this.ctx.beginPath();
-                this.ctx.strokeStyle = it.color;
-                this.ctx.lineWidth = it.size;
-                this.ctx.lineCap = 'round';
-                this.ctx.lineJoin = 'round';
-
-                if(['pen', 'neon', 'highlighter', 'calligraphy', 'oil', 'eraser'].includes(it.type)) {
-                    if(it.type === 'eraser') this.ctx.strokeStyle = '#ffffff';
-                    if(it.type === 'neon') { this.ctx.shadowBlur = 20; this.ctx.shadowColor = it.color; }
-                    if(it.type === 'highlighter') this.ctx.globalAlpha = 0.3;
-                    if(it.type === 'calligraphy') this.ctx.lineWidth = it.size * 2.5;
-                    
-                    this.ctx.moveTo(it.points[0].x, it.points[0].y);
-                    it.points.forEach(p => this.ctx.lineTo(p.x, p.y));
-                    this.ctx.stroke();
-                    this.ctx.globalAlpha = 1; this.ctx.shadowBlur = 0;
-                } else if(it.type === 'rect') {
-                    this.ctx.strokeRect(it.startX, it.startY, it.endX - it.startX, it.endY - it.startY);
-                } else if(it.type === 'circle') {
-                    let r = Math.hypot(it.endX - it.startX, it.endY - it.startY);
-                    this.ctx.arc(it.startX, it.startY, r, 0, Math.PI*2);
-                    this.ctx.stroke();
-                } else if(it.type === 'line') {
-                    this.ctx.moveTo(it.startX, it.startY);
-                    this.ctx.lineTo(it.endX, it.endY);
-                    this.ctx.stroke();
-                }
             },
 
             render() {
@@ -326,52 +257,66 @@
                 this.ctx.translate(this.camera.x, this.camera.y);
                 this.ctx.scale(this.camera.zoom, this.camera.zoom);
 
-                Object.values(this.drawings).forEach(it => this.drawItem(it));
+                Object.values(this.drawings).forEach(draw => {
+                    if(draw.page === this.currentPage) this.drawPath(draw);
+                });
 
-                if(this.isDrawing && this.mode !== 'move') {
-                    this.drawItem({
-                        type: this.mode, color: this.currentColor,
-                        size: document.getElementById('sizePicker').value,
-                        points: this.currentPath, startX: this.startX, startY: this.startY,
-                        endX: this.tempEnd?.x, endY: this.tempEnd?.y,
-                        page: this.currentPage
-                    });
-                }
+                if(this.isDrawing) this.drawPath({points: this.currentPath, color: this.currentColor, size: 3});
+                
                 requestAnimationFrame(() => this.render());
             },
 
-            nextPage() { this.currentPage++; document.getElementById('page-num').innerText = `صفحة ${this.currentPage}`; },
-            prevPage() { if(this.currentPage > 1) { this.currentPage--; document.getElementById('page-num').innerText = `صفحة ${this.currentPage}`; } },
-
-            undo() {
-                const q = query(ref(db, 'board_data'), limitToLast(1));
-                get(q).then(s => { if(s.exists()) remove(ref(db, `board_data/${Object.keys(s.val())[0]}`)); });
+            drawPath(draw) {
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = draw.color;
+                this.ctx.lineWidth = draw.size;
+                this.ctx.lineCap = 'round';
+                this.ctx.moveTo(draw.points[0].x, draw.points[0].y);
+                draw.points.forEach(p => this.ctx.lineTo(p.x, p.y));
+                this.ctx.stroke();
             },
 
-            clearBoard() { if(this.isAdmin && confirm("حذف الصفحة الحالية؟")) {
-                Object.keys(this.drawings).forEach(key => {
-                    if(this.drawings[key].page === this.currentPage) remove(ref(db, `board_data/${key}`));
-                });
-            }},
-
-            download() {
-                const link = document.createElement('a');
-                link.download = `sapora-page-${this.currentPage}.png`;
-                link.href = this.canvas.toDataURL();
-                link.click();
+            // --- أدوات الهندسة ---
+            toggleGeo(id) {
+                const el = document.getElementById(id);
+                el.style.display = el.style.display === 'block' ? 'none' : 'block';
+                el.style.left = '100px'; el.style.top = '100px';
             },
 
-            toggleFS() {
-                if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-                else document.exitFullscreen();
+            makeDraggable(el) {
+                let px = 0, py = 0;
+                el.onmousedown = (e) => {
+                    if(e.target.className === 'resizer') return;
+                    e.preventDefault();
+                    px = e.clientX; py = e.clientY;
+                    document.onmousemove = (e) => {
+                        el.style.left = (el.offsetLeft - (px - e.clientX)) + "px";
+                        el.style.top = (el.offsetTop - (py - e.clientY)) + "px";
+                        px = e.clientX; py = e.clientY;
+                    };
+                    document.onmouseup = () => document.onmousemove = null;
+                };
             },
 
+            startResize(e, id) {
+                e.stopPropagation();
+                const el = document.getElementById(id);
+                const startW = el.offsetWidth;
+                const startX = e.clientX;
+                const doResize = (ee) => { el.style.width = (startW + (ee.clientX - startX)) + "px"; };
+                const stop = () => { window.removeEventListener('mousemove', doResize); };
+                window.addEventListener('mousemove', doResize);
+                window.addEventListener('mouseup', stop);
+            },
+
+            resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
+            updateColor(c) { this.currentColor = c; },
+            setMode(m) { this.mode = m; },
+            clearBoard() { if(confirm("مسح الكل؟")) remove(ref(db, 'board_data')); },
             startTimer() {
-                let sec = 0;
-                setInterval(() => {
-                    sec++;
-                    let m = Math.floor(sec/60), s = sec%60;
-                    document.getElementById('timer').innerText = `⏳ ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                let s = 0; setInterval(() => {
+                    s++; let min = Math.floor(s/60), sec = s%60;
+                    document.getElementById('timer').innerText = `⏳ ${min}:${sec.toString().padStart(2,'0')}`;
                 }, 1000);
             }
         };
