@@ -7,168 +7,221 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* تم دمج محتوى ملف style.css هنا لضمان التشغيل الفوري */
+        :root { --primary: #4361ee; --dark: #0f172a; --glass: rgba(255, 255, 255, 0.92); --shadow: 0 10px 30px rgba(0, 0, 0, 0.15); --radius: 15px; --white: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #f1f5f9; }
+        #auth-screen { position: fixed; inset: 0; background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: var(--white); padding: 40px; border-radius: 30px; width: 100%; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 4px solid var(--primary); text-align: center; }
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .input-group input { width: 100%; padding: 12px 45px 12px 15px; border-radius: var(--radius); border: 2px solid #e2e8f0; outline: none; }
+        .auth-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .auth-buttons button { padding: 15px; border: none; border-radius: var(--radius); cursor: pointer; font-weight: bold; color: white; }
+        .btn-student { background: #10b981; }
+        .btn-teacher { background: var(--primary); }
+        .top-bar { position: fixed; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
+        .status-badge { background: var(--glass); padding: 8px 15px; border-radius: 12px; font-size: 13px; font-weight: bold; box-shadow: var(--shadow); pointer-events: auto; display: inline-flex; align-items: center; gap: 8px; }
+        #board-container { width: 100vw; height: 100vh; position: relative; background: #fff; }
+        #board { display: block; touch-action: none; }
+        #main-toolbar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--glass); padding: 12px; border-radius: 30px; display: none; gap: 10px; align-items: center; box-shadow: var(--shadow); z-index: 2000; }
+        .tool-btn { width: 45px; height: 45px; border-radius: 15px; border: none; background: #f1f5f9; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .tool-btn.active { background: var(--primary); color: white; }
+        .sub-menu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%); background: var(--white); padding: 15px; border-radius: 20px; box-shadow: var(--shadow); display: none; flex-direction: column; gap: 15px; border: 1px solid #eee; }
+        .show-menu { display: flex !important; }
+        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid white; }
+        .hidden-tools { display: flex; gap: 10px; }
+        .geo-tool { position: absolute; background: rgba(255, 255, 255, 0.4); border: 2px solid var(--primary); cursor: move; display: none; }
+        .ruler { height: 60px; width: 300px; background-image: linear-gradient(90deg, #333 1px, transparent 1px); background-size: 20px 100%; }
+        /* الشات */
+        .side-panel { position: fixed; bottom: 95px; right: 20px; width: 320px; height: 400px; background: white; border-radius: 20px; display: none; flex-direction: column; box-shadow: var(--shadow); z-index: 2500; overflow: hidden; }
+        .panel-header { background: var(--primary); color: white; padding: 10px 15px; display: flex; justify-content: space-between; }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
+        .chat-input-area { display: flex; padding: 10px; border-top: 1px solid #eee; }
+        .chat-input-area input { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #ddd; }
+    </style>
 </head>
-<body class="pos-bottom">
+<body>
 
     <section id="auth-screen">
         <div class="auth-card">
-            <div class="auth-header">
-                <i class="fas fa-rocket fa-3x"></i>
-                <h1>MONSTER ELITE</h1>
-                <p>منصة المستر كريم عمر التعليمية</p>
-            </div>
-            
-            <div class="auth-body">
-                <div class="input-group">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="userName" placeholder="اسمك الحقيقي">
-                </div>
-                
-                <div class="input-group">
-                    <i class="fas fa-door-open"></i>
-                    <input type="text" id="roomID" placeholder="رقم الغرفة (مثلاً: 2026)" >
-                </div>
-                
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="roomPass" placeholder="كلمة سر المعلم (اختياري للطالب)">
-                </div>
-
-                <div class="auth-buttons">
-                    <button class="btn-student" onclick="rocket.login('student')">
-                        <i class="fas fa-graduation-cap"></i> دخول طالب
-                    </button>
-                    <button class="btn-teacher" onclick="rocket.login('teacher')">
-                        <i class="fas fa-chalkboard-teacher"></i> دخول معلم
-                    </button>
-                </div>
+            <i class="fas fa-rocket fa-3x" style="color: var(--primary);"></i>
+            <h1 style="color: var(--primary); margin: 10px 0;">MONSTER ELITE</h1>
+            <p style="margin-bottom: 20px;">سبورة المستر كريم عمر</p>
+            <div class="input-group"><i class="fas fa-user"></i><input type="text" id="userName" placeholder="اسمك الحقيقي"></div>
+            <div class="input-group"><i class="fas fa-door-open"></i><input type="text" id="roomID" placeholder="رقم الغرفة"></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="roomPass" placeholder="كلمة السر"></div>
+            <div class="auth-buttons">
+                <button class="btn-student" onclick="rocket.login('student')">دخول طالب</button>
+                <button class="btn-teacher" onclick="rocket.login('teacher')">دخول معلم</button>
             </div>
         </div>
     </section>
 
     <header class="top-bar">
-        <div class="bar-right">
-            <div class="status-badge">🔍 <span id="zoom-info">100%</span></div>
-            <div class="status-badge">🏠 غرفة: <span id="room-display">---</span></div>
-        </div>
-        
-        <div class="bar-left">
-            <div class="status-badge">⏳ <span id="timer">00:00</span></div>
-            <button class="status-badge btn-clickable" id="users-toggle">
-                <i class="fas fa-users"></i> <span id="user-count">0</span>
-            </button>
-            <button class="status-badge btn-clickable" id="chat-toggle">
-                <i class="fas fa-comments"></i> الدردشة
-            </button>
-        </div>
+        <div class="status-badge">🔍 <span id="zoom-info">100%</span></div>
+        <div class="status-badge">🏠 غرفة: <span id="room-display">---</span></div>
+        <div class="status-badge">⏳ <span id="timer">00:00</span></div>
+        <button class="status-badge" id="chat-toggle" onclick="document.getElementById('chat-panel').style.display='flex'">💬 الشات</button>
     </header>
 
     <main id="board-container">
         <canvas id="board"></canvas>
-        
-        <div id="tool-ruler" class="geo-tool ruler">
-            <div class="resizer"></div>
-        </div>
-        <div id="tool-protractor" class="geo-tool protractor">
-            <div class="resizer"></div>
-        </div>
-        <div id="tool-triangle" class="geo-tool triangle">
-            <div class="resizer"></div>
-        </div>
-        <div id="tool-circle" class="geo-tool circle-tool">
-            <div class="resizer"></div>
-        </div>
+        <div id="tool-ruler" class="geo-tool ruler"></div>
     </main>
 
     <nav id="main-toolbar">
-        <button class="tool-btn secondary" id="minimize-btn">
-            <i class="fas fa-compress-alt"></i>
-        </button>
-
-        <div id="teacher-tools" class="hidden-tools">
-            <div class="menu-wrapper">
-                <button class="tool-btn" id="color-trigger">
-                    <i class="fas fa-palette"></i>
-                </button>
+        <div id="teacher-tools" style="display: none; gap: 10px;">
+            <div style="position: relative;">
+                <button class="tool-btn" onclick="rocket.toggleMenu('color-menu')"><i class="fas fa-palette"></i></button>
                 <div id="color-menu" class="sub-menu">
-                    <div class="color-grid">
-                        <div class="color-dot" style="background:#000000" data-color="#000000"></div>
-                        <div class="color-dot" style="background:#ff0000" data-color="#ff0000"></div>
-                        <div class="color-dot" style="background:#00b7ff" data-color="#00b7ff"></div>
-                        <div class="color-dot" style="background:#2ed573" data-color="#2ed573"></div>
-                        <div class="color-dot" style="background:#ffa500" data-color="#ffa500"></div>
-                        <div class="color-dot" style="background:#800080" data-color="#800080"></div>
-                        <div class="color-dot" style="background:#ff4757" data-color="#ff4757"></div>
-                        <div class="color-dot" style="background:#a52a2a" data-color="#a52a2a"></div>
-                        <div class="color-dot" style="background:#7f8c8d" data-color="#7f8c8d"></div>
-                        <div class="color-dot" style="background:#1abc9c" data-color="#1abc9c"></div>
-                    </div>
+                    <div class="color-grid" id="color-palette"></div>
                 </div>
             </div>
-
-            <div class="menu-wrapper">
-                <button class="tool-btn active" id="pen-trigger">
-                    <i class="fas fa-pen"></i>
-                </button>
+            <div style="position: relative;">
+                <button class="tool-btn" onclick="rocket.toggleMenu('pen-menu')"><i class="fas fa-pen"></i></button>
                 <div id="pen-menu" class="sub-menu">
-                    <div class="pen-types">
-                        <button class="tool-btn sm" data-mode="pen" title="قلم رصاص"><i class="fas fa-pencil-alt"></i></button>
-                        <button class="tool-btn sm" data-mode="marker" title="قلم سبورة"><i class="fas fa-marker"></i></button>
-                        <button class="tool-btn sm" data-mode="neon" title="قلم مضيء"><i class="fas fa-magic"></i></button>
-                        <button class="tool-btn sm" data-mode="brush" title="فرشاة"><i class="fas fa-paint-brush"></i></button>
-                    </div>
-                    <div class="thickness-slider-container">
-                        <label>سمك الخط</label>
-                        <input type="range" id="thickness-slider" min="1" max="50" value="3">
-                        <span id="thickness-value">3</span>
-                    </div>
+                    <input type="range" id="thickness-slider" min="1" max="50" value="3">
+                    <span id="thickness-value">3</span>
                 </div>
             </div>
-
-            <div class="menu-wrapper">
-                <button class="tool-btn" id="geo-trigger">
-                    <i class="fas fa-shapes"></i>
-                </button>
-                <div id="geo-menu" class="sub-menu horizontal">
-                    <button class="tool-btn sm" data-geo="tool-ruler"><i class="fas fa-ruler-horizontal"></i></button>
-                    <button class="tool-btn sm" data-geo="tool-protractor"><i class="fas fa-compass"></i></button>
-                    <button class="tool-btn sm" data-geo="tool-triangle"><i class="fas fa-draw-polygon"></i></button>
-                    <button class="tool-btn sm" data-geo="tool-circle"><i class="far fa-circle"></i></button>
-                </div>
-            </div>
-
-            <button class="tool-btn" id="eraser-btn" title="ممحاة"><i class="fas fa-eraser"></i></button>
-            <button class="tool-btn" id="undo-btn" title="تراجع"><i class="fas fa-undo"></i></button>
-            <button class="tool-btn text-danger" id="clear-btn" title="مسح الكل"><i class="fas fa-trash-alt"></i></button>
+            <button class="tool-btn" onclick="rocket.setMode('eraser')"><i class="fas fa-eraser"></i></button>
+            <button class="tool-btn" onclick="rocket.clearBoard()" style="color: red;"><i class="fas fa-trash"></i></button>
         </div>
-
-        <button class="tool-btn" id="move-btn" title="تحريك السبورة"><i class="fas fa-hand-paper"></i></button>
-
-        <div class="page-navigator">
-            <button class="nav-btn" id="prev-page"><i class="fas fa-chevron-right"></i></button>
-            <span id="page-display">1</span>
-            <button class="nav-btn" id="next-page"><i class="fas fa-chevron-left"></i></button>
-        </div>
+        <button class="tool-btn" onclick="rocket.setMode('move')"><i class="fas fa-hand-paper"></i></button>
     </nav>
 
     <aside id="chat-panel" class="side-panel">
-        <div class="panel-header">المحادثة المباشرة <i class="fas fa-times close-panel"></i></div>
+        <div class="panel-header">الدردشة <span onclick="this.closest('.side-panel').style.display='none'" style="cursor:pointer">✖</span></div>
         <div id="chat-messages"></div>
         <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="اكتب رسالتك...">
-            <button id="send-msg"><i class="fas fa-paper-plane"></i></button>
+            <input type="text" id="chat-input" placeholder="اكتب هنا...">
+            <button onclick="rocket.sendMsg()" style="background:var(--primary); color:white; border:none; padding:5px 10px; border-radius:5px; margin-right:5px">إرسال</button>
         </div>
     </aside>
 
-    <aside id="users-panel" class="side-panel">
-        <div class="panel-header">المتواجدون الآن <i class="fas fa-times close-panel"></i></div>
-        <div id="users-list"></div>
-    </aside>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    <button id="restore-btn"><i class="fas fa-rocket"></i></button>
+    <script>
+        // دمج إعدادات firebase-config و app.js
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVFNJhGIlOjyJgSGj9MqK4Xt89p_irSEQ",
+            databaseURL: "https://sapora-f738b-default-rtdb.firebaseio.com"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="app.js"></script>
+        const rocket = {
+            role: 'student', isAdmin: false, userName: '', room: '', mode: 'pen',
+            color: '#000000', thickness: 3, zoom: 1, camera: {x:0, y:0},
+            isDrawing: false, isDragging: false, currentPath: [], drawings: {},
+
+            init() {
+                this.canvas = document.getElementById('board');
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                this.setupEvents();
+                this.render();
+                this.setupColors();
+                window.onresize = () => this.resize();
+            },
+
+            resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
+
+            login(role) {
+                this.userName = document.getElementById('userName').value;
+                this.room = document.getElementById('roomID').value;
+                if(!this.userName || !this.room) return alert("اكمل البيانات!");
+                
+                this.isAdmin = (role === 'teacher');
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-toolbar').style.display = 'flex';
+                document.getElementById('room-display').innerText = this.room;
+                if(this.isAdmin) document.getElementById('teacher-tools').style.display = 'flex';
+
+                this.sync();
+            },
+
+            sync() {
+                db.ref(`rooms/${this.room}/board`).on('child_added', s => this.drawings[s.key] = s.val());
+                db.ref(`rooms/${this.room}/board`).on('child_removed', s => delete this.drawings[s.key]);
+                db.ref(`rooms/${this.room}/chat`).on('child_added', s => {
+                    const msg = s.val();
+                    const div = document.createElement('div');
+                    div.innerHTML = `<b>${msg.user}:</b> ${msg.text}`;
+                    document.getElementById('chat-messages').appendChild(div);
+                });
+            },
+
+            setupEvents() {
+                this.canvas.onpointerdown = (e) => {
+                    if(this.mode === 'move' || !this.isAdmin) { this.isDragging = true; this.lastM = {x:e.clientX, y:e.clientY}; }
+                    else { this.isDrawing = true; this.currentPath = [{x:(e.clientX-this.camera.x)/this.zoom, y:(e.clientY-this.camera.y)/this.zoom}]; }
+                };
+                window.onpointermove = (e) => {
+                    if(this.isDragging) { this.camera.x += e.clientX-this.lastM.x; this.camera.y += e.clientY-this.lastM.y; this.lastM = {x:e.clientX, y:e.clientY}; }
+                    else if(this.isDrawing) { this.currentPath.push({x:(e.clientX-this.camera.x)/this.zoom, y:(e.clientY-this.camera.y)/this.zoom}); }
+                };
+                window.onpointerup = () => {
+                    if(this.isDrawing && this.isAdmin) db.ref(`rooms/${this.room}/board`).push({points:this.currentPath, color:this.color, thickness:this.thickness, mode:this.mode});
+                    this.isDrawing = false; this.isDragging = false;
+                };
+                document.getElementById('thickness-slider').oninput = (e) => {
+                    this.thickness = e.target.value;
+                    document.getElementById('thickness-value').innerText = this.thickness;
+                };
+            },
+
+            render() {
+                this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+                this.ctx.save();
+                this.ctx.translate(this.camera.x, this.camera.y);
+                this.ctx.scale(this.zoom, this.zoom);
+
+                Object.values(this.drawings).forEach(d => this.drawPath(d));
+                if(this.isDrawing) this.drawPath({points:this.currentPath, color:this.color, thickness:this.thickness, mode:this.mode});
+
+                this.ctx.restore();
+                requestAnimationFrame(() => this.render());
+            },
+
+            drawPath(d) {
+                if(!d.points || d.points.length<2) return;
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = d.mode === 'eraser' ? '#ffffff' : d.color;
+                this.ctx.lineWidth = d.thickness;
+                this.ctx.lineCap = 'round';
+                this.ctx.moveTo(d.points[0].x, d.points[0].y);
+                d.points.forEach(p => this.ctx.lineTo(p.x, p.y));
+                this.ctx.stroke();
+            },
+
+            setupColors() {
+                const colors = ['#000000', '#ff0000', '#0000ff', '#2ed573', '#ffa500'];
+                const palette = document.getElementById('color-palette');
+                colors.forEach(c => {
+                    const d = document.createElement('div');
+                    d.className = 'color-dot'; d.style.background = c;
+                    d.onclick = () => { this.color = c; this.toggleMenu('color-menu'); };
+                    palette.appendChild(d);
+                });
+            },
+
+            setMode(m) { this.mode = m; },
+            toggleMenu(id) { const m = document.getElementById(id); m.style.display = m.style.display==='flex'?'none':'flex'; },
+            clearBoard() { if(confirm("مسح؟")) db.ref(`rooms/${this.room}/board`).remove(); },
+            sendMsg() {
+                const inp = document.getElementById('chat-input');
+                if(inp.value) db.ref(`rooms/${this.room}/chat`).push({user:this.userName, text:inp.value});
+                inp.value = '';
+            }
+        };
+
+        rocket.init();
+    </script>
 </body>
 </html>
