@@ -76,7 +76,7 @@
         .circle-tool { width: 180px; height: 180px; border-radius: 50%; border: 2px dashed var(--primary); }
         
         .zoom-controls { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
-        #board { background: white; cursor: crosshair; }
+        #board { background: white; cursor: crosshair; display: block; }
         #restore-btn { position: fixed; bottom: 20px; left: 20px; z-index: 3000; display: none; width: 55px; height: 55px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 22px; cursor: pointer; box-shadow: var(--shadow); }
     </style>
 </head>
@@ -260,15 +260,20 @@
 
             setupEvents() {
                 const getPos = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
                     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
                     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-                    return { x: (clientX - this.camera.x) / this.camera.zoom, y: (clientY - this.camera.y) / this.camera.zoom };
+                    return { 
+                        x: (clientX - rect.left - this.camera.x) / this.camera.zoom, 
+                        y: (clientY - rect.top - this.camera.y) / this.camera.zoom 
+                    };
                 };
 
-                this.canvas.onpointerdown = (e) => {
+                // استخدام pointerdown للتعامل مع الماوس واللمس معاً
+                this.canvas.addEventListener('pointerdown', (e) => {
                     if(e.target.closest('.tool-btn, .sub-menu, .badge, select, input')) return;
                     
-                    // منع الرسم العشوائي عند استخدام إصبعين (للتكبير)
+                    // منع الرسم العشوائي عند استخدام إصبعين للتكبير
                     if (e.pointerType === 'touch' && !e.isPrimary) return;
 
                     const pos = getPos(e);
@@ -279,9 +284,9 @@
                         this.isDrawing = true;
                         this.currentPath = [{x: pos.x, y: pos.y}];
                     }
-                };
+                });
 
-                window.onpointermove = (e) => {
+                window.addEventListener('pointermove', (e) => {
                     if(this.isDragging) {
                         this.camera.x += e.clientX - this.lastMouse.x;
                         this.camera.y += e.clientY - this.lastMouse.y;
@@ -290,9 +295,9 @@
                         const pos = getPos(e);
                         this.currentPath.push({x: pos.x, y: pos.y});
                     }
-                };
+                });
 
-                window.onpointerup = () => {
+                window.addEventListener('pointerup', () => {
                     if(this.isDrawing && this.currentPath.length > 1) {
                         push(ref(db, 'board_data'), {
                             points: this.currentPath, color: this.currentColor,
@@ -301,7 +306,7 @@
                         });
                     }
                     this.isDrawing = this.isDragging = false;
-                };
+                });
 
                 window.onwheel = (e) => {
                     e.preventDefault();
@@ -338,14 +343,14 @@
             },
 
             drawPath(draw) {
+                if(!draw.points || draw.points.length < 2) return;
                 this.ctx.beginPath();
                 this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
                 
-                // تحديد السمك بناءً على النوع + القيمة المخصصة
                 let baseW = draw.thickness || 3;
                 if (draw.mode === 'marker') baseW += 7;
                 if (draw.mode === 'brush') baseW += 12;
-                if (draw.mode === 'eraser') baseW = 35;
+                if (draw.mode === 'eraser') baseW = 40; // ممحاة كبيرة
                 
                 this.ctx.lineWidth = baseW;
                 this.ctx.strokeStyle = draw.color;
@@ -354,7 +359,12 @@
                 if(draw.mode === 'eraser') { this.ctx.globalCompositeOperation = 'destination-out'; }
                 else { this.ctx.globalCompositeOperation = 'source-over'; }
                 
-                if(draw.mode === 'neon') { this.ctx.shadowBlur = 15; this.ctx.shadowColor = draw.color; } else { this.ctx.shadowBlur = 0; }
+                if(draw.mode === 'neon') { 
+                    this.ctx.shadowBlur = 15; 
+                    this.ctx.shadowColor = draw.color; 
+                } else { 
+                    this.ctx.shadowBlur = 0; 
+                }
                 
                 this.ctx.moveTo(draw.points[0].x, draw.points[0].y);
                 draw.points.forEach(p => this.ctx.lineTo(p.x, p.y));
@@ -386,9 +396,17 @@
                 if(icon) document.getElementById('btn-pen').innerText = icon;
                 document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
                 if(m === 'move') document.getElementById('btn-move').classList.add('active');
+                else document.getElementById('btn-pen').classList.add('active');
+                
+                // إغلاق القوائم بعد اختيار الأداة
+                document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu'));
             },
 
-            updateColor(c) { this.currentColor = c; document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu')); },
+            updateColor(c) { 
+                this.currentColor = c; 
+                // إغلاق قائمة الألوان بعد الاختيار
+                document.getElementById('color-menu').classList.remove('show-menu');
+            },
             updateThickness(v) { this.currentThickness = parseInt(v); },
 
             moveToolbar(pos) {
@@ -437,20 +455,59 @@
                 if (!document.fullscreenElement) document.documentElement.requestFullscreen();
                 else document.exitFullscreen();
             },
-            undo() { const ks = Object.keys(this.drawings); if(ks.length) { const k = ks.pop(); this.redoStack.push(this.drawings[k]); remove(ref(db, `board_data/${k}`)); }},
-            redo() { if(this.redoStack.length) push(ref(db, 'board_data'), this.redoStack.pop()); },
-            clearBoard() { if(confirm("كريم عمر، هل أنت متأكد من مسح الصفحة الحالية؟")) { Object.keys(this.drawings).forEach(k => { if(this.drawings[k].page === this.currentPage) remove(ref(db, `board_data/${k}`)); })}},
-            changePage(n) { this.currentPage = Math.max(1, this.currentPage + n); document.getElementById('page-label').innerText = this.currentPage; },
-            resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
-            startTimer() { let s = 0; setInterval(() => { s++; let m = Math.floor(s/60), sc = s%60; document.getElementById('timer').innerText = `${m}:${sc<10?'0':''}${sc}`; }, 1000); },
-            toggleGeo(id) { const el = document.getElementById(id); el.style.display = el.style.display === 'block' ? 'none' : 'block'; el.style.top = '150px'; el.style.left = '150px'; },
+            undo() { 
+                const ks = Object.keys(this.drawings); 
+                if(ks.length) { 
+                    const k = ks.pop(); 
+                    this.redoStack.push(this.drawings[k]); 
+                    remove(ref(db, `board_data/${k}`)); 
+                }
+            },
+            redo() { 
+                if(this.redoStack.length) push(ref(db, 'board_data'), this.redoStack.pop()); 
+            },
+            clearBoard() { 
+                if(confirm("كريم عمر، هل أنت متأكد من مسح الصفحة الحالية؟")) { 
+                    Object.keys(this.drawings).forEach(k => { 
+                        if(this.drawings[k].page === this.currentPage) remove(ref(db, `board_data/${k}`)); 
+                    });
+                }
+            },
+            changePage(n) { 
+                this.currentPage = Math.max(1, this.currentPage + n); 
+                document.getElementById('page-label').innerText = this.currentPage; 
+            },
+            resize() { 
+                this.canvas.width = window.innerWidth; 
+                this.canvas.height = window.innerHeight; 
+            },
+            startTimer() { 
+                let s = 0; 
+                setInterval(() => { 
+                    s++; 
+                    let m = Math.floor(s/60), sc = s%60; 
+                    document.getElementById('timer').innerText = `${m}:${sc<10?'0':''}${sc}`; 
+                }, 1000); 
+            },
+            toggleGeo(id) { 
+                const el = document.getElementById(id); 
+                el.style.display = el.style.display === 'block' ? 'none' : 'block'; 
+                el.style.top = '150px'; el.style.left = '150px'; 
+                document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu'));
+            },
             makeDraggable(el) {
                 let px = 0, py = 0;
                 el.onpointerdown = (e) => { 
                     if(e.target.style.cursor === 'nwse-resize') return;
                     e.stopPropagation(); px = e.clientX; py = e.clientY; 
-                    window.onpointermove = (ee) => { el.style.left = (el.offsetLeft + ee.clientX - px) + "px"; el.style.top = (el.offsetTop + ee.clientY - py) + "px"; px = ee.clientX; py = ee.clientY; };
-                    window.onpointerup = () => { window.onpointermove = null; };
+                    const move = (ee) => { 
+                        el.style.left = (el.offsetLeft + ee.clientX - px) + "px"; 
+                        el.style.top = (el.offsetTop + ee.clientY - py) + "px"; 
+                        px = ee.clientX; py = ee.clientY; 
+                    };
+                    const stop = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', stop); };
+                    window.addEventListener('pointermove', move);
+                    window.addEventListener('pointerup', stop);
                 };
             },
             makeResizable(el) {
@@ -459,8 +516,13 @@
                 resizer.onpointerdown = (e) => {
                     e.stopPropagation();
                     let sx = e.clientX, sy = e.clientY, sw = el.offsetWidth, sh = el.offsetHeight;
-                    window.onpointermove = (ee) => { el.style.width = (sw + ee.clientX - sx) + "px"; el.style.height = (sh + ee.clientY - sy) + "px"; };
-                    window.onpointerup = () => { window.onpointermove = null; };
+                    const move = (ee) => { 
+                        el.style.width = (sw + ee.clientX - sx) + "px"; 
+                        el.style.height = (sh + ee.clientY - sy) + "px"; 
+                    };
+                    const stop = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', stop); };
+                    window.addEventListener('pointermove', move);
+                    window.addEventListener('pointerup', stop);
                 };
             }
         };
