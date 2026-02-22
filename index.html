@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sapora Rocket PRO V2 | المستر كريم عمر</title>
+    <title>Sapora Rocket MEGA PRO | المستر كريم عمر</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -13,9 +13,9 @@
     <style>
         :root {
             --primary: #4361ee;
-            --primary-light: #4895ef;
-            --secondary: #7209b7;
+            --primary-glow: rgba(67, 97, 238, 0.3);
             --neon: #00f2ff;
+            --secondary: #7209b7;
             --dark: #0f172a;
             --danger: #ef4444;
             --success: #10b981;
@@ -37,7 +37,7 @@
             overflow: hidden; touch-action: none;
         }
 
-        /* --- Auth Screen --- */
+        /* --- شاشة الدخول الاحترافية --- */
         #auth-screen {
             position: fixed; inset: 0;
             background: radial-gradient(circle at center, var(--primary), var(--dark));
@@ -52,7 +52,6 @@
         @keyframes bounceIn {
             0% { opacity: 0; transform: scale(0.3); }
             50% { opacity: 0.9; transform: scale(1.1); }
-            80% { opacity: 1; transform: scale(0.89); }
             100% { opacity: 1; transform: scale(1); }
         }
 
@@ -61,8 +60,9 @@
         .input-group input {
             width: 100%; padding: 15px 45px 15px 15px; border: 2px solid #e2e8f0;
             border-radius: 15px; outline: none; font-size: 16px; transition: var(--trans);
+            text-align: center;
         }
-        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15); }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
 
         .auth-buttons { display: flex; gap: 15px; }
         .btn-auth {
@@ -73,7 +73,7 @@
         .btn-teacher { background: var(--primary); }
         .btn-student { background: var(--success); }
 
-        /* --- UI Elements --- */
+        /* --- الواجهة العلوية --- */
         .top-nav {
             position: fixed; top: 0; left: 0; width: 100%; height: 80px;
             display: none; justify-content: space-between; align-items: center;
@@ -82,11 +82,11 @@
         .nav-badge {
             background: var(--glass); padding: 10px 20px; border-radius: 20px;
             box-shadow: var(--shadow); pointer-events: auto; display: flex; align-items: center; gap: 12px;
-            backdrop-filter: blur(10px); border: 1px solid white;
+            backdrop-filter: blur(10px); border: 1px solid white; cursor: pointer;
         }
         .badge-icon { width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 
-        /* --- Users Sidebar --- */
+        /* --- قائمة المتصلين --- */
         #users-sidebar {
             position: fixed; right: 20px; top: 90px; width: 260px;
             background: var(--glass); border-radius: 25px; padding: 20px;
@@ -96,14 +96,9 @@
         .user-item {
             display: flex; align-items: center; justify-content: space-between;
             padding: 10px; border-radius: 12px; margin-bottom: 8px; background: #f8fafc;
-            transition: 0.2s;
         }
-        .user-info { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; }
-        .btn-grant { padding: 5px 10px; font-size: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; }
-        .granted { background: var(--success); color: white; }
-        .not-granted { background: #e2e8f0; color: #64748b; }
 
-        /* --- Smart Toolbar --- */
+        /* --- شريط الأدوات الذكي (Smart Toolbar) --- */
         #toolbar-container {
             position: fixed; z-index: 6000; display: none; transition: var(--trans);
         }
@@ -113,9 +108,9 @@
             border: 2px solid white; gap: 8px;
         }
         
-        /* Positions */
-        .pos-bottom { bottom: 30px; left: 50%; transform: translateX(-50%); }
-        .pos-top { top: 30px; left: 50%; transform: translateX(-50%); }
+        /* كلاسات الوضعيات */
+        .pos-bottom { bottom: 30px; left: 50%; transform: translateX(-50%); flex-direction: row; }
+        .pos-top { top: 90px; left: 50%; transform: translateX(-50%); flex-direction: row; }
         .pos-left { left: 30px; top: 50%; transform: translateY(-50%); flex-direction: column; }
         .pos-right { right: 30px; top: 50%; transform: translateY(-50%); flex-direction: column; }
 
@@ -126,101 +121,98 @@
             font-size: 22px; transition: var(--trans); position: relative;
         }
         .tool-btn:hover { background: rgba(67, 97, 238, 0.1); color: var(--primary); }
-        .tool-btn.active { background: var(--primary); color: white; box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3); }
+        .tool-btn.active { background: var(--primary); color: white; box-shadow: 0 10px 20px var(--primary-glow); }
 
-        /* Pop Menus */
+        /* --- القوائم المنبثقة الذكية (تفتح عكس الاتجاه) --- */
         .pop-menu {
             position: absolute; background: white; border-radius: 25px;
             padding: 20px; box-shadow: var(--shadow); display: none;
             min-width: 220px; z-index: 7000; border: 1px solid #f1f5f9;
         }
-        .active-menu { display: block !important; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .active-menu { display: block !important; animation: popAnim 0.3s ease; }
+        
+        /* تحديد اتجاه الظهور بناء على موضع الشريط */
+        .anchor-top { bottom: 70px; left: 50%; transform: translateX(-50%); }
+        .anchor-bottom { top: 70px; left: 50%; transform: translateX(-50%); }
+        .anchor-right { left: 70px; top: 0; }
+        .anchor-left { right: 70px; top: 0; }
 
-        /* --- Canvas --- */
+        @keyframes popAnim { from { opacity: 0; transform: scale(0.8) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        /* تفاصيل الأدوات */
+        .brush-opt {
+            display: flex; align-items: center; gap: 15px; padding: 12px;
+            border-radius: 15px; cursor: pointer; transition: 0.2s; margin-bottom: 5px;
+        }
+        .brush-opt:hover { background: #f8fafc; }
+        .brush-name { font-weight: 800; font-size: 14px; }
+
+        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .color-dot { width: 32px; height: 32px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-dot.active { border-color: var(--dark); transform: scale(1.1); }
+        
+        .shape-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .shape-opt { 
+            padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; 
+            text-align: center; cursor: pointer; transition: 0.2s; font-size: 20px;
+        }
+        .shape-opt:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* --- السطح والرسم --- */
         canvas { display: block; background: #ffffff; cursor: crosshair; }
 
-        /* --- Extra Controls --- */
-        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .color-dot { width: 32px; height: 32px; border-radius: 12px; cursor: pointer; border: 2px solid transparent; }
-        .color-dot.active { border-color: var(--dark); transform: scale(1.1); }
-        #custom-color-btn { width: 100%; height: 40px; border-radius: 10px; border: 2px dashed #ccc; margin-top: 10px; cursor: pointer; }
-
-        /* --- Chat Window --- */
+        /* --- الدردشة --- */
         #chat-window {
             position: fixed; bottom: 100px; right: 30px; width: 350px; height: 500px;
             background: white; border-radius: 30px; box-shadow: var(--shadow);
             display: none; flex-direction: column; overflow: hidden; z-index: 5500;
-            border: 1px solid #eee;
         }
         .chat-header { background: var(--primary); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
-        #chat-messages { flex: 1; overflow-y: auto; padding: 20px; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
-        .msg-box { position: relative; background: white; padding: 10px 15px; border-radius: 18px; font-size: 14px; max-width: 85%; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #f8fafc; }
+        .msg-box { background: white; padding: 10px 15px; border-radius: 18px; font-size: 14px; max-width: 85%; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .msg-box.mine { align-self: flex-end; background: var(--primary); color: white; }
-        .delete-msg { position: absolute; left: -25px; top: 50%; transform: translateY(-50%); color: var(--danger); cursor: pointer; font-size: 12px; display: none; }
-        .is-teacher .delete-msg { display: block; }
-        
-        /* Toolbar Toggle Button */
-        #toggle-toolbar-visibility {
-            position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px;
-            background: var(--dark); color: white; border-radius: 50%;
-            display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 9000;
-        }
 
     </style>
 </head>
-<body class="">
+<body>
 
     <div id="auth-screen">
         <div class="auth-card">
-            <h1 style="color: var(--primary); font-weight: 900; font-size: 32px; margin-bottom: 10px;">صاروخ المستر 2026 🚀</h1>
-            <p style="color: #64748b; margin-bottom: 30px;">منصة التعليم التفاعلي الأذكى في مصر</p>
-            
-            <div class="input-group">
-                <i class="fas fa-user-tie"></i>
-                <input type="text" id="userName" placeholder="الاسم بالكامل">
-            </div>
-            <div class="input-group">
-                <i class="fas fa-hashtag"></i>
-                <input type="text" id="roomID" placeholder="كود الغرفة">
-            </div>
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="roomPass" placeholder="كلمة المرور">
-            </div>
-
+            <h1 style="color: var(--primary); font-weight: 900; font-size: 32px;">صاروخ المستر كريم 🚀</h1>
+            <p style="color: #64748b; margin-bottom: 25px;">نظام السبورة الذكية العملاق - الإصدار 2026</p>
+            <div class="input-group"><i class="fas fa-user"></i><input type="text" id="userName" placeholder="اسمك بالكامل"></div>
+            <div class="input-group"><i class="fas fa-hashtag"></i><input type="text" id="roomID" placeholder="رقم الغرفة"></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="roomPass" placeholder="كلمة السر"></div>
             <div class="auth-buttons">
-                <button class="btn-auth btn-teacher" onclick="auth('teacher')">دخول (معلم)</button>
-                <button class="btn-auth btn-student" onclick="auth('student')">دخول (طالب)</button>
+                <button class="btn-auth btn-teacher" onclick="auth('teacher')"><i class="fas fa-chalkboard-teacher"></i> دخول معلم</button>
+                <button class="btn-auth btn-student" onclick="auth('student')"><i class="fas fa-user-graduate"></i> دخول طالب</button>
             </div>
         </div>
     </div>
-
-    <div id="toggle-toolbar-visibility" onclick="toggleToolbarUI()"><i class="fas fa-eye"></i></div>
 
     <div class="top-nav" id="main-nav">
         <div class="nav-badge" onclick="toggleSidebar()">
             <div class="badge-icon"><i class="fas fa-users"></i></div>
             <div>
-                <div style="font-weight: 800; font-size: 14px;">المتواجدون: <span id="count">0</span></div>
-                <div style="font-size: 10px; color: var(--success);">غرفة نشطة الآن</div>
+                <div style="font-weight: 800; font-size: 14px;">المتواجدون: <span id="online-count">0</span></div>
+                <div style="font-size: 10px; color: var(--success);">اتصال نشط الآن</div>
             </div>
         </div>
 
         <div class="nav-badge">
-            <button onclick="movePage(-1)" style="border:none; background:none; cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
-            <span style="font-weight: 900; min-width: 80px; text-align: center;">صفحة <span id="p-num">1</span></span>
-            <button onclick="movePage(1)" style="border:none; background:none; cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
+            <button onclick="changePage(-1)" style="border:none; background:none; cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
+            <span style="font-weight: 900; min-width: 80px; text-align: center;">صفحة <span id="page-num">1</span></span>
+            <button onclick="changePage(1)" style="border:none; background:none; cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
         </div>
 
-        <div class="nav-badge" onclick="toggleFullScreen()" style="cursor: pointer;">
+        <div class="nav-badge" onclick="toggleFullScreen()">
             <div class="badge-icon" style="background: var(--dark);"><i class="fas fa-expand"></i></div>
-            <span style="font-weight: 700;">كامل الشاشة</span>
+            <span style="font-weight: 700;">ملء الشاشة</span>
         </div>
     </div>
 
     <div id="users-sidebar">
-        <h3 style="margin-bottom: 15px; font-size: 16px;">قائمة الطلاب</h3>
+        <h3 style="margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;">الطلاب في الغرفة</h3>
         <div id="users-list"></div>
     </div>
 
@@ -228,390 +220,369 @@
 
     <div id="toolbar-container" class="pos-bottom">
         <div id="smart-toolbar">
-            <button class="tool-btn" onclick="cyclePosition()"><i class="fas fa-arrows-alt"></i></button>
+            <button class="tool-btn" onclick="cycleToolbarPosition()" title="تغيير مكان الشريط"><i class="fas fa-sync-alt"></i></button>
             
             <div style="position:relative;">
-                <button class="tool-btn active" id="pen-btn" onclick="openMenu('pen-menu')"><i class="fas fa-pen-nib"></i></button>
+                <button class="tool-btn active" id="pen-btn" onclick="toggleDynamicMenu('pen-menu')"><i class="fas fa-paint-brush"></i></button>
                 <div id="pen-menu" class="pop-menu">
-                    <div onclick="setMode('pen', 'normal')" class="tool-btn" style="width:100%; justify-content: flex-start; gap:10px;">
-                        <i class="fas fa-pen"></i> <span>قلم عادي</span>
+                    <div class="brush-opt" onclick="setWriteMode('pen', 'normal')">
+                        <i class="fas fa-pen" style="color: var(--primary);"></i>
+                        <span class="brush-name">قلم عادي</span>
                     </div>
-                    <div onclick="setMode('pen', 'neon')" class="tool-btn" style="width:100%; justify-content: flex-start; gap:10px;">
-                        <i class="fas fa-magic"></i> <span>قلم نيون</span>
+                    <div class="brush-opt" onclick="setWriteMode('pen', 'neon')">
+                        <i class="fas fa-magic" style="color: var(--neon);"></i>
+                        <span class="brush-name">قلم نيون</span>
                     </div>
-                    <hr>
-                    <p style="font-size: 12px; margin: 10px 0;">حجم الخط:</p>
-                    <input type="range" id="pen-size" min="1" max="50" value="4" style="width:100%;">
+                    <div class="brush-opt" onclick="setWriteMode('pen', 'marker')">
+                        <i class="fas fa-highlighter" style="color: #fbbf24;"></i>
+                        <span class="brush-name">ماركر شفاف</span>
+                    </div>
+                    <div class="brush-opt" onclick="setWriteMode('pen', 'pencil')">
+                        <i class="fas fa-pencil-alt" style="color: #64748b;"></i>
+                        <span class="brush-name">قلم رصاص</span>
+                    </div>
+                    <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
+                    <div style="font-size: 12px; font-weight: 800; margin-bottom: 5px;">الحجم: <span id="size-val">4</span>px</div>
+                    <input type="range" id="size-slider" min="1" max="60" value="4" style="width:100%; accent-color: var(--primary);">
                 </div>
             </div>
 
             <div style="position:relative;">
-                <button class="tool-btn" id="color-btn" onclick="openMenu('color-menu')"><i class="fas fa-palette"></i></button>
+                <button class="tool-btn" id="shape-btn" onclick="toggleDynamicMenu('shape-menu')"><i class="fas fa-shapes"></i></button>
+                <div id="shape-menu" class="pop-menu">
+                    <div class="shape-grid">
+                        <div class="shape-opt" onclick="setShape('rect')" title="مربع"><i class="far fa-square"></i></div>
+                        <div class="shape-opt" onclick="setShape('circle')" title="دائرة"><i class="far fa-circle"></i></div>
+                        <div class="shape-opt" onclick="setShape('triangle')" title="مثلث"><i class="fas fa-caret-up"></i></div>
+                        <div class="shape-opt" onclick="setShape('line')" title="خط"><i class="fas fa-minus" style="transform: rotate(-45deg);"></i></div>
+                        <div class="shape-opt" onclick="setShape('arrow')" title="سهم"><i class="fas fa-long-arrow-alt-left"></i></div>
+                        <div class="shape-opt" onclick="setShape('star')" title="نجمة"><i class="far fa-star"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position:relative;">
+                <button class="tool-btn" id="color-btn" onclick="toggleDynamicMenu('color-menu')"><i class="fas fa-palette"></i></button>
                 <div id="color-menu" class="pop-menu">
                     <div class="color-grid" id="colors-container"></div>
-                    <input type="color" id="custom-color-picker" onchange="setCustomColor(this.value)">
+                    <input type="color" id="custom-color" style="width:100%; height:40px; margin-top:15px; border-radius:12px; border:none; cursor:pointer;">
                 </div>
             </div>
 
             <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')"><i class="fas fa-eraser"></i></button>
-            <button class="tool-btn" id="move-btn" onclick="setMode('move')"><i class="fas fa-hand-rock"></i></button>
-            <button class="tool-btn" onclick="clearCanvas()" style="color:var(--danger);"><i class="fas fa-trash"></i></button>
-            <button class="tool-btn" onclick="toggleChat()"><i class="fas fa-comments"></i></button>
+            <button class="tool-btn" id="move-btn" onclick="setMode('move')"><i class="fas fa-hand-paper"></i></button>
+            <button class="tool-btn" onclick="clearFullBoard()" style="color:var(--danger);"><i class="fas fa-trash-alt"></i></button>
+            <button class="tool-btn" onclick="toggleChat()"><i class="fas fa-comment-alt"></i></button>
         </div>
     </div>
 
     <div id="chat-window">
-        <div class="chat-header">
-            <span>دردشة المستر</span>
-            <i class="fas fa-times" onclick="toggleChat()" style="cursor:pointer;"></i>
-        </div>
+        <div class="chat-header"><span>دردشة الغرفة</span><i class="fas fa-times" onclick="toggleChat()" style="cursor:pointer;"></i></div>
         <div id="chat-messages"></div>
-        <div style="padding: 15px; display: flex; gap: 10px; border-top: 1px solid #eee;">
-            <input type="text" id="chat-inp" placeholder="اكتب سؤالك هنا..." style="flex:1; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
-            <button onclick="sendMsg()" style="background: var(--primary); color:white; border:none; padding: 10px 20px; border-radius: 10px;"><i class="fas fa-paper-plane"></i></button>
+        <div style="padding: 15px; display: flex; gap: 10px; background: white; border-top: 1px solid #eee;">
+            <input type="text" id="chat-inp" placeholder="اكتب هنا..." style="flex:1; padding:12px; border-radius:12px; border:1px solid #ddd; outline:none;">
+            <button onclick="sendMsg()" style="background:var(--primary); color:white; border:none; width:50px; border-radius:12px; cursor:pointer;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
     <script>
-        // --- Firebase Configuration ---
-        const config = {
+        // --- إعدادات Firebase ---
+        const firebaseConfig = {
             apiKey: "AIzaSyAVFNJhGIlOjyJgSGj9MqK4Xt89p_irSEQ",
             databaseURL: "https://sapora-f738b-default-rtdb.firebaseio.com"
         };
-        firebase.initializeApp(config);
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- Core Variables ---
+        // --- المتغيرات العالمية ---
         let canvas = document.getElementById('board');
         let ctx = canvas.getContext('2d', { desynchronized: true });
-        let isTeacher = false;
-        let canDraw = false;
-        let myName = "";
-        let roomID = "";
-        let page = 1;
-        let mode = 'pen';
-        let brush = 'normal';
-        let color = '#000000';
-        let size = 4;
-        let isDrawing = false;
+        let isTeacher = false, isDrawing = false;
+        let myName = "", roomID = "", currentPage = 1;
+        let currentMode = 'pen', currentBrush = 'normal', currentShape = 'none';
+        let currentColor = '#000000', currentSize = 4;
         let cam = { x: 0, y: 0 };
-        let points = [];
+        let startX, startY, points = [];
 
-        // --- App Setup ---
+        // --- تهيئة النظام ---
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            redraw();
+            renderAll();
         }
         window.onresize = resize;
         resize();
 
-        // --- Auth System ---
+        // --- الدخول ---
         function auth(role) {
             myName = document.getElementById('userName').value.trim();
             roomID = document.getElementById('roomID').value.trim();
-            let pass = document.getElementById('roomPass').value;
+            let pass = document.getElementById('roomPass').value.trim();
 
-            if(!myName || !roomID) return alert("من فضلك ادخل البيانات");
+            if(!myName || !roomID) return alert("يا مستر، كمل البيانات!");
 
             db.ref(`rooms/${roomID}/config`).once('value', (s) => {
-                let data = s.val();
+                let conf = s.val();
                 if(role === 'teacher') {
-                    if(!data || data.pass === pass) {
-                        if(!data) db.ref(`rooms/${roomID}/config`).set({ pass: pass });
-                        isTeacher = true;
-                        canDraw = true;
-                        startApp();
-                    } else alert("كلمة السر خطأ");
+                    if(!conf || conf.pass === pass) {
+                        if(!conf) db.ref(`rooms/${roomID}/config`).set({ pass });
+                        isTeacher = true; startSystem();
+                    } else alert("كلمة السر خطأ!");
                 } else {
-                    if(data) {
-                        isTeacher = false;
-                        startApp();
-                    } else alert("الغرفة غير موجودة");
+                    if(conf) { isTeacher = false; startSystem(); }
+                    else alert("الغرفة غير موجودة!");
                 }
             });
         }
 
-        function startApp() {
+        function startSystem() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-nav').style.display = 'flex';
             document.getElementById('toolbar-container').style.display = 'block';
-            document.getElementById('toggle-toolbar-visibility').style.display = 'flex';
-            if(isTeacher) document.body.classList.add('is-teacher');
 
-            // Presence
-            let ref = db.ref(`rooms/${roomID}/users/${myName}`);
-            ref.set({ role: isTeacher ? 'teacher' : 'student', canDraw: isTeacher });
-            ref.onDisconnect().remove();
+            // تسجيل الحضور
+            let userRef = db.ref(`rooms/${roomID}/online/${myName}`);
+            userRef.set(true);
+            userRef.onDisconnect().remove();
 
-            // Sync Users
-            db.ref(`rooms/${roomID}/users`).on('value', (s) => {
+            // مراقبة المتصلين
+            db.ref(`rooms/${roomID}/online`).on('value', (s) => {
                 let users = s.val() || {};
-                document.getElementById('count').innerText = Object.keys(users).length;
+                document.getElementById('online-count').innerText = Object.keys(users).length;
                 let html = "";
-                Object.keys(users).forEach(u => {
-                    let isG = users[u].canDraw;
-                    if(u === myName && !isTeacher) canDraw = isG;
-                    html += `
-                        <div class="user-item">
-                            <div class="user-info">
-                                <div style="width:8px; height:8px; border-radius:50%; background:var(--success)"></div>
-                                ${u}
-                            </div>
-                            ${isTeacher && u !== myName ? 
-                                `<button class="btn-grant ${isG?'granted':'not-granted'}" onclick="toggleGrant('${u}', ${isG})">
-                                    ${isG ? 'سحب الإذن' : 'إذن كتابة'}
-                                </button>` : ''}
-                        </div>
-                    `;
-                });
+                Object.keys(users).forEach(u => html += `<div class="user-item"><b>${u}</b><i class="fas fa-circle" style="color:var(--success); font-size:10px;"></i></div>`);
                 document.getElementById('users-list').innerHTML = html;
             });
 
-            initDrawSync();
-            initChatSync();
+            initSync();
             initColors();
         }
 
-        // --- Interaction Logic ---
-        function toggleGrant(user, current) {
-            db.ref(`rooms/${roomID}/users/${user}/canDraw`).set(!current);
-        }
+        // --- محرك الرسم الفائق ---
+        function initSync() {
+            // مزامنة الرسم
+            db.ref(`rooms/${roomID}/drawings/p${currentPage}`).on('child_added', (s) => drawObject(s.val()));
+            db.ref(`rooms/${roomID}/drawings/p${currentPage}`).on('value', (s) => { if(!s.exists()) ctx.clearRect(0,0,canvas.width,canvas.height); });
 
-        function initDrawSync() {
-            // Listen for new drawings
-            db.ref(`rooms/${roomID}/draws/p${page}`).on('child_added', (s) => {
-                drawObj(s.val());
-            });
-
-            // Listen for clear
-            db.ref(`rooms/${roomID}/draws/p${page}`).on('value', (s) => {
-                if(!s.exists()) {
-                    ctx.clearRect(0,0,canvas.width, canvas.height);
-                }
+            // مزامنة الشات
+            db.ref(`rooms/${roomID}/chat`).limitToLast(20).on('child_added', (s) => {
+                let m = s.val();
+                let box = document.getElementById('chat-messages');
+                box.innerHTML += `<div class="msg-box ${m.user === myName ? 'mine' : ''}"><b>${m.user}</b><br>${m.text}</div>`;
+                box.scrollTop = box.scrollHeight;
             });
         }
 
         canvas.onpointerdown = (e) => {
-            if(!canDraw && mode !== 'move') return;
+            if(!isTeacher && currentMode !== 'move') return;
             isDrawing = true;
-            let x = e.clientX - cam.x;
-            let y = e.clientY - cam.y;
-            points = [{x, y}];
-            if(mode === 'pen' || mode === 'eraser') {
-                ctx.beginPath();
-                ctx.moveTo(e.clientX, e.clientY);
-            }
+            startX = e.clientX - cam.x;
+            startY = e.clientY - cam.y;
+            points = [{x: startX, y: startY}];
+            if(currentMode === 'pen' || currentMode === 'eraser') ctx.beginPath();
         };
 
         window.onpointermove = (e) => {
             if(!isDrawing) return;
-            let x = e.clientX - cam.x;
-            let y = e.clientY - cam.y;
+            let curX = e.clientX - cam.x;
+            let curY = e.clientY - cam.y;
 
-            if(mode === 'move') {
-                cam.x += e.movementX;
-                cam.y += e.movementY;
-                redraw();
-                return;
+            if(currentMode === 'move') {
+                cam.x += e.movementX; cam.y += e.movementY;
+                renderAll(); return;
             }
 
-            points.push({x, y});
-            
-            // Local Preview
-            ctx.lineWidth = size;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            if(mode === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.lineWidth = 30;
-            } else {
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.strokeStyle = color;
-                if(brush === 'neon') { ctx.shadowBlur = 10; ctx.shadowColor = color; }
-                else { ctx.shadowBlur = 0; }
+            if(currentMode === 'pen' || currentMode === 'eraser') {
+                points.push({x: curX, y: curY});
+                ctx.save();
+                applyStyle(ctx, currentMode, currentBrush, currentColor, currentSize);
+                ctx.lineTo(e.clientX, e.clientY);
+                ctx.stroke();
+                ctx.restore();
             }
-            ctx.lineTo(e.clientX, e.clientY);
-            ctx.stroke();
         };
 
-        window.onpointerup = () => {
-            if(!isDrawing) return;
-            isDrawing = false;
-            if(mode !== 'move' && canDraw) {
-                db.ref(`rooms/${roomID}/draws/p${page}`).push({
-                    mode, brush, color, size, points,
-                    user: myName
+        window.onpointerup = (e) => {
+            if(!isDrawing || !isTeacher) { isDrawing = false; return; }
+            let endX = e.clientX - cam.x;
+            let endY = e.clientY - cam.y;
+
+            if(currentMode !== 'move') {
+                db.ref(`rooms/${roomID}/drawings/p${currentPage}`).push({
+                    mode: currentMode, brush: currentBrush, shape: currentShape,
+                    color: currentColor, size: currentSize,
+                    startX, startY, endX, endY, points
                 });
             }
-            if(!isTeacher) redraw(); // Prevent local mess for students
+            isDrawing = false;
+            if(currentMode !== 'pen') renderAll();
         };
 
-        function drawObj(d) {
+        function applyStyle(c, mode, brush, color, size) {
+            c.strokeStyle = color;
+            c.lineWidth = size;
+            c.lineCap = 'round';
+            c.lineJoin = 'round';
+            c.globalAlpha = 1;
+            c.shadowBlur = 0;
+            c.globalCompositeOperation = 'source-over';
+
+            if(mode === 'eraser') {
+                c.globalCompositeOperation = 'destination-out';
+                c.lineWidth = 40;
+            } else {
+                if(brush === 'neon') { c.shadowBlur = 15; c.shadowColor = color; }
+                else if(brush === 'marker') { c.globalAlpha = 0.4; c.lineCap = 'square'; }
+                else if(brush === 'pencil') { c.globalAlpha = 0.6; c.lineWidth = size/2; }
+            }
+        }
+
+        function drawObject(d) {
             ctx.save();
             ctx.translate(cam.x, cam.y);
+            applyStyle(ctx, d.mode, d.brush, d.color, d.size);
             ctx.beginPath();
-            ctx.lineWidth = d.size;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
 
-            if(d.mode === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.lineWidth = 40;
-            } else {
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.strokeStyle = d.color;
-                if(d.brush === 'neon') { ctx.shadowBlur = 15; ctx.shadowColor = d.color; }
-            }
-
-            if(d.points && d.points.length > 0) {
-                ctx.moveTo(d.points[0].x, d.points[0].y);
+            if(d.mode === 'pen' || d.mode === 'eraser') {
+                ctx.moveTo(d.startX, d.startY);
                 d.points.forEach(p => ctx.lineTo(p.x, p.y));
+            } else if(d.mode === 'shape') {
+                drawGeometry(d.shape, d.startX, d.startY, d.endX, d.endY);
             }
             ctx.stroke();
             ctx.restore();
         }
 
-        function redraw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            db.ref(`rooms/${roomID}/draws/p${page}`).once('value', (s) => {
-                s.forEach(child => drawObj(child.val()));
-            });
+        function drawGeometry(type, x1, y1, x2, y2) {
+            let w = x2 - x1; let h = y2 - y1;
+            if(type === 'rect') ctx.strokeRect(x1, y1, w, h);
+            else if(type === 'circle') {
+                let r = Math.sqrt(w*w + h*h);
+                ctx.arc(x1, y1, r, 0, Math.PI*2);
+            } else if(type === 'line') {
+                ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+            } else if(type === 'triangle') {
+                ctx.moveTo(x1 + w/2, y1); ctx.lineTo(x1, y1 + h); ctx.lineTo(x1 + w, y1 + h); ctx.closePath();
+            } else if(type === 'arrow') {
+                let angle = Math.atan2(h, w); let head = 15;
+                ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+                ctx.lineTo(x2 - head * Math.cos(angle - Math.PI/6), y2 - head * Math.sin(angle - Math.PI/6));
+                ctx.moveTo(x2, y2);
+                ctx.lineTo(x2 - head * Math.cos(angle + Math.PI/6), y2 - head * Math.sin(angle + Math.PI/6));
+            } else if(type === 'star') {
+                let rot = Math.PI / 2 * 3; let step = Math.PI / 5;
+                let outer = Math.sqrt(w*w+h*h); let inner = outer/2.5;
+                ctx.moveTo(x1, y1 - outer);
+                for(let i=0; i<5; i++) {
+                    ctx.lineTo(x1 + Math.cos(rot) * outer, y1 + Math.sin(rot) * outer); rot += step;
+                    ctx.lineTo(x1 + Math.cos(rot) * inner, y1 + Math.sin(rot) * inner); rot += step;
+                } ctx.closePath();
+            }
         }
 
-        // --- Tools UI ---
-        function setMode(m, b = 'normal') {
-            mode = m; brush = b;
-            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-            if(m === 'pen') document.getElementById('pen-btn').classList.add('active');
-            if(m === 'eraser') document.getElementById('eraser-btn').classList.add('active');
-            if(m === 'move') document.getElementById('move-btn').classList.add('active');
-            closeMenus();
+        function renderAll() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            db.ref(`rooms/${roomID}/drawings/p${currentPage}`).once('value', (s) => s.forEach(c => drawObject(c.val())));
         }
 
-        function initColors() {
-            const colors = ['#000000', '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b', '#00f2ff', '#ffffff'];
-            let html = "";
-            colors.forEach(c => {
-                html += `<div class="color-dot" style="background:${c}" onclick="setColor('${c}')"></div>`;
-            });
-            document.getElementById('colors-container').innerHTML = html;
-        }
-
-        function setColor(c) {
-            color = c;
-            document.getElementById('color-btn').style.color = c;
-            closeMenus();
-        }
-
-        function setCustomColor(c) {
-            color = c;
-            document.getElementById('color-btn').style.color = c;
-        }
-
-        function openMenu(id) {
-            let m = document.getElementById(id);
-            let isOpen = m.classList.contains('active-menu');
-            closeMenus();
-            if(!isOpen) m.classList.add('active-menu');
-        }
-
-        function closeMenus() {
-            document.querySelectorAll('.pop-menu').forEach(m => m.classList.remove('active-menu'));
-        }
-
-        function cyclePosition() {
+        // --- إدارة الواجهة والقوائم ---
+        function cycleToolbarPosition() {
             const container = document.getElementById('toolbar-container');
             const poses = ['pos-bottom', 'pos-left', 'pos-top', 'pos-right'];
             let current = poses.find(p => container.classList.contains(p));
             let next = poses[(poses.indexOf(current) + 1) % poses.length];
-            container.classList.remove(current);
-            container.classList.add(next);
-            if(next.includes('left') || next.includes('right')) {
-                document.getElementById('smart-toolbar').style.flexDirection = 'column';
-            } else {
-                document.getElementById('smart-toolbar').style.flexDirection = 'row';
+            container.className = next;
+            
+            // تحديث اتجاه الأيقونات داخل الشريط
+            document.getElementById('smart-toolbar').style.flexDirection = (next.includes('left') || next.includes('right')) ? 'column' : 'row';
+            closeMenus();
+        }
+
+        function toggleDynamicMenu(id) {
+            let menu = document.getElementById(id);
+            let isActive = menu.classList.contains('active-menu');
+            closeMenus();
+            if(!isActive) {
+                const pos = document.getElementById('toolbar-container').className;
+                menu.className = 'pop-menu active-menu';
+                // ذكاء الاتجاه: تفتح القائمة دائماً للداخل
+                if(pos.includes('bottom')) menu.classList.add('anchor-top');
+                else if(pos.includes('top')) menu.classList.add('anchor-bottom');
+                else if(pos.includes('left')) menu.classList.add('anchor-right');
+                else if(pos.includes('right')) menu.classList.add('anchor-left');
             }
         }
 
-        // --- Navigation ---
-        function movePage(dir) {
-            // Student moves page locally, Teacher moves for everyone?
-            // Requirement: Student can move for himself.
-            page = Math.max(1, page + dir);
-            document.getElementById('p-num').innerText = page;
-            db.ref(`rooms/${roomID}/draws/p${page}`).off();
-            initDrawSync();
-            redraw();
+        function closeMenus() { document.querySelectorAll('.pop-menu').forEach(m => m.classList.remove('active-menu')); }
+
+        function setWriteMode(mode, brush) {
+            currentMode = mode; currentBrush = brush; currentShape = 'none';
+            updateUIBtns(); closeMenus();
         }
 
-        function clearCanvas() {
-            if(!canDraw) return;
-            if(confirm("هل تريد مسح الصفحة بالكامل؟")) {
-                db.ref(`rooms/${roomID}/draws/p${page}`).remove();
-            }
+        function setShape(type) {
+            currentMode = 'shape'; currentShape = type;
+            updateUIBtns(); closeMenus();
         }
 
-        // --- Chat System ---
-        function initChatSync() {
-            db.ref(`rooms/${roomID}/chat`).on('child_added', (s) => {
-                let m = s.val();
-                let isMine = m.user === myName;
-                let html = `
-                    <div class="msg-box ${isMine?'mine':''}" id="msg-${s.key}">
-                        <b style="font-size:10px; display:block;">${m.user}</b>
-                        ${m.text}
-                        <i class="fas fa-trash delete-msg" onclick="deleteMsg('${s.key}')"></i>
-                    </div>
-                `;
-                document.getElementById('chat-messages').innerHTML += html;
-                document.getElementById('chat-messages').scrollTop = 99999;
-            });
+        function setMode(m) {
+            currentMode = m; currentShape = 'none';
+            updateUIBtns(); closeMenus();
+        }
 
-            db.ref(`rooms/${roomID}/chat`).on('child_removed', (s) => {
-                document.getElementById(`msg-${s.key}`)?.remove();
+        function updateUIBtns() {
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            if(currentMode === 'pen') document.getElementById('pen-btn').classList.add('active');
+            else if(currentMode === 'eraser') document.getElementById('eraser-btn').classList.add('active');
+            else if(currentMode === 'move') document.getElementById('move-btn').classList.add('active');
+            else if(currentMode === 'shape') document.getElementById('shape-btn').classList.add('active');
+        }
+
+        function initColors() {
+            const clrs = ['#000000', '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b', '#00f2ff', '#ffffff'];
+            let container = document.getElementById('colors-container');
+            clrs.forEach(c => {
+                let d = document.createElement('div');
+                d.className = 'color-dot';
+                d.style.backgroundColor = c;
+                d.onclick = () => { currentColor = c; closeMenus(); };
+                container.appendChild(d);
             });
         }
+
+        document.getElementById('size-slider').oninput = (e) => {
+            currentSize = e.target.value;
+            document.getElementById('size-val').innerText = currentSize;
+        };
+
+        document.getElementById('custom-color').oninput = (e) => currentColor = e.target.value;
+
+        // --- خدمات إضافية ---
+        function changePage(d) {
+            if(!isTeacher) return;
+            db.ref(`rooms/${roomID}/drawings/p${currentPage}`).off();
+            currentPage = Math.max(1, currentPage + d);
+            document.getElementById('page-num').innerText = currentPage;
+            renderAll(); initSync();
+        }
+
+        function clearFullBoard() {
+            if(isTeacher && confirm("مسح الصفحة بالكامل؟")) db.ref(`rooms/${roomID}/drawings/p${currentPage}`).remove();
+        }
+
+        function toggleChat() { let c = document.getElementById('chat-window'); c.style.display = c.style.display === 'flex' ? 'none' : 'flex'; }
+        function toggleSidebar() { let s = document.getElementById('users-sidebar'); s.style.display = s.style.display === 'block' ? 'none' : 'block'; }
+        function toggleFullScreen() { if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 
         function sendMsg() {
             let inp = document.getElementById('chat-inp');
-            if(!inp.value.trim()) return;
-            db.ref(`rooms/${roomID}/chat`).push({
-                user: myName,
-                text: inp.value.trim()
-            });
-            inp.value = "";
+            if(inp.value.trim()) {
+                db.ref(`rooms/${roomID}/chat`).push({ user: myName, text: inp.value.trim() });
+                inp.value = "";
+            }
         }
 
-        function deleteMsg(key) {
-            if(isTeacher) db.ref(`rooms/${roomID}/chat/${key}`).remove();
-        }
-
-        // --- UI Utilities ---
-        function toggleSidebar() {
-            let s = document.getElementById('users-sidebar');
-            s.style.display = s.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function toggleChat() {
-            let c = document.getElementById('chat-window');
-            c.style.display = c.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function toggleToolbarUI() {
-            let t = document.getElementById('toolbar-container');
-            t.style.display = t.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else document.exitFullscreen();
-        }
-
-        // --- Initialization ---
-        document.getElementById('pen-size').oninput = (e) => size = e.target.value;
-        document.getElementById('chat-inp').onkeydown = (e) => { if(e.key === 'Enter') sendMsg(); };
-
+        window.onclick = (e) => { if(!e.target.closest('.tool-btn') && !e.target.closest('.pop-menu')) closeMenus(); };
     </script>
 </body>
 </html>
