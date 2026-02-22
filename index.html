@@ -3,172 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sapora Rocket | بوابة مستر كريم عمر</title>
+    <title>Sapora Rocket | مستر كريم عمر</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* --- CSS (الديكور) --- */
+        :root { --primary: #4361ee; --dark: #0f172a; --glass: rgba(255, 255, 255, 0.95); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { overflow: hidden; background: #f1f5f9; touch-action: none; }
+
+        /* شاشة الدخول */
+        #auth-screen {
+            position: fixed; inset: 0; background: linear-gradient(135deg, var(--dark), var(--primary));
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+        }
+        .auth-card { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
+        .input-group { margin-bottom: 15px; position: relative; }
+        .input-group i { position: absolute; right: 10px; top: 12px; color: #aaa; }
+        .input-group input { width: 100%; padding: 10px 35px 10px 10px; border-radius: 10px; border: 1px solid #ddd; }
+        .auth-buttons { display: flex; gap: 10px; }
+        button { cursor: pointer; border: none; transition: 0.3s; }
+        .btn-teacher { background: var(--primary); color: white; flex: 1; padding: 12px; border-radius: 10px; }
+        .btn-student { background: #10b981; color: white; flex: 1; padding: 12px; border-radius: 10px; }
+
+        /* شريط الأدوات */
+        #main-toolbar {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--glass); padding: 10px; border-radius: 50px;
+            display: none; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 1000;
+        }
+        .tool-btn { width: 45px; height: 45px; border-radius: 50%; background: #eee; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+        .tool-btn.active { background: var(--primary); color: white; }
+
+        /* القوائم الفرعية (السمك والألوان) */
+        .sub-menu {
+            position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%);
+            background: white; padding: 15px; border-radius: 15px; display: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 150px;
+        }
+        .show { display: block !important; }
+        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+        .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; }
+
+        /* السبورة */
+        canvas { display: block; background: white; }
+        .top-info { position: fixed; top: 10px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; pointer-events: none; z-index: 500; }
+        .badge { background: var(--glass); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; pointer-events: auto; }
+        
+        /* الأدوات الهندسية */
+        .geo-tool { position: absolute; background: rgba(255,255,255,0.5); border: 1px solid var(--primary); cursor: move; display: none; }
+        .ruler { width: 300px; height: 50px; border-bottom: 2px solid #333; }
+    </style>
 </head>
-<body class="pos-bottom">
+<body>
 
-    <section id="auth-screen">
+    <div id="auth-screen">
         <div class="auth-card">
-            <div class="auth-header">
-                <i class="fas fa-rocket fa-3x"></i>
-                <h1>MONSTER ELITE</h1>
-                <p>منصة المستر كريم عمر التعليمية</p>
+            <h2 style="color: var(--primary); margin-bottom: 20px;">سبورة الصاروخ 🚀</h2>
+            <div class="input-group"><i class="fas fa-user"></i><input type="text" id="userName" placeholder="اسمك"></div>
+            <div class="input-group"><i class="fas fa-door-open"></i><input type="text" id="roomID" placeholder="رقم الغرفة"></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="roomPass" placeholder="كلمة السر (للمعلم)"></div>
+            <div class="auth-buttons">
+                <button class="btn-teacher" onclick="startApp('teacher')">معلم</button>
+                <button class="btn-student" onclick="startApp('student')">طالب</button>
             </div>
+        </div>
+    </div>
+
+    <div class="top-info">
+        <div class="badge">🏠 غرفة: <span id="room-name">0</span></div>
+        <div class="badge">🔍 <span id="zoom-val">100%</span></div>
+        <div class="badge" id="clear-btn" style="color: red; cursor: pointer;">🗑️ مسح</div>
+    </div>
+
+    <canvas id="board"></canvas>
+
+    <div id="main-toolbar">
+        <div style="position: relative;">
+            <button class="tool-btn" onclick="toggleMenu('color-menu')"><i class="fas fa-palette"></i></button>
+            <div id="color-menu" class="sub-menu">
+                <div class="color-grid" id="colors"></div>
+            </div>
+        </div>
+
+        <div style="position: relative;">
+            <button class="tool-btn" onclick="toggleMenu('size-menu')"><i class="fas fa-paint-brush"></i></button>
+            <div id="size-menu" class="sub-menu">
+                <label style="font-size: 12px;">سمك الخط: <span id="size-txt">3</span></label>
+                <input type="range" id="size-slider" min="1" max="50" value="3" style="width: 100%;">
+            </div>
+        </div>
+
+        <button class="tool-btn active" id="pen-tool" onclick="setMode('pen')"><i class="fas fa-pen"></i></button>
+        <button class="tool-btn" id="eraser-tool" onclick="setMode('eraser')"><i class="fas fa-eraser"></i></button>
+        <button class="tool-btn" id="move-tool" onclick="setMode('move')"><i class="fas fa-arrows-alt"></i></button>
+        <button class="tool-btn" onclick="toggleRuler()"><i class="fas fa-ruler"></i></button>
+    </div>
+
+    <div id="ruler" class="geo-tool ruler"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // --- البرمجة (العقل) ---
+        let config = {
+            apiKey: "AIzaSyAVFNJhGIlOjyJgSGj9MqK4Xt89p_irSEQ",
+            databaseURL: "https://sapora-f738b-default-rtdb.firebaseio.com"
+        };
+        firebase.initializeApp(config);
+        const db = firebase.database();
+
+        let canvas = document.getElementById('board');
+        let ctx = canvas.getContext('2d');
+        let isTeacher = false;
+        let room = '';
+        let mode = 'pen';
+        let color = '#000000';
+        let size = 3;
+        let isDrawing = false;
+        let zoom = 1;
+        let offset = { x: 0, y: 0 };
+        let points = [];
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function startApp(role) {
+            const name = document.getElementById('userName').value;
+            room = document.getElementById('roomID').value;
+            if(!name || !room) return alert("اكتب اسمك وغرفتك!");
             
-            <div class="auth-body">
-                <div class="input-group">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="userName" placeholder="اسمك الحقيقي">
-                </div>
-                
-                <div class="input-group">
-                    <i class="fas fa-door-open"></i>
-                    <input type="text" id="roomID" placeholder="رقم الغرفة (مثلاً: 2026)">
-                </div>
-                
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="roomPass" placeholder="كلمة سر المعلم (اختياري للطالب)">
-                </div>
+            isTeacher = (role === 'teacher');
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-toolbar').style.display = 'flex';
+            document.getElementById('room-name').innerText = room;
 
-                <div class="auth-buttons">
-                    <button class="btn-student" onclick="rocket.login('student')">
-                        <i class="fas fa-graduation-cap"></i> دخول طالب
-                    </button>
-                    <button class="btn-teacher" onclick="rocket.login('teacher')">
-                        <i class="fas fa-chalkboard-teacher"></i> دخول معلم
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
+            listenToDrawings();
+        }
 
-    <header class="top-bar">
-        <div class="bar-right">
-            <div class="status-badge">🔍 <span id="zoom-info">100%</span></div>
-            <div class="status-badge">🏠 غرفة: <span id="room-display">---</span></div>
-        </div>
-        
-        <div class="bar-left">
-            <div class="status-badge">⏳ <span id="timer">00:00</span></div>
-            <button class="status-badge btn-clickable" id="users-toggle">
-                <i class="fas fa-users"></i> <span id="user-count">0</span>
-            </button>
-            <button class="status-badge btn-clickable" id="chat-toggle">
-                <i class="fas fa-comments"></i> الدردشة
-            </button>
-        </div>
-    </header>
+        function listenToDrawings() {
+            db.ref(`rooms/${room}/draw`).on('child_added', (snap) => {
+                drawPath(snap.val());
+            });
+            db.ref(`rooms/${room}/draw`).on('value', (snap) => {
+                if(!snap.exists()) ctx.clearRect(0,0,canvas.width,canvas.height);
+            });
+        }
 
-    <main id="board-container">
-        <canvas id="board"></canvas>
-        
-        <div id="tool-ruler" class="geo-tool ruler">
-            <div class="resizer"></div>
-        </div>
-        <div id="tool-protractor" class="geo-tool protractor">
-            <div class="resizer"></div>
-        </div>
-        <div id="tool-triangle" class="geo-tool triangle">
-            <div class="resizer"></div>
-        </div>
-        <div id="tool-circle" class="geo-tool circle-tool">
-            <div class="resizer"></div>
-        </div>
-    </main>
+        // التعامل مع اللمس والماوس
+        canvas.onpointerdown = (e) => {
+            if (mode === 'move') { isDrawing = true; return; }
+            if (!isTeacher) return;
+            isDrawing = true;
+            points = [{ x: (e.clientX - offset.x)/zoom, y: (e.clientY - offset.y)/zoom }];
+        };
 
-    <nav id="main-toolbar">
-        <button class="tool-btn secondary" id="minimize-btn">
-            <i class="fas fa-compress-alt"></i>
-        </button>
+        canvas.onpointermove = (e) => {
+            if (!isDrawing) return;
+            if (mode === 'move') {
+                offset.x += e.movementX;
+                offset.y += e.movementY;
+                redrawAll();
+                return;
+            }
+            let p = { x: (e.clientX - offset.x)/zoom, y: (e.clientY - offset.y)/zoom };
+            points.push(p);
+            // رسم لحظي للمعلم
+            ctx.lineTo(e.clientX, e.clientY);
+            ctx.stroke();
+        };
 
-        <div id="teacher-tools" class="hidden-tools">
-            <div class="menu-wrapper">
-                <button class="tool-btn" id="color-trigger">
-                    <i class="fas fa-palette"></i>
-                </button>
-                <div id="color-menu" class="sub-menu">
-                    <div class="color-grid">
-                        <div class="color-dot" style="background:#000000" data-color="#000000"></div>
-                        <div class="color-dot" style="background:#ff0000" data-color="#ff0000"></div>
-                        <div class="color-dot" style="background:#00b7ff" data-color="#00b7ff"></div>
-                        <div class="color-dot" style="background:#2ed573" data-color="#2ed573"></div>
-                        <div class="color-dot" style="background:#ffa500" data-color="#ffa500"></div>
-                        <div class="color-dot" style="background:#800080" data-color="#800080"></div>
-                        <div class="color-dot" style="background:#ff4757" data-color="#ff4757"></div>
-                        <div class="color-dot" style="background:#a52a2a" data-color="#a52a2a"></div>
-                        <div class="color-dot" style="background:#7f8c8d" data-color="#7f8c8d"></div>
-                        <div class="color-dot" style="background:#1abc9c" data-color="#1abc9c"></div>
-                    </div>
-                </div>
-            </div>
+        canvas.onpointerup = () => {
+            if (isDrawing && mode !== 'move' && isTeacher) {
+                db.ref(`rooms/${room}/draw`).push({ points, color, size, mode });
+            }
+            isDrawing = false;
+            ctx.beginPath();
+        };
 
-            <div class="menu-wrapper">
-                <button class="tool-btn active" id="pen-trigger">
-                    <i class="fas fa-pen"></i>
-                </button>
-                <div id="pen-menu" class="sub-menu">
-                    <div class="pen-types">
-                        <button class="tool-btn sm" data-mode="pen" title="قلم رصاص"><i class="fas fa-pencil-alt"></i></button>
-                        <button class="tool-btn sm" data-mode="marker" title="قلم سبورة"><i class="fas fa-marker"></i></button>
-                        <button class="tool-btn sm" data-mode="neon" title="قلم مضيء"><i class="fas fa-magic"></i></button>
-                        <button class="tool-btn sm" data-mode="brush" title="فرشاة"><i class="fas fa-paint-brush"></i></button>
-                    </div>
-                    <div class="thickness-slider-container">
-                        <label>سمك الخط</label>
-                        <input type="range" id="thickness-slider" min="1" max="50" value="3">
-                        <span id="thickness-value">3</span>
-                    </div>
-                </div>
-            </div>
+        function drawPath(data) {
+            ctx.setTransform(zoom, 0, 0, zoom, offset.x, offset.y);
+            ctx.beginPath();
+            ctx.strokeStyle = data.mode === 'eraser' ? '#fff' : data.color;
+            ctx.lineWidth = data.size;
+            ctx.lineCap = 'round';
+            ctx.moveTo(data.points[0].x, data.points[0].y);
+            data.points.forEach(p => ctx.lineTo(p.x, p.y));
+            ctx.stroke();
+            ctx.setTransform(1,0,0,1,0,0);
+        }
 
-            <div class="menu-wrapper">
-                <button class="tool-btn" id="geo-trigger">
-                    <i class="fas fa-shapes"></i>
-                </button>
-                <div id="geo-menu" class="sub-menu horizontal">
-                    <button class="tool-btn sm" data-geo="tool-ruler"><i class="fas fa-ruler-horizontal"></i></button>
-                    <button class="tool-btn sm" data-geo="tool-protractor"><i class="fas fa-compass"></i></button>
-                    <button class="tool-btn sm" data-geo="tool-triangle"><i class="fas fa-draw-polygon"></i></button>
-                    <button class="tool-btn sm" data-geo="tool-circle"><i class="far fa-circle"></i></button>
-                </div>
-            </div>
+        function redrawAll() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            db.ref(`rooms/${room}/draw`).once('value', snap => {
+                snap.forEach(child => drawPath(child.val()));
+            });
+        }
 
-            <button class="tool-btn" id="eraser-btn" title="ممحاة"><i class="fas fa-eraser"></i></button>
-            <button class="tool-btn" id="undo-btn" title="تراجع"><i class="fas fa-undo"></i></button>
-            <button class="tool-btn text-danger" id="clear-btn" title="مسح الكل"><i class="fas fa-trash-alt"></i></button>
-        </div>
+        // الألوان
+        const colors = ['#000000', '#ff0000', '#00ff00', '#0000ff', '#ffa500', '#800080', '#00ced1', '#ff1493', '#7cfc00', '#2f4f4f'];
+        const grid = document.getElementById('colors');
+        colors.forEach(c => {
+            let d = document.createElement('div');
+            d.className = 'color-dot';
+            d.style.background = c;
+            d.onclick = () => { color = c; toggleMenu('color-menu'); };
+            grid.appendChild(d);
+        });
 
-        <button class="tool-btn" id="move-btn" title="تحريك السبورة"><i class="fas fa-hand-paper"></i></button>
+        // السمك
+        document.getElementById('size-slider').oninput = (e) => {
+            size = e.target.value;
+            document.getElementById('size-txt').innerText = size;
+        };
 
-        <div class="page-navigator">
-            <button class="nav-btn" id="prev-page"><i class="fas fa-chevron-right"></i></button>
-            <span id="page-display">1</span>
-            <button class="nav-btn" id="next-page"><i class="fas fa-chevron-left"></i></button>
-        </div>
-    </nav>
+        // مسح السبورة
+        document.getElementById('clear-btn').onclick = () => {
+            if(isTeacher && confirm("مسح الكل؟")) db.ref(`rooms/${room}/draw`).remove();
+        };
 
-    <aside id="chat-panel" class="side-panel">
-        <div class="panel-header">المحادثة المباشرة <i class="fas fa-times close-panel"></i></div>
-        <div id="chat-messages"></div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="اكتب رسالتك...">
-            <button id="send-msg"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </aside>
+        function toggleMenu(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
 
-    <aside id="users-panel" class="side-panel">
-        <div class="panel-header">المتواجدون الآن <i class="fas fa-times close-panel"></i></div>
-        <div id="users-list"></div>
-    </aside>
+        function setMode(m) {
+            mode = m;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(m+'-tool').classList.add('active');
+        }
 
-    <button id="restore-btn"><i class="fas fa-rocket"></i></button>
+        function toggleRuler() {
+            let r = document.getElementById('ruler');
+            r.style.display = r.style.display === 'block' ? 'none' : 'block';
+            r.style.top = '100px'; r.style.left = '100px';
+        }
 
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="app.js"></script>
+        // جعل المسطرة قابلة للسحب
+        let ruler = document.getElementById('ruler');
+        ruler.onmousedown = (e) => {
+            let ox = e.clientX - ruler.offsetLeft;
+            let oy = e.clientY - ruler.offsetTop;
+            document.onmousemove = (e) => {
+                ruler.style.left = (e.clientX - ox) + 'px';
+                ruler.style.top = (e.clientY - oy) + 'px';
+            };
+            document.onmouseup = () => document.onmousemove = null;
+        };
+    </script>
 </body>
 </html>
