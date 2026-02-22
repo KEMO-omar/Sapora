@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sapora Rocket - KAREEM OMAR</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
             --primary: #4361ee; --accent: #ff4757; --dark: #0f172a; 
@@ -17,159 +16,171 @@
             background: #f8fafc; touch-action: none; user-select: none; 
         }
 
-        /* شاشة الدخول */
-        #auth-screen { position: fixed; inset: 0; background: radial-gradient(circle at center, #1e293b, #0f172a); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 25px; width: 100%; max-width: 450px; text-align: center; box-shadow: var(--shadow); }
-        .input-group { margin-bottom: 15px; text-align: right; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--dark); }
-        .input-group input { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #e2e8f0; box-sizing: border-box; outline: none; transition: 0.3s; }
-        .input-group input:focus { border-color: var(--primary); }
+        /* صفحة دخول كريم عمر */
+        #auth-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #4361ee 100%); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 40px; border-radius: 30px; width: 100%; max-width: 450px; text-align: center; box-shadow: var(--shadow); border: 5px solid var(--primary); }
+        .welcome-msg h1 { color: var(--primary); margin-bottom: 5px; font-size: 28px; }
+        .welcome-msg p { color: #64748b; font-size: 15px; margin-bottom: 25px; }
+
+        .input-box { width: 90%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #eee; text-align: center; outline: none; font-family: 'Cairo'; }
 
         /* توب بار */
         .top-bar { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
-        .badge { background: var(--glass); padding: 8px 15px; border-radius: 12px; font-size: 13px; font-weight: bold; pointer-events: auto; box-shadow: var(--shadow); display: inline-flex; align-items: center; gap: 8px; border: 1px solid #eee; margin: 2px; border:none; cursor: pointer; }
+        .badge { background: var(--glass); padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; pointer-events: auto; box-shadow: var(--shadow); display: inline-flex; align-items: center; gap: 6px; border: 1px solid #eee; margin: 2px; }
 
-        /* شريط الأدوات الرئيسي */
+        /* شريط الأدوات */
         #main-toolbar { 
-            position: fixed; background: var(--glass); padding: 10px; border-radius: 20px; 
-            box-shadow: var(--shadow); display: none; gap: 8px; align-items: center; 
-            z-index: 2000; border: 1px solid rgba(0,0,0,0.05);
+            position: fixed; background: var(--glass); padding: 12px; border-radius: 25px; 
+            box-shadow: var(--shadow); display: none; gap: 10px; align-items: center; 
+            z-index: 2000; transition: all 0.3s ease; border: 1px solid #fff; bottom: 20px; left: 50%; transform: translateX(-50%);
         }
-
-        /* اتجاهات الشريط */
-        .pos-bottom #main-toolbar { bottom: 20px; left: 50%; transform: translateX(-50%); flex-direction: row; }
-        .pos-top #main-toolbar { top: 70px; left: 50%; transform: translateX(-50%); flex-direction: row; }
-        .pos-right #main-toolbar { right: 20px; top: 50%; transform: translateY(-50%); flex-direction: column; }
-        .pos-left #main-toolbar { left: 20px; top: 50%; transform: translateY(-50%); flex-direction: column; }
-
-        .tool-btn { width: 45px; height: 45px; border-radius: 12px; border: none; background: #f1f5f9; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; color: #475569; }
-        .tool-btn:hover { background: #e2e8f0; }
+        
+        .toolbar-vertical { flex-direction: column !important; width: 55px !important; border-radius: 30px !important; padding: 20px 8px !important; height: auto; }
+        
+        .tool-btn { width: 42px; height: 42px; border-radius: 12px; border: none; background: #f1f5f9; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; }
+        .tool-btn:hover { background: #e2e8f0; transform: scale(1.05); }
         .tool-btn.active { background: var(--primary); color: white; }
 
         /* القوائم الفرعية الذكية */
-        .sub-menu { 
-            position: absolute; background: white; padding: 12px; border-radius: 15px; 
-            display: none; gap: 8px; box-shadow: var(--shadow); z-index: 2001; 
-            border: 1px solid #eee; flex-direction: column; align-items: center;
-        }
+        .sub-menu { position: absolute; background: white; padding: 15px; border-radius: 15px; display: none; gap: 10px; box-shadow: var(--shadow); z-index: 2001; min-width: 120px; border: 1px solid #eee; flex-direction: column; align-items: center; }
         .show-menu { display: flex !important; }
 
-        /* تعديل موقع القائمة بناءً على مكان الشريط */
-        .pos-bottom .sub-menu { bottom: 60px; left: 50%; transform: translateX(-50%); }
-        .pos-top .sub-menu { top: 60px; left: 50%; transform: translateX(-50%); }
-        .pos-right .sub-menu { right: 60px; top: 50%; transform: translateY(-50%); }
-        .pos-left .sub-menu { left: 60px; top: 50%; transform: translateY(-50%); }
+        /* تعديل اتجاه القوائم تلقائياً */
+        .pos-bottom .sub-menu { bottom: 70px; left: 50%; transform: translateX(-50%); }
+        .pos-top .sub-menu { top: 70px; left: 50%; transform: translateX(-50%); }
+        .pos-right .sub-menu { right: 70px; top: 50%; transform: translateY(-50%); }
+        .pos-left .sub-menu { left: 70px; top: 50%; transform: translateY(-50%); }
 
-        .color-grid { display: grid !important; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 180px; }
-        .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        .color-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; width: 180px; gap: 8px; }
+        .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.1); }
 
-        /* شات وأدوات */
-        #chat-panel { position: fixed; bottom: 80px; left: 20px; width: 300px; height: 400px; background: white; border-radius: 20px; box-shadow: var(--shadow); display: none; flex-direction: column; z-index: 2500; overflow: hidden; }
-        #chat-msgs { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #fcfcfc; }
-        .msg { padding: 10px; border-radius: 12px; font-size: 13px; position: relative; max-width: 80%; }
-        .msg-me { background: var(--primary); color: white; align-self: flex-start; }
-        .msg-them { background: #e2e8f0; color: #333; align-self: flex-end; }
-        .del-msg { cursor: pointer; color: var(--accent); margin-right: 5px; font-size: 10px; }
+        /* الشات */
+        #chat-panel { position: fixed; bottom: 90px; right: 20px; width: 300px; height: 400px; background: white; border-radius: 20px; box-shadow: var(--shadow); display: none; flex-direction: column; z-index: 2500; overflow: hidden; }
+        #chat-msgs { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; }
+        .msg { padding: 8px 12px; border-radius: 12px; font-size: 13px; max-width: 85%; position: relative; }
+        .msg-me { background: var(--primary); color: white; align-self: flex-end; }
+        .msg-them { background: #e2e8f0; color: #333; align-self: flex-start; }
+        .del-msg { color: #ff4757; cursor: pointer; font-size: 10px; margin-right: 5px; }
 
-        .geo-tool { position: absolute; background: rgba(255,255,255,0.7); border: 2px solid var(--primary); cursor: move; display: none; z-index: 500; backdrop-filter: blur(5px); }
-        .ruler { height: 50px; width: 300px; border-bottom: 2px solid #333; background-image: repeating-linear-gradient(90deg, #333 0, #333 1px, transparent 1px, transparent 10px); }
+        #users-panel { position: absolute; top: 45px; left: 0; background: white; width: 170px; border-radius: 12px; box-shadow: var(--shadow); display: none; padding: 10px; z-index: 2005; }
+        .user-row { font-size: 13px; padding: 5px; border-bottom: 1px solid #f1f1f1; display: flex; align-items: center; gap: 5px; }
+        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
+
+        /* أدوات الهندسة */
+        .geo-tool { position: absolute; background: rgba(255,255,255,0.5); border: 2px solid var(--primary); backdrop-filter: blur(5px); cursor: move; display: none; z-index: 500; }
+        .ruler { height: 60px; width: 350px; background-image: linear-gradient(90deg, #333 1px, transparent 1px); background-size: 20px 20px; background-position: bottom; }
+        .protractor { width: 240px; height: 120px; border-radius: 120px 120px 0 0; border-bottom: 2px solid #333; }
         
-        #board { background: white; cursor: crosshair; }
-        #restore-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; background: var(--primary); color: white; border: none; z-index: 3000; display: none; cursor: pointer; box-shadow: var(--shadow); }
+        #board { background: white; cursor: crosshair; touch-action: none; }
+        #restore-btn { position: fixed; bottom: 20px; left: 20px; z-index: 3000; display: none; width: 55px; height: 55px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 22px; cursor: pointer; box-shadow: var(--shadow); }
     </style>
 </head>
 <body class="pos-bottom">
 
     <div id="auth-screen">
         <div class="card">
-            <h2 style="color:var(--primary)">🚀 MONSTER ELITE ULTIMATE</h2>
-            <div class="input-group">
-                <label>الاسم المستعار</label>
-                <input type="text" id="userName" placeholder="ادخل اسمك...">
+            <div class="welcome-msg">
+                <h1>🚀 MONSTER ELITE ULTIMATE</h1>
+                <p>غرفة مستر كريم عمر التعليمية</p>
             </div>
-            <div class="input-group">
-                <label>رقم الغرفة (ID)</label>
-                <input type="text" id="roomID" placeholder="مثلاً: Math101">
-            </div>
-            <div class="input-group">
-                <label>كلمة سر الغرفة</label>
-                <input type="password" id="roomPass" placeholder="كلمة السر...">
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button onclick="rocket.login('teacher')" style="background:var(--dark); color:white; border:none; padding:15px; border-radius:12px; cursor:pointer;">دخول كمعلم</button>
-                <button onclick="rocket.login('student')" style="background:var(--primary); color:white; border:none; padding:15px; border-radius:12px; cursor:pointer;">دخول كطالب</button>
+            <input type="text" id="userName" class="input-box" placeholder="اسمك المستعار">
+            <input type="text" id="roomID" class="input-box" placeholder="رقم الغرفة (ID)">
+            <input type="password" id="roomPass" class="input-box" placeholder="كلمة سر الغرفة">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <button onclick="rocket.login('student')" style="background:#10b981; color:white; padding:15px; border:none; border-radius:15px; cursor:pointer; font-weight:bold;">دخول طالب 🎓</button>
+                <button onclick="rocket.login('teacher')" style="background:var(--primary); color:white; padding:15px; border:none; border-radius:15px; cursor:pointer; font-weight:bold;">دخول معلم 👨‍🏫</button>
             </div>
         </div>
     </div>
 
-    <button id="restore-btn" onclick="rocket.toggleMinimize()"><i class="fas fa-rocket"></i></button>
+    <button id="restore-btn" onclick="rocket.toggleMinimize()">🚀</button>
 
     <div class="top-bar">
         <div>
-            <div class="badge"><i class="fas fa-search-plus"></i> <span id="zoom-info">100%</span></div>
-            <button class="badge" onclick="rocket.toggleFullscreen()"><i class="fas fa-expand"></i></button>
+            <div class="badge">🔍 <span id="zoom-info">100%</span></div>
+            <button class="badge" onclick="rocket.toggleFullscreen()" style="cursor:pointer; border:none;">🖥️</button>
         </div>
         <div>
-            <div class="badge"><i class="fas fa-door-open"></i> <span id="display-room">---</span></div>
-            <div class="badge"><i class="fas fa-users"></i> <span id="user-count">0</span></div>
-            <button class="badge" onclick="rocket.toggleChat()"><i class="fas fa-comments"></i> الدردشة</button>
+            <div class="badge">🏠 <span id="room-display">---</span></div>
+            <div style="position:relative; display:inline-block; pointer-events:auto;">
+                <button class="badge" onclick="rocket.toggleUsers()" style="cursor:pointer; border:none;">👥 <span id="user-count">0</span></button>
+                <div id="users-panel">
+                    <div style="font-weight:bold; font-size:11px; border-bottom:1px solid #eee; margin-bottom:5px;">المتواجدون الآن:</div>
+                    <div id="users-list"></div>
+                </div>
+            </div>
+            <button class="badge" onclick="rocket.toggleChat()" style="cursor:pointer; border:none;">💬</button>
         </div>
     </div>
 
     <div id="chat-panel">
-        <div style="background:var(--dark); color:white; padding:15px; display:flex; justify-content:space-between;">
-            <span>دردشة الغرفة</span>
-            <i class="fas fa-times" onclick="rocket.toggleChat()" style="cursor:pointer"></i>
+        <div style="background:var(--primary); color:white; padding:12px; font-weight:bold; display:flex; justify-content:space-between;">
+            غرفة الدردشة <span onclick="rocket.toggleChat()" style="cursor:pointer;">×</span>
         </div>
         <div id="chat-msgs"></div>
         <div style="padding:10px; display:flex; gap:5px; border-top:1px solid #eee;">
             <input type="text" id="chat-input" style="flex:1; padding:8px; border-radius:8px; border:1px solid #ddd;" placeholder="اكتب..." onkeypress="if(event.key==='Enter') rocket.sendMsg()">
-            <button onclick="rocket.sendMsg()" style="background:var(--primary); color:white; border:none; padding:10px; border-radius:8px;"><i class="fas fa-paper-plane"></i></button>
+            <button onclick="rocket.sendMsg()" style="background:var(--primary); color:white; border:none; padding:0 10px; border-radius:8px;">🚀</button>
         </div>
     </div>
 
+    <div id="tool-ruler" class="geo-tool ruler"><div style="position:absolute;right:0;bottom:0;width:15px;height:15px;cursor:nwse-resize;background:var(--primary);"></div></div>
+    <div id="tool-protractor" class="geo-tool protractor"><div style="position:absolute;right:0;bottom:0;width:15px;height:15px;cursor:nwse-resize;background:var(--primary);"></div></div>
+
     <div id="main-toolbar">
-        <button class="tool-btn" onclick="rocket.toggleMinimize()"><i class="fas fa-minus-circle"></i></button>
+        <button class="tool-btn" onclick="rocket.toggleMinimize()">📦</button>
         
-        <div id="teacher-tools" style="display:none; contents;">
+        <div id="teacher-controls" style="display:none; align-items:center; gap:8px;">
             <div style="position:relative;">
-                <button class="tool-btn" id="btn-color" onclick="rocket.toggleSubMenu('color-menu')"><i class="fas fa-palette"></i></button>
+                <button class="tool-btn" id="btn-color" onclick="rocket.toggleSubMenu('color-menu')">🎨</button>
                 <div id="color-menu" class="sub-menu color-grid">
-                    <div class="color-dot" style="background:#000" onclick="rocket.updateColor('#000')"></div>
-                    <div class="color-dot" style="background:#f00" onclick="rocket.updateColor('#f00')"></div>
-                    <div class="color-dot" style="background:#00f" onclick="rocket.updateColor('#00f')"></div>
-                    <div class="color-dot" style="background:#0b0" onclick="rocket.updateColor('#0b0')"></div>
-                    <div class="color-dot" style="background:#f90" onclick="rocket.updateColor('#f90')"></div>
+                    <div class="color-dot" style="background:#000000" onclick="rocket.updateColor('#000000')"></div>
+                    <div class="color-dot" style="background:#ff0000" onclick="rocket.updateColor('#ff0000')"></div>
+                    <div class="color-dot" style="background:#00b7ff" onclick="rocket.updateColor('#00b7ff')"></div>
+                    <div class="color-dot" style="background:#2ed573" onclick="rocket.updateColor('#2ed573')"></div>
+                    <div class="color-dot" style="background:#ffa500" onclick="rocket.updateColor('#ffa500')"></div>
                 </div>
             </div>
 
             <div style="position:relative;">
-                <button class="tool-btn active" id="btn-pen" onclick="rocket.toggleSubMenu('pen-menu')"><i class="fas fa-pen"></i></button>
+                <button class="tool-btn active" id="btn-pen" onclick="rocket.toggleSubMenu('pen-menu')">✏️</button>
                 <div id="pen-menu" class="sub-menu">
-                    <button class="tool-btn" onclick="rocket.setMode('pen')"><i class="fas fa-pen"></i></button>
-                    <button class="tool-btn" onclick="rocket.setMode('brush')"><i class="fas fa-paint-brush"></i></button>
+                    <div style="display:flex; gap:5px;">
+                        <button class="tool-btn" onclick="rocket.setMode('pen', '✏️')">✏️</button>
+                        <button class="tool-btn" onclick="rocket.setMode('marker', '🖍️')">🖍️</button>
+                        <button class="tool-btn" onclick="rocket.setMode('brush', '🖌️')">🖌️</button>
+                    </div>
                     <input type="range" min="1" max="50" value="3" oninput="rocket.currentThickness = this.value">
                 </div>
             </div>
 
-            <button class="tool-btn" onclick="rocket.setMode('eraser')"><i class="fas fa-eraser"></i></button>
-            <button class="tool-btn" onclick="rocket.clearBoard()"><i class="fas fa-trash-alt"></i></button>
+            <div style="position:relative;">
+                <button class="tool-btn" onclick="rocket.toggleSubMenu('geo-menu')">📐</button>
+                <div id="geo-menu" class="sub-menu">
+                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-ruler')">📏</button>
+                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-protractor')">🧭</button>
+                </div>
+            </div>
+
+            <button class="tool-btn" onclick="rocket.setMode('eraser')">🧽</button>
+            <button class="tool-btn" onclick="rocket.undo()">↩️</button>
+            <button class="tool-btn" onclick="rocket.clearBoard()" style="color:red">🗑️</button>
+            
+            <select onchange="rocket.moveToolbar(this.value)" style="border-radius:10px; padding:5px; font-family:'Cairo'">
+                <option value="bottom">أسفل</option>
+                <option value="top">أعلى</option>
+                <option value="right">يمين</option>
+                <option value="left">يسار</option>
+            </select>
         </div>
 
-        <button class="tool-btn" onclick="rocket.setMode('move')" id="btn-move"><i class="fas fa-arrows-alt"></i></button>
-        
-        <div style="display:flex; align-items:center; background:#eee; border-radius:10px; padding:2px;">
-            <button class="tool-btn" style="width:30px;height:30px" onclick="rocket.changePage(-1)"><i class="fas fa-chevron-right"></i></button>
-            <span id="page-label" style="margin:0 10px; font-weight:bold;">1</span>
-            <button class="tool-btn" style="width:30px;height:30px" onclick="rocket.changePage(1)"><i class="fas fa-chevron-left"></i></button>
-        </div>
+        <button class="tool-btn" onclick="rocket.setMode('move')" id="btn-move">🖐️</button>
 
-        <select onchange="rocket.moveToolbar(this.value)" style="padding:5px; border-radius:8px; font-family:'Cairo'">
-            <option value="bottom">أسفل</option>
-            <option value="top">أعلى</option>
-            <option value="right">يمين</option>
-            <option value="left">يسار</option>
-        </select>
+        <div style="display:flex; align-items:center; background:#f1f5f9; padding:5px; border-radius:15px; gap:5px;">
+            <button class="tool-btn" style="width:30px; height:30px;" onclick="rocket.changePage(-1)">◀</button>
+            <span id="page-label">1</span>
+            <button class="tool-btn" style="width:30px; height:30px;" onclick="rocket.changePage(1)">▶</button>
+        </div>
     </div>
 
     <canvas id="board"></canvas>
@@ -190,16 +201,15 @@
 
         const rocket = {
             isAdmin: false, mode: 'move', canvas: document.getElementById('board'),
-            ctx: document.getElementById('board').getContext('2d'),
-            camera: { x: 0, y: 0, zoom: 1 }, drawings: {}, 
-            currentColor: '#000', currentThickness: 3, currentPage: 1,
-            room: '', userName: '', isDrawing: false, lastMouse: {x:0, y:0},
+            ctx: document.getElementById('board').getContext('2d'), camera: { x: 0, y: 0, zoom: 1 },
+            drawings: {}, currentColor: '#000000', currentThickness: 3, currentPage: 1, 
+            room: '', userName: '', isDrawing: false, currentPath: [], lastMouse: {x:0, y:0},
 
             init() {
                 this.resize();
                 window.onresize = () => this.resize();
                 this.setupEvents();
-                requestAnimationFrame(() => this.render());
+                document.querySelectorAll('.geo-tool').forEach(t => { this.makeDraggable(t); this.makeResizable(t); });
             },
 
             async login(role) {
@@ -207,65 +217,67 @@
                 const room = document.getElementById('roomID').value.trim();
                 const pass = document.getElementById('roomPass').value.trim();
 
-                if(!name || !room || !pass) return alert("اكمل البيانات يا بطل!");
+                if(!name || !room || !pass) return alert("اكمل البيانات يا مستر!");
 
-                const roomRef = ref(db, `rooms/${room}/config`);
-                onValue(roomRef, (snapshot) => {
-                    const config = snapshot.val();
+                const configRef = ref(db, `rooms/${room}/config`);
+                onValue(configRef, (snap) => {
+                    const data = snap.val();
                     if(role === 'teacher') {
-                        if(!config || config.pass === pass) {
-                            set(roomRef, { pass: pass, teacher: name });
-                            this.proceedLogin(name, room, true);
-                        } else alert("الغرفة محجوزة بكلمة سر أخرى!");
+                        if(!data || data.pass === pass) {
+                            set(configRef, { pass: pass, creator: name });
+                            this.startSession(name, room, true);
+                        } else alert("كلمة السر خطأ لهذه الغرفة!");
                     } else {
-                        if(config && config.pass === pass) {
-                            this.proceedLogin(name, room, false);
+                        if(data && data.pass === pass) {
+                            this.startSession(name, room, false);
                         } else alert("بيانات الغرفة غير صحيحة!");
                     }
                 }, { onlyOnce: true });
             },
 
-            proceedLogin(name, room, isAdmin) {
+            startSession(name, room, isAdmin) {
                 this.userName = name;
                 this.room = room;
                 this.isAdmin = isAdmin;
-                document.getElementById('display-room').innerText = room;
+                document.getElementById('room-display').innerText = room;
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-toolbar').style.display = 'flex';
-                if(isAdmin) document.getElementById('teacher-tools').style.display = 'contents';
+                if(isAdmin) {
+                    document.getElementById('teacher-controls').style.display = 'flex';
+                    this.setMode('pen');
+                }
 
-                const uRef = push(ref(db, `rooms/${room}/users`));
+                const uRef = push(ref(db, `rooms/${this.room}/users`));
                 set(uRef, { name, role: isAdmin ? 'teacher' : 'student' });
                 onDisconnect(uRef).remove();
 
                 this.syncData();
+                requestAnimationFrame(() => this.render());
             },
 
             syncData() {
-                const roomPath = `rooms/${this.room}`;
-                onChildAdded(ref(db, `${roomPath}/board`), s => this.drawings[s.key] = s.val());
-                onChildRemoved(ref(db, `${roomPath}/board`), s => delete this.drawings[s.key]);
+                const path = `rooms/${this.room}`;
+                onChildAdded(ref(db, `${path}/board`), (s) => this.drawings[s.key] = s.val());
+                onChildRemoved(ref(db, `${path}/board`), (s) => delete this.drawings[s.key]);
                 
-                onValue(ref(db, `${roomPath}/users`), s => {
-                    document.getElementById('user-count').innerText = Object.keys(s.val() || {}).length;
+                onValue(ref(db, `${path}/users`), (s) => {
+                    const users = Object.values(s.val() || {});
+                    document.getElementById('user-count').innerText = users.length;
+                    document.getElementById('users-list').innerHTML = users.map(u => 
+                        `<div class="user-row"><span class="status-dot"></span> ${u.name} (${u.role === 'teacher' ? 'م' : 'ط'})</div>`
+                    ).join('');
                 });
 
-                onChildAdded(ref(db, `${roomPath}/chat`), s => {
+                onChildAdded(ref(db, `${path}/chat`), (s) => {
                     const d = s.val();
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = `msg ${d.user === this.userName ? 'msg-me' : 'msg-them'}`;
-                    msgDiv.innerHTML = `
-                        ${this.isAdmin ? `<i class="fas fa-trash del-msg" onclick="rocket.deleteMsg('${s.key}')"></i>` : ''}
-                        <b>${d.user}:</b> ${d.text}
-                    `;
-                    msgDiv.id = `msg-${s.key}`;
-                    document.getElementById('chat-msgs').appendChild(msgDiv);
+                    const div = document.createElement('div');
+                    div.className = `msg ${d.user === this.userName ? 'msg-me' : 'msg-them'}`;
+                    div.id = `chat-${s.key}`;
+                    div.innerHTML = `${this.isAdmin ? `<span class="del-msg" onclick="rocket.deleteMsg('${s.key}')">🗑️</span>` : ''} <b>${d.user}:</b> ${d.text}`;
+                    document.getElementById('chat-msgs').appendChild(div);
                     document.getElementById('chat-msgs').scrollTop = 9999;
                 });
-
-                onChildRemoved(ref(db, `${roomPath}/chat`), s => {
-                    document.getElementById(`msg-${s.key}`)?.remove();
-                });
+                onChildRemoved(ref(db, `${path}/chat`), (s) => document.getElementById(`chat-${s.key}`)?.remove());
             },
 
             setupEvents() {
@@ -273,13 +285,10 @@
                     const r = this.canvas.getBoundingClientRect();
                     const cx = e.clientX || e.touches?.[0].clientX;
                     const cy = e.clientY || e.touches?.[0].clientY;
-                    return {
-                        x: (cx - r.left - this.camera.x) / this.camera.zoom,
-                        y: (cy - r.top - this.camera.y) / this.camera.zoom
-                    };
+                    return { x: (cx - r.left - this.camera.x) / this.camera.zoom, y: (cy - r.top - this.camera.y) / this.camera.zoom };
                 };
 
-                this.canvas.addEventListener('pointerdown', e => {
+                this.canvas.addEventListener('pointerdown', (e) => {
                     this.closeAllMenus();
                     const pos = getPos(e);
                     if(this.mode === 'move' || !this.isAdmin) {
@@ -287,11 +296,11 @@
                         this.lastMouse = { x: e.clientX, y: e.clientY };
                     } else {
                         this.isDrawing = true;
-                        this.currentPath = [{x: pos.x, y: pos.y}];
+                        this.currentPath = [pos];
                     }
                 });
 
-                window.addEventListener('pointermove', e => {
+                window.addEventListener('pointermove', (e) => {
                     if(this.isDragging) {
                         this.camera.x += e.clientX - this.lastMouse.x;
                         this.camera.y += e.clientY - this.lastMouse.y;
@@ -313,79 +322,78 @@
             },
 
             render() {
-                this.ctx.setTransform(1,0,0,1,0,0);
-                this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 this.ctx.translate(this.camera.x, this.camera.y);
                 this.ctx.scale(this.camera.zoom, this.camera.zoom);
 
-                Object.values(this.drawings).forEach(d => {
-                    if(d.page === this.currentPage) this.drawPath(d);
+                Object.values(this.drawings).forEach(draw => {
+                    if(draw.page === this.currentPage) this.drawPath(draw);
                 });
 
                 if(this.isDrawing) this.drawPath({points: this.currentPath, color: this.currentColor, thickness: this.currentThickness, mode: this.mode});
                 requestAnimationFrame(() => this.render());
             },
 
-            drawPath(d) {
+            drawPath(draw) {
                 this.ctx.beginPath();
-                this.ctx.lineCap = 'round';
-                this.ctx.lineJoin = 'round';
-                this.ctx.lineWidth = d.thickness;
-                this.ctx.strokeStyle = d.color;
-                
-                if(d.mode === 'eraser') this.ctx.globalCompositeOperation = 'destination-out';
-                else this.ctx.globalCompositeOperation = 'source-over';
-
-                this.ctx.moveTo(d.points[0].x, d.points[0].y);
-                d.points.forEach(p => this.ctx.lineTo(p.x, p.y));
+                this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
+                this.ctx.lineWidth = draw.mode === 'eraser' ? 40 : draw.thickness;
+                this.ctx.strokeStyle = draw.color;
+                this.ctx.globalCompositeOperation = draw.mode === 'eraser' ? 'destination-out' : 'source-over';
+                this.ctx.moveTo(draw.points[0].x, draw.points[0].y);
+                draw.points.forEach(p => this.ctx.lineTo(p.x, p.y));
                 this.ctx.stroke();
                 this.ctx.globalCompositeOperation = 'source-over';
             },
 
             sendMsg() {
-                const inp = document.getElementById('chat-input');
-                if(!inp.value.trim()) return;
-                push(ref(db, `rooms/${this.room}/chat`), { user: this.userName, text: inp.value });
-                inp.value = '';
+                const i = document.getElementById('chat-input');
+                if(!i.value.trim()) return;
+                push(ref(db, `rooms/${this.room}/chat`), { user: this.userName, text: i.value });
+                i.value = '';
             },
 
-            deleteMsg(key) {
-                if(this.isAdmin) remove(ref(db, `rooms/${this.room}/chat/${key}`));
-            },
+            deleteMsg(key) { remove(ref(db, `rooms/${this.room}/chat/${key}`)); },
 
             toggleSubMenu(id) {
                 const el = document.getElementById(id);
-                const isOpen = el.classList.contains('show-menu');
+                const open = el.classList.contains('show-menu');
                 this.closeAllMenus();
-                if(!isOpen) el.classList.add('show-menu');
+                if(!open) el.classList.add('show-menu');
             },
 
-            closeAllMenus() {
-                document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu'));
-            },
+            closeAllMenus() { document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu')); },
 
-            updateColor(c) {
-                this.currentColor = c;
-                document.getElementById('btn-color').style.color = c;
-                this.closeAllMenus();
-            },
+            updateColor(c) { this.currentColor = c; this.closeAllMenus(); },
 
-            setMode(m) {
+            setMode(m, icon) {
                 this.mode = m;
-                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-                if(m === 'move') document.getElementById('btn-move').classList.add('active');
-                else document.getElementById('btn-pen').classList.add('active');
+                if(icon) document.getElementById('btn-pen').innerText = icon;
+                this.closeAllMenus();
+            },
+
+            toggleGeo(id) { 
+                const el = document.getElementById(id);
+                el.style.display = el.style.display === 'block' ? 'none' : 'block';
+                el.style.top = '100px'; el.style.left = '100px';
                 this.closeAllMenus();
             },
 
             moveToolbar(pos) {
+                const bar = document.getElementById('main-toolbar');
                 document.body.className = 'pos-' + pos;
-                this.closeAllMenus();
+                bar.classList.toggle('toolbar-vertical', pos === 'right' || pos === 'left');
+                bar.style.top = bar.style.bottom = bar.style.left = bar.style.right = 'auto';
+                if(pos === 'bottom') { bar.style.bottom='20px'; bar.style.left='50%'; bar.style.transform='translateX(-50%)'; }
+                else if(pos === 'top') { bar.style.top='70px'; bar.style.left='50%'; bar.style.transform='translateX(-50%)'; }
+                else if(pos === 'right') { bar.style.right='20px'; bar.style.top='50%'; bar.style.transform='translateY(-50%)'; }
+                else if(pos === 'left') { bar.style.left='20px'; bar.style.top='50%'; bar.style.transform='translateY(-50%)'; }
             },
 
-            changePage(n) {
-                this.currentPage = Math.max(1, this.currentPage + n);
-                document.getElementById('page-label').innerText = this.currentPage;
+            undo() {
+                const ks = Object.keys(this.drawings);
+                if(ks.length) remove(ref(db, `rooms/${this.room}/board/${ks.pop()}`));
             },
 
             clearBoard() {
@@ -396,23 +404,35 @@
                 }
             },
 
-            toggleChat() {
-                const p = document.getElementById('chat-panel');
-                p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
-            },
-
-            toggleMinimize() {
+            changePage(n) { this.currentPage = Math.max(1, this.currentPage+n); document.getElementById('page-label').innerText = this.currentPage; },
+            toggleChat() { const p = document.getElementById('chat-panel'); p.style.display = p.style.display==='flex'?'none':'flex'; },
+            toggleUsers() { const p = document.getElementById('users-panel'); p.style.display = p.style.display==='block'?'none':'block'; },
+            toggleMinimize() { 
                 const bar = document.getElementById('main-toolbar');
-                const btn = document.getElementById('restore-btn');
-                const isHidden = bar.style.display === 'none';
-                bar.style.display = isHidden ? 'flex' : 'none';
-                btn.style.display = isHidden ? 'none' : 'block';
+                const isH = bar.style.display==='none';
+                bar.style.display = isH?'flex':'none';
+                document.getElementById('restore-btn').style.display = isH?'none':'block';
             },
-
             resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
-            toggleFullscreen() {
-                if(!document.fullscreenElement) document.documentElement.requestFullscreen();
-                else document.exitFullscreen();
+            makeDraggable(el) {
+                let px=0, py=0;
+                el.onpointerdown = (e) => {
+                    if(e.target.style.cursor==='nwse-resize') return;
+                    e.stopPropagation(); px=e.clientX; py=e.clientY;
+                    const mv = (ee) => { el.style.left=(el.offsetLeft+ee.clientX-px)+"px"; el.style.top=(el.offsetTop+ee.clientY-py)+"px"; px=ee.clientX; py=ee.clientY; };
+                    const st = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', st); };
+                    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', st);
+                };
+            },
+            makeResizable(el) {
+                const r = el.querySelector('div');
+                r.onpointerdown = (e) => {
+                    e.stopPropagation();
+                    let sx=e.clientX, sy=e.clientY, sw=el.offsetWidth, sh=el.offsetHeight;
+                    const mv = (ee) => { el.style.width=(sw+ee.clientX-sx)+"px"; el.style.height=(sh+ee.clientY-sy)+"px"; };
+                    const st = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', st); };
+                    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', st);
+                };
             }
         };
 
