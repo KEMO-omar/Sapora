@@ -27,11 +27,11 @@
         .top-bar { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 1000; pointer-events: none; }
         .badge { background: var(--glass); padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; pointer-events: auto; box-shadow: var(--shadow); display: inline-flex; align-items: center; gap: 6px; border: 1px solid #eee; margin: 2px; }
 
-        /* شريط الأدوات الذكي */
+        /* شريط الأدوات */
         #main-toolbar { 
             position: fixed; background: var(--glass); padding: 12px; border-radius: 25px; 
             box-shadow: var(--shadow); display: none; gap: 10px; align-items: center; 
-            z-index: 2000; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #fff; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 2000; transition: all 0.3s ease; border: 1px solid #fff; bottom: 20px; left: 50%; transform: translateX(-50%);
         }
         
         .toolbar-vertical { flex-direction: column !important; width: 55px !important; border-radius: 30px !important; padding: 20px 8px !important; height: auto; max-height: 90vh; overflow-y: auto; }
@@ -39,44 +39,44 @@
         .toolbar-vertical .page-controls { flex-direction: column !important; }
 
         .tool-btn { width: 42px; height: 42px; border-radius: 12px; border: none; background: #f1f5f9; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; }
-        .tool-btn:hover { background: #e2e8f0; transform: scale(1.1); }
+        .tool-btn:hover { background: #e2e8f0; transform: scale(1.05); }
         .tool-btn.active { background: var(--primary); color: white; }
 
-        /* القوائم الفرعية */
-        .sub-menu { position: absolute; background: white; padding: 15px; border-radius: 15px; display: none; gap: 10px; box-shadow: var(--shadow); z-index: 2001; min-width: 120px; }
+        /* القوائم الفرعية المعدلة */
+        .sub-menu { position: absolute; background: white; padding: 15px; border-radius: 15px; display: none; gap: 10px; box-shadow: var(--shadow); z-index: 2001; min-width: 120px; border: 1px solid #eee; }
+        .show-menu { display: flex !important; flex-direction: column; align-items: center; }
+
+        /* تحديد اتجاه القوائم بناءً على موضع الشريط */
         .pos-bottom .sub-menu { bottom: 65px; left: 50%; transform: translateX(-50%); }
         .pos-top .sub-menu { top: 65px; left: 50%; transform: translateX(-50%); }
         .pos-right .sub-menu { right: 65px; top: 0; }
         .pos-left .sub-menu { left: 65px; top: 0; }
-        .show-menu { display: flex !important; flex-direction: column; align-items: center; }
 
         .color-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; width: 180px; gap: 8px; }
-        .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.1); }
+        .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.1); transition: 0.2s; }
+        .color-dot:hover { transform: scale(1.2); }
 
-        /* شريط سمك الخط */
         .thickness-box { width: 100%; text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
         .thickness-slider { width: 100px; cursor: pointer; }
 
-        /* شات ومتصلين */
-        #chat-panel { position: fixed; bottom: 90px; right: 20px; width: 300px; height: 400px; background: white; border-radius: 20px; box-shadow: var(--shadow); display: none; flex-direction: column; z-index: 2500; overflow: hidden; }
+        /* الشات */
+        #chat-panel { position: fixed; bottom: 90px; right: 20px; width: 300px; height: 400px; background: white; border-radius: 20px; box-shadow: var(--shadow); display: none; flex-direction: column; z-index: 2500; overflow: hidden; border: 1px solid #eee; }
         #chat-msgs { flex: 1; overflow-y: auto; padding: 10px; background: #f8fafc; display: flex; flex-direction: column; gap: 8px; }
         .msg { padding: 8px 12px; border-radius: 12px; font-size: 13px; max-width: 85%; line-height: 1.4; }
         .msg-me { background: var(--primary); color: white; align-self: flex-end; }
         .msg-them { background: #e2e8f0; color: #333; align-self: flex-start; }
 
         #users-panel { position: absolute; top: 45px; left: 0; background: white; width: 170px; border-radius: 12px; box-shadow: var(--shadow); display: none; padding: 10px; z-index: 2005; }
-        .user-row { font-size: 13px; padding: 6px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px; }
-        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
-
+        
         /* أدوات الهندسة */
-        .geo-tool { position: absolute; background: rgba(255,255,255,0.3); border: 2px solid var(--primary); backdrop-filter: blur(5px); cursor: move; display: none; z-index: 500; }
+        .geo-tool { position: absolute; background: rgba(255,255,255,0.4); border: 2px solid var(--primary); backdrop-filter: blur(8px); cursor: move; display: none; z-index: 500; }
         .ruler { height: 60px; width: 350px; background-image: linear-gradient(90deg, #333 1px, transparent 1px); background-size: 20px 20px; background-position: bottom; }
         .protractor { width: 240px; height: 120px; border-radius: 120px 120px 0 0; border-bottom: 2px solid #333; }
         .triangle { width: 180px; height: 180px; clip-path: polygon(0% 100%, 100% 100%, 0% 0%); background: rgba(67, 97, 238, 0.15); }
         .circle-tool { width: 180px; height: 180px; border-radius: 50%; border: 2px dashed var(--primary); }
         
         .zoom-controls { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
-        #board { background: white; cursor: crosshair; display: block; }
+        #board { background: white; cursor: crosshair; display: block; touch-action: none; }
         #restore-btn { position: fixed; bottom: 20px; left: 20px; z-index: 3000; display: none; width: 55px; height: 55px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 22px; cursor: pointer; box-shadow: var(--shadow); }
     </style>
 </head>
@@ -144,7 +144,7 @@
         
         <div id="teacher-controls" style="display:none; align-items:center; gap:8px;">
             <div style="position:relative;">
-                <button class="tool-btn" onclick="rocket.toggleSubMenu('color-menu')">🎨</button>
+                <button class="tool-btn" id="btn-color" onclick="rocket.toggleSubMenu('color-menu')">🎨</button>
                 <div id="color-menu" class="sub-menu color-grid">
                     <div class="color-dot" style="background:#000000" onclick="rocket.updateColor('#000000')"></div>
                     <div class="color-dot" style="background:#ff0000" onclick="rocket.updateColor('#ff0000')"></div>
@@ -152,7 +152,7 @@
                     <div class="color-dot" style="background:#2ed573" onclick="rocket.updateColor('#2ed573')"></div>
                     <div class="color-dot" style="background:#ffa500" onclick="rocket.updateColor('#ffa500')"></div>
                     <div class="color-dot" style="background:#800080" onclick="rocket.updateColor('#800080')"></div>
-                    <div class="color-dot" style="background:#ffc0cb" onclick="rocket.updateColor('#ffc0cb')"></div>
+                    <div class="color-dot" style="background:#ff4757" onclick="rocket.updateColor('#ff4757')"></div>
                     <div class="color-dot" style="background:#a52a2a" onclick="rocket.updateColor('#a52a2a')"></div>
                     <div class="color-dot" style="background:#7f8c8d" onclick="rocket.updateColor('#7f8c8d')"></div>
                     <div class="color-dot" style="background:#1abc9c" onclick="rocket.updateColor('#1abc9c')"></div>
@@ -176,12 +176,14 @@
             </div>
 
             <div style="position:relative;">
-                <button class="tool-btn" onclick="rocket.toggleSubMenu('geo-menu')">📐</button>
+                <button class="tool-btn" id="btn-geo" onclick="rocket.toggleSubMenu('geo-menu')">📐</button>
                 <div id="geo-menu" class="sub-menu">
-                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-ruler')">📏</button>
-                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-protractor')">🧭</button>
-                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-triangle')">📐</button>
-                    <button class="tool-btn" onclick="rocket.toggleGeo('tool-circle')">⭕</button>
+                    <div style="display:flex; gap:8px;">
+                        <button class="tool-btn" onclick="rocket.toggleGeo('tool-ruler')">📏</button>
+                        <button class="tool-btn" onclick="rocket.toggleGeo('tool-protractor')">🧭</button>
+                        <button class="tool-btn" onclick="rocket.toggleGeo('tool-triangle')">📐</button>
+                        <button class="tool-btn" onclick="rocket.toggleGeo('tool-circle')">⭕</button>
+                    </div>
                 </div>
             </div>
 
@@ -190,7 +192,7 @@
             <button class="tool-btn" onclick="rocket.redo()">↪️</button>
             <button class="tool-btn" onclick="rocket.clearBoard()" style="color:red">🗑️</button>
             
-            <select onchange="rocket.moveToolbar(this.value)" style="border-radius:12px; padding:8px; border:2px solid #eee; font-family:'Cairo'; outline:none; background:white; cursor:pointer;">
+            <select onchange="rocket.moveToolbar(this.value)" style="border-radius:12px; padding:8px; border:1px solid #eee; font-family:'Cairo'; outline:none; background:white; cursor:pointer;">
                 <option value="bottom">الوضع: أسفل</option>
                 <option value="top">الوضع: أعلى</option>
                 <option value="right">الوضع: يمين</option>
@@ -226,8 +228,8 @@
         const rocket = {
             isAdmin: false, mode: 'move', canvas: document.getElementById('board'),
             ctx: document.getElementById('board').getContext('2d'), camera: { x: 0, y: 0, zoom: 1 },
-            drawings: {}, redoStack: [], currentColor: '#000', currentThickness: 3, currentPage: 1, isDrawing: false,
-            isDragging: false, currentPath: [], lastMouse: {x:0, y:0}, userName: '',
+            drawings: {}, redoStack: [], currentColor: '#000000', currentThickness: 3, currentPage: 1, 
+            isDrawing: false, isDragging: false, currentPath: [], lastMouse: {x:0, y:0}, userName: '',
 
             init() {
                 this.resize();
@@ -252,7 +254,10 @@
                 set(userRef, { name: name, role: role });
                 onDisconnect(userRef).remove();
 
-                if(this.isAdmin) document.getElementById('teacher-controls').style.display = 'flex';
+                if(this.isAdmin) {
+                    document.getElementById('teacher-controls').style.display = 'flex';
+                    this.setMode('pen');
+                }
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-toolbar').style.display = 'flex';
                 this.sendSystemMsg(`انضم ${name} إلى رحلة كريم عمر التعليمية 🚀`);
@@ -269,13 +274,9 @@
                     };
                 };
 
-                // استخدام pointerdown للتعامل مع الماوس واللمس معاً
                 this.canvas.addEventListener('pointerdown', (e) => {
-                    if(e.target.closest('.tool-btn, .sub-menu, .badge, select, input')) return;
-                    
-                    // منع الرسم العشوائي عند استخدام إصبعين للتكبير
                     if (e.pointerType === 'touch' && !e.isPrimary) return;
-
+                    
                     const pos = getPos(e);
                     if(this.mode === 'move' || !this.isAdmin) {
                         this.isDragging = true;
@@ -284,6 +285,8 @@
                         this.isDrawing = true;
                         this.currentPath = [{x: pos.x, y: pos.y}];
                     }
+                    // إغلاق أي قائمة مفتوحة عند لمس السبورة
+                    this.closeAllMenus();
                 });
 
                 window.addEventListener('pointermove', (e) => {
@@ -308,10 +311,10 @@
                     this.isDrawing = this.isDragging = false;
                 });
 
-                window.onwheel = (e) => {
+                this.canvas.addEventListener('wheel', (e) => {
                     e.preventDefault();
                     this.adjustZoom(e.deltaY > 0 ? 0.9 : 1.1, e.clientX, e.clientY);
-                };
+                }, {passive: false});
             },
 
             syncData() {
@@ -348,47 +351,49 @@
                 this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
                 
                 let baseW = draw.thickness || 3;
-                if (draw.mode === 'marker') baseW += 7;
-                if (draw.mode === 'brush') baseW += 12;
-                if (draw.mode === 'eraser') baseW = 40; // ممحاة كبيرة
+                if (draw.mode === 'marker') baseW += 10;
+                if (draw.mode === 'brush') baseW += 15;
+                if (draw.mode === 'eraser') baseW = 40;
                 
                 this.ctx.lineWidth = baseW;
                 this.ctx.strokeStyle = draw.color;
-                this.ctx.globalAlpha = draw.mode === 'brush' ? 0.5 : 1;
                 
-                if(draw.mode === 'eraser') { this.ctx.globalCompositeOperation = 'destination-out'; }
-                else { this.ctx.globalCompositeOperation = 'source-over'; }
-                
-                if(draw.mode === 'neon') { 
-                    this.ctx.shadowBlur = 15; 
-                    this.ctx.shadowColor = draw.color; 
+                if(draw.mode === 'eraser') { 
+                    this.ctx.globalCompositeOperation = 'destination-out'; 
                 } else { 
-                    this.ctx.shadowBlur = 0; 
+                    this.ctx.globalCompositeOperation = 'source-over'; 
+                    this.ctx.globalAlpha = draw.mode === 'brush' ? 0.5 : 1;
+                    if(draw.mode === 'neon') { 
+                        this.ctx.shadowBlur = 15; 
+                        this.ctx.shadowColor = draw.color; 
+                    } else { 
+                        this.ctx.shadowBlur = 0; 
+                    }
                 }
                 
                 this.ctx.moveTo(draw.points[0].x, draw.points[0].y);
                 draw.points.forEach(p => this.ctx.lineTo(p.x, p.y));
                 this.ctx.stroke();
                 this.ctx.globalAlpha = 1;
+                this.ctx.globalCompositeOperation = 'source-over';
             },
 
-            adjustZoom(f, cx, cy) {
-                const oldZ = this.camera.zoom;
-                this.camera.zoom = Math.min(Math.max(this.camera.zoom * f, 0.1), 10);
-                if(cx !== undefined) {
-                    this.camera.x -= (cx - this.camera.x) * (this.camera.zoom / oldZ - 1);
-                    this.camera.y -= (cy - this.camera.y) * (this.camera.zoom / oldZ - 1);
-                }
-                document.getElementById('zoom-info').innerText = Math.round(this.camera.zoom * 100) + "%";
-            },
-
-            resetZoom() { this.camera = {x:0, y:0, zoom:1}; document.getElementById('zoom-info').innerText = "100%"; },
-
+            // منطق القوائم المعدل
             toggleSubMenu(id) {
                 const el = document.getElementById(id);
-                const isShow = el.classList.contains('show-menu');
+                const isAlreadyOpen = el.classList.contains('show-menu');
+                this.closeAllMenus();
+                if(!isAlreadyOpen) el.classList.add('show-menu');
+            },
+
+            closeAllMenus() {
                 document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu'));
-                if(!isShow) el.classList.add('show-menu');
+            },
+
+            updateColor(c) { 
+                this.currentColor = c; 
+                document.getElementById('btn-color').style.color = c;
+                this.closeAllMenus(); 
             },
 
             setMode(m, icon) {
@@ -397,16 +402,25 @@
                 document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
                 if(m === 'move') document.getElementById('btn-move').classList.add('active');
                 else document.getElementById('btn-pen').classList.add('active');
-                
-                // إغلاق القوائم بعد اختيار الأداة
-                document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu'));
+                this.closeAllMenus();
             },
 
-            updateColor(c) { 
-                this.currentColor = c; 
-                // إغلاق قائمة الألوان بعد الاختيار
-                document.getElementById('color-menu').classList.remove('show-menu');
+            toggleGeo(id) { 
+                const el = document.getElementById(id); 
+                el.style.display = el.style.display === 'block' ? 'none' : 'block'; 
+                el.style.top = '150px'; el.style.left = '150px'; 
+                this.closeAllMenus();
             },
+
+            adjustZoom(f, cx, cy) {
+                const oldZ = this.camera.zoom;
+                this.camera.zoom = Math.min(Math.max(this.camera.zoom * f, 0.1), 10);
+                this.camera.x -= (cx - this.camera.x) * (this.camera.zoom / oldZ - 1);
+                this.camera.y -= (cy - this.camera.y) * (this.camera.zoom / oldZ - 1);
+                document.getElementById('zoom-info').innerText = Math.round(this.camera.zoom * 100) + "%";
+            },
+
+            resetZoom() { this.camera = {x:0, y:0, zoom:1}; document.getElementById('zoom-info').innerText = "100%"; },
             updateThickness(v) { this.currentThickness = parseInt(v); },
 
             moveToolbar(pos) {
@@ -416,7 +430,6 @@
                 bar.classList.toggle('toolbar-vertical', isVertical);
                 bar.style.top = bar.style.bottom = bar.style.left = bar.style.right = 'auto'; 
                 bar.style.transform = 'none';
-
                 if(pos === 'bottom') { bar.style.bottom = '20px'; bar.style.left = '50%'; bar.style.transform = 'translateX(-50%)'; }
                 else if(pos === 'top') { bar.style.top = '20px'; bar.style.left = '50%'; bar.style.transform = 'translateX(-50%)'; }
                 else if(pos === 'right') { bar.style.right = '20px'; bar.style.top = '50%'; bar.style.transform = 'translateY(-50%)'; }
@@ -442,14 +455,14 @@
             },
 
             sendSystemMsg(t) { push(ref(db, 'chat'), { user: '📢', text: t }); },
-
             toggleChat() { const p = document.getElementById('chat-panel'); p.style.display = p.style.display === 'flex' ? 'none' : 'flex'; },
             toggleUsers() { const p = document.getElementById('users-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; },
             toggleMinimize() { 
                 const bar = document.getElementById('main-toolbar'); 
                 const rest = document.getElementById('restore-btn');
-                bar.style.display = bar.style.display === 'none' ? 'flex' : 'none'; 
-                rest.style.display = bar.style.display === 'none' ? 'block' : 'none';
+                const isHidden = bar.style.display === 'none';
+                bar.style.display = isHidden ? 'flex' : 'none'; 
+                rest.style.display = isHidden ? 'none' : 'block';
             },
             toggleFullscreen() {
                 if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -463,37 +476,19 @@
                     remove(ref(db, `board_data/${k}`)); 
                 }
             },
-            redo() { 
-                if(this.redoStack.length) push(ref(db, 'board_data'), this.redoStack.pop()); 
-            },
+            redo() { if(this.redoStack.length) push(ref(db, 'board_data'), this.redoStack.pop()); },
             clearBoard() { 
-                if(confirm("كريم عمر، هل أنت متأكد من مسح الصفحة الحالية؟")) { 
-                    Object.keys(this.drawings).forEach(k => { 
-                        if(this.drawings[k].page === this.currentPage) remove(ref(db, `board_data/${k}`)); 
-                    });
+                if(confirm("مستر كريم، هل تريد مسح كل شيء في هذه الصفحة؟")) { 
+                    Object.keys(this.drawings).forEach(k => { if(this.drawings[k].page === this.currentPage) remove(ref(db, `board_data/${k}`)); });
                 }
             },
             changePage(n) { 
                 this.currentPage = Math.max(1, this.currentPage + n); 
                 document.getElementById('page-label').innerText = this.currentPage; 
             },
-            resize() { 
-                this.canvas.width = window.innerWidth; 
-                this.canvas.height = window.innerHeight; 
-            },
+            resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
             startTimer() { 
-                let s = 0; 
-                setInterval(() => { 
-                    s++; 
-                    let m = Math.floor(s/60), sc = s%60; 
-                    document.getElementById('timer').innerText = `${m}:${sc<10?'0':''}${sc}`; 
-                }, 1000); 
-            },
-            toggleGeo(id) { 
-                const el = document.getElementById(id); 
-                el.style.display = el.style.display === 'block' ? 'none' : 'block'; 
-                el.style.top = '150px'; el.style.left = '150px'; 
-                document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('show-menu'));
+                let s = 0; setInterval(() => { s++; let m = Math.floor(s/60), sc = s%60; document.getElementById('timer').innerText = `${m}:${sc<10?'0':''}${sc}`; }, 1000); 
             },
             makeDraggable(el) {
                 let px = 0, py = 0;
