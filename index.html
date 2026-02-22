@@ -3,698 +3,614 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sapora Rocket PRO | المستر كريم عمر</title>
+    <title>Sapora Rocket PRO V2 | المستر كريم عمر</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         :root {
             --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #7209b7;
             --neon: #00f2ff;
             --dark: #0f172a;
-            --bg: #f8fafc;
-            --glass: rgba(255, 255, 255, 0.92);
-            --shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            --trans: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --danger: #ef4444;
+            --success: #10b981;
+            --bg: #f1f5f9;
+            --glass: rgba(255, 255, 255, 0.95);
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --trans: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Cairo', sans-serif; 
+            user-select: none; -webkit-tap-highlight-color: transparent;
+        }
+
         body { 
-            overflow: hidden; 
             background: var(--bg); 
-            touch-action: none; 
-            height: 100vh;
-            width: 100vw;
+            height: 100vh; width: 100vw; 
+            overflow: hidden; touch-action: none;
         }
 
-        /* --- شاشة الدخول الاحترافية --- */
+        /* --- Auth Screen --- */
         #auth-screen {
-            position: fixed; inset: 0; 
-            background: radial-gradient(circle at top right, var(--primary), var(--dark));
+            position: fixed; inset: 0;
+            background: radial-gradient(circle at center, var(--primary), var(--dark));
             z-index: 10000; display: flex; align-items: center; justify-content: center;
         }
         .auth-card {
-            background: white; padding: 40px; border-radius: 30px; 
-            width: 90%; max-width: 420px; text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-            animation: fadeIn 0.6s ease;
+            background: white; padding: 40px; border-radius: 35px;
+            width: 90%; max-width: 450px; text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            animation: bounceIn 0.8s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .auth-card h1 { color: var(--primary); font-weight: 800; margin-bottom: 5px; font-size: 28px; }
-        .auth-card p { color: #64748b; font-size: 14px; margin-bottom: 30px; }
-
-        .input-group { position: relative; margin-bottom: 20px; text-align: right; }
-        .input-group i { position: absolute; right: 15px; top: 15px; color: #94a3b8; font-size: 18px; }
-        .input-group input { 
-            width: 100%; padding: 12px 45px 12px 15px; border-radius: 15px; 
-            border: 2px solid #e2e8f0; outline: none; transition: var(--trans);
-            font-size: 16px; font-weight: 600;
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 0.9; transform: scale(1.1); }
+            80% { opacity: 1; transform: scale(0.89); }
+            100% { opacity: 1; transform: scale(1); }
         }
-        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1); }
 
-        .auth-buttons { display: flex; gap: 15px; margin-top: 10px; }
-        .btn-auth { 
-            flex: 1; padding: 15px; border: none; border-radius: 15px; 
-            cursor: pointer; font-weight: 800; color: white; transition: var(--trans);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .input-group input {
+            width: 100%; padding: 15px 45px 15px 15px; border: 2px solid #e2e8f0;
+            border-radius: 15px; outline: none; font-size: 16px; transition: var(--trans);
         }
-        .btn-teacher { background: var(--primary); box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3); }
-        .btn-student { background: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
-        .btn-auth:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15); }
 
-        /* --- واجهة المعلومات العلوية --- */
+        .auth-buttons { display: flex; gap: 15px; }
+        .btn-auth {
+            flex: 1; padding: 15px; border: none; border-radius: 15px;
+            color: white; font-weight: 800; cursor: pointer; transition: var(--trans);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-teacher { background: var(--primary); }
+        .btn-student { background: var(--success); }
+
+        /* --- UI Elements --- */
         .top-nav {
-            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 80px;
             display: none; justify-content: space-between; align-items: center;
-            padding: 0 25px; pointer-events: none; z-index: 5000;
+            padding: 0 20px; z-index: 5000; pointer-events: none;
         }
         .nav-badge {
-            background: var(--glass); padding: 8px 18px; border-radius: 20px;
-            box-shadow: var(--shadow); pointer-events: auto;
-            display: flex; align-items: center; gap: 10px;
-            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.4);
+            background: var(--glass); padding: 10px 20px; border-radius: 20px;
+            box-shadow: var(--shadow); pointer-events: auto; display: flex; align-items: center; gap: 12px;
+            backdrop-filter: blur(10px); border: 1px solid white;
         }
-        .badge-icon { width: 35px; height: 35px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .room-title { font-weight: 800; font-size: 14px; color: var(--dark); }
+        .badge-icon { width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 
-        /* --- قائمة المتصلين --- */
+        /* --- Users Sidebar --- */
         #users-sidebar {
-            position: fixed; right: 20px; top: 85px; width: 200px; 
-            background: var(--glass); border-radius: 20px; padding: 15px;
-            box-shadow: var(--shadow); display: none; backdrop-filter: blur(10px);
-            max-height: 300px; overflow-y: auto; z-index: 4000; border: 1px solid white;
+            position: fixed; right: 20px; top: 90px; width: 260px;
+            background: var(--glass); border-radius: 25px; padding: 20px;
+            box-shadow: var(--shadow); display: none; z-index: 4500;
+            max-height: 400px; overflow-y: auto; backdrop-filter: blur(10px);
         }
-        .sidebar-h { font-weight: 800; font-size: 14px; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
-        .user-pill { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; font-weight: 600; color: #475569; }
-        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
+        .user-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px; border-radius: 12px; margin-bottom: 8px; background: #f8fafc;
+            transition: 0.2s;
+        }
+        .user-info { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; }
+        .btn-grant { padding: 5px 10px; font-size: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; }
+        .granted { background: var(--success); color: white; }
+        .not-granted { background: #e2e8f0; color: #64748b; }
 
-        /* --- شريط الأدوات الذكي (متعدد المواضع) --- */
+        /* --- Smart Toolbar --- */
+        #toolbar-container {
+            position: fixed; z-index: 6000; display: none; transition: var(--trans);
+        }
         #smart-toolbar {
-            position: fixed; background: var(--glass); padding: 10px;
-            border-radius: 25px; box-shadow: var(--shadow); z-index: 6000;
-            display: none; backdrop-filter: blur(15px); border: 1px solid white;
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            background: var(--glass); padding: 12px; border-radius: 30px;
+            box-shadow: var(--shadow); display: flex; backdrop-filter: blur(15px);
+            border: 2px solid white; gap: 8px;
         }
-
-        /* وضعيات شريط الأدوات */
-        .toolbar-bottom { bottom: 25px; left: 50%; transform: translateX(-50%); flex-direction: row; }
-        .toolbar-top { top: 25px; left: 50%; transform: translateX(-50%); flex-direction: row; }
-        .toolbar-left { left: 20px; top: 50%; transform: translateY(-50%); flex-direction: column; }
-        .toolbar-right { right: 20px; top: 50%; transform: translateY(-50%); flex-direction: column; }
+        
+        /* Positions */
+        .pos-bottom { bottom: 30px; left: 50%; transform: translateX(-50%); }
+        .pos-top { top: 30px; left: 50%; transform: translateX(-50%); }
+        .pos-left { left: 30px; top: 50%; transform: translateY(-50%); flex-direction: column; }
+        .pos-right { right: 30px; top: 50%; transform: translateY(-50%); flex-direction: column; }
 
         .tool-btn {
-            width: 48px; height: 48px; border-radius: 18px; border: none;
+            width: 52px; height: 52px; border-radius: 18px; border: none;
             background: transparent; color: var(--dark); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; transition: var(--trans); position: relative;
+            font-size: 22px; transition: var(--trans); position: relative;
         }
         .tool-btn:hover { background: rgba(67, 97, 238, 0.1); color: var(--primary); }
-        .tool-btn.active { background: var(--primary); color: white; transform: scale(1.1); box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3); }
+        .tool-btn.active { background: var(--primary); color: white; box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3); }
 
-        /* القوائم الفرعية */
+        /* Pop Menus */
         .pop-menu {
-            position: absolute; background: white; border-radius: 20px;
-            padding: 15px; box-shadow: var(--shadow); display: none;
-            min-width: 180px; z-index: 7000; border: 1px solid #f1f5f9;
+            position: absolute; background: white; border-radius: 25px;
+            padding: 20px; box-shadow: var(--shadow); display: none;
+            min-width: 220px; z-index: 7000; border: 1px solid #f1f5f9;
         }
-        .toolbar-bottom .pop-menu { bottom: 70px; left: 50%; transform: translateX(-50%); }
-        .toolbar-top .pop-menu { top: 70px; left: 50%; transform: translateX(-50%); }
-        .toolbar-left .pop-menu { left: 65px; top: 0; }
-        .toolbar-right .pop-menu { right: 65px; top: 0; }
-        .pop-menu.active { display: block; animation: popIn 0.3s ease; }
-        @keyframes popIn { from { opacity: 0; transform: translate(-50%, 10px) scale(0.9); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+        .active-menu { display: block !important; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- محرك الرسم --- */
+        /* --- Canvas --- */
         canvas { display: block; background: #ffffff; cursor: crosshair; }
-        
-        /* خيارات الفرشاة */
-        .brush-opt {
-            display: flex; align-items: center; gap: 12px; padding: 10px;
-            border-radius: 12px; cursor: pointer; transition: 0.2s; margin-bottom: 5px;
-        }
-        .brush-opt:hover { background: #f8fafc; }
-        .brush-opt i { font-size: 18px; width: 25px; text-align: center; }
-        .brush-name { font-weight: 700; font-size: 13px; }
 
-        /* باليتة الألوان */
-        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .color-dot { width: 28px; height: 28px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-        .color-dot:hover { transform: scale(1.2); }
+        /* --- Extra Controls --- */
+        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .color-dot { width: 32px; height: 32px; border-radius: 12px; cursor: pointer; border: 2px solid transparent; }
         .color-dot.active { border-color: var(--dark); transform: scale(1.1); }
+        #custom-color-btn { width: 100%; height: 40px; border-radius: 10px; border: 2px dashed #ccc; margin-top: 10px; cursor: pointer; }
 
-        /* الصفحات */
-        .page-ctrl { display: flex; align-items: center; gap: 15px; font-weight: 800; color: var(--dark); }
-        .page-btn { background: #e2e8f0; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
-
-        /* الأشكال */
-        .shape-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .shape-item { 
-            padding: 10px; border: 2px solid #e2e8f0; border-radius: 12px; 
-            text-align: center; cursor: pointer; transition: 0.2s;
-        }
-        .shape-item:hover { border-color: var(--primary); color: var(--primary); }
-        .shape-item.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        /* --- الشات --- */
+        /* --- Chat Window --- */
         #chat-window {
-            position: fixed; bottom: 90px; right: 30px; width: 320px; height: 450px;
-            background: white; border-radius: 25px; box-shadow: var(--shadow);
+            position: fixed; bottom: 100px; right: 30px; width: 350px; height: 500px;
+            background: white; border-radius: 30px; box-shadow: var(--shadow);
             display: none; flex-direction: column; overflow: hidden; z-index: 5500;
-            border: 1px solid #eee; animation: slideUp 0.4s ease;
+            border: 1px solid #eee;
         }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .chat-h { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
-        #chat-body { flex: 1; overflow-y: auto; padding: 15px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; }
-        .msg-bubble { background: white; padding: 8px 12px; border-radius: 15px; font-size: 13px; max-width: 85%; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .msg-name { font-weight: 800; color: var(--primary); font-size: 11px; display: block; margin-bottom: 2px; }
-        .chat-f { padding: 15px; display: flex; gap: 10px; background: white; }
-        #chat-input { flex: 1; border: 2px solid #f1f5f9; border-radius: 12px; padding: 8px 15px; outline: none; }
+        .chat-header { background: var(--primary); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 20px; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
+        .msg-box { position: relative; background: white; padding: 10px 15px; border-radius: 18px; font-size: 14px; max-width: 85%; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .msg-box.mine { align-self: flex-end; background: var(--primary); color: white; }
+        .delete-msg { position: absolute; left: -25px; top: 50%; transform: translateY(-50%); color: var(--danger); cursor: pointer; font-size: 12px; display: none; }
+        .is-teacher .delete-msg { display: block; }
+        
+        /* Toolbar Toggle Button */
+        #toggle-toolbar-visibility {
+            position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px;
+            background: var(--dark); color: white; border-radius: 50%;
+            display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 9000;
+        }
+
     </style>
 </head>
-<body>
+<body class="">
 
     <div id="auth-screen">
         <div class="auth-card">
-            <h1>صاروخ المستر كريم 🚀</h1>
-            <p>نظام السبورة الذكية للمبدعين - إصدار 2026</p>
+            <h1 style="color: var(--primary); font-weight: 900; font-size: 32px; margin-bottom: 10px;">صاروخ المستر 2026 🚀</h1>
+            <p style="color: #64748b; margin-bottom: 30px;">منصة التعليم التفاعلي الأذكى في مصر</p>
             
             <div class="input-group">
-                <i class="fas fa-user-graduate"></i>
-                <input type="text" id="userName" placeholder="اسمك الثلاثي">
+                <i class="fas fa-user-tie"></i>
+                <input type="text" id="userName" placeholder="الاسم بالكامل">
             </div>
-            
             <div class="input-group">
-                <i class="fas fa-door-open"></i>
-                <input type="text" id="roomID" placeholder="رقم الغرفة (مثال: 505)">
+                <i class="fas fa-hashtag"></i>
+                <input type="text" id="roomID" placeholder="كود الغرفة">
             </div>
-            
             <div class="input-group">
-                <i class="fas fa-key"></i>
-                <input type="password" id="roomPass" placeholder="كلمة السر">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="roomPass" placeholder="كلمة المرور">
             </div>
-            
+
             <div class="auth-buttons">
-                <button class="btn-auth btn-teacher" onclick="handleAuth('teacher')">
-                    <i class="fas fa-chalkboard-teacher"></i> دخول معلم
-                </button>
-                <button class="btn-auth btn-student" onclick="handleAuth('student')">
-                    <i class="fas fa-user-edit"></i> دخول طالب
-                </button>
+                <button class="btn-auth btn-teacher" onclick="auth('teacher')">دخول (معلم)</button>
+                <button class="btn-auth btn-student" onclick="auth('student')">دخول (طالب)</button>
             </div>
         </div>
     </div>
 
-    <div class="top-nav" id="top-nav">
-        <div class="nav-badge" onclick="toggleUsersSidebar()" style="cursor: pointer;">
+    <div id="toggle-toolbar-visibility" onclick="toggleToolbarUI()"><i class="fas fa-eye"></i></div>
+
+    <div class="top-nav" id="main-nav">
+        <div class="nav-badge" onclick="toggleSidebar()">
             <div class="badge-icon"><i class="fas fa-users"></i></div>
             <div>
-                <div class="room-title">المتصلون: <span id="online-count">0</span></div>
-                <div style="font-size: 10px; color: #10b981;">نشط الآن</div>
+                <div style="font-weight: 800; font-size: 14px;">المتواجدون: <span id="count">0</span></div>
+                <div style="font-size: 10px; color: var(--success);">غرفة نشطة الآن</div>
             </div>
         </div>
 
         <div class="nav-badge">
-            <div class="page-ctrl">
-                <button class="page-btn" onclick="changePage(-1)"><i class="fas fa-chevron-right"></i></button>
-                <span>صفحة <span id="page-num">1</span></span>
-                <button class="page-btn" onclick="changePage(1)"><i class="fas fa-chevron-left"></i></button>
-            </div>
+            <button onclick="movePage(-1)" style="border:none; background:none; cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
+            <span style="font-weight: 900; min-width: 80px; text-align: center;">صفحة <span id="p-num">1</span></span>
+            <button onclick="movePage(1)" style="border:none; background:none; cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
         </div>
 
-        <div class="nav-badge" style="cursor: pointer;" onclick="toggleFullScreen()">
-            <div class="badge-icon" style="background: #64748b;"><i class="fas fa-expand"></i></div>
-            <span class="room-title">ملء الشاشة</span>
+        <div class="nav-badge" onclick="toggleFullScreen()" style="cursor: pointer;">
+            <div class="badge-icon" style="background: var(--dark);"><i class="fas fa-expand"></i></div>
+            <span style="font-weight: 700;">كامل الشاشة</span>
         </div>
     </div>
 
     <div id="users-sidebar">
-        <div class="sidebar-h">الطلاب في الغرفة</div>
-        <div id="users-list-content"></div>
+        <h3 style="margin-bottom: 15px; font-size: 16px;">قائمة الطلاب</h3>
+        <div id="users-list"></div>
     </div>
 
     <canvas id="board"></canvas>
 
-    <div id="smart-toolbar" class="toolbar-bottom">
-        <button class="tool-btn" onclick="rotateToolbar()" title="تغيير مكان القائمة">
-            <i class="fas fa-sync-alt"></i>
-        </button>
-
-        <div style="position: relative;">
-            <button class="tool-btn active" id="btn-brush" onclick="toggleMenu('menu-pens')">
-                <i class="fas fa-paint-brush"></i>
-            </button>
-            <div id="menu-pens" class="pop-menu">
-                <div class="brush-opt" onclick="setBrush('pen')">
-                    <i class="fas fa-pen" style="color: #4361ee;"></i>
-                    <div class="brush-name">قلم المستر العادي</div>
-                </div>
-                <div class="brush-opt" onclick="setBrush('neon')">
-                    <i class="fas fa-magic" style="color: #00f2ff;"></i>
-                    <div class="brush-name">قلم نيون مضيء</div>
-                </div>
-                <div class="brush-opt" onclick="setBrush('marker')">
-                    <i class="fas fa-highlighter" style="color: #fbbf24;"></i>
-                    <div class="brush-name">ماركر تظليل</div>
-                </div>
-                <div class="brush-opt" onclick="setBrush('pencil')">
-                    <i class="fas fa-pencil-alt" style="color: #64748b;"></i>
-                    <div class="brush-name">قلم رصاص خفيف</div>
-                </div>
-                <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
-                <div style="font-size: 11px; font-weight: 800; margin-bottom: 5px;">سمك الخط: <span id="size-val">4</span>px</div>
-                <input type="range" id="size-slider" min="1" max="50" value="4" style="width: 100%; accent-color: var(--primary);">
-            </div>
-        </div>
-
-        <div style="position: relative;">
-            <button class="tool-btn" id="btn-shapes" onclick="toggleMenu('menu-shapes')">
-                <i class="fas fa-shapes"></i>
-            </button>
-            <div id="menu-shapes" class="pop-menu">
-                <div class="shape-grid">
-                    <div class="shape-item" id="shape-none" onclick="setShape('none')">حرة</div>
-                    <div class="shape-item" id="shape-rect" onclick="setShape('rect')"><i class="far fa-square"></i></div>
-                    <div class="shape-item" id="shape-circle" onclick="setShape('circle')"><i class="far fa-circle"></i></div>
-                    <div class="shape-item" id="shape-triangle" onclick="setShape('triangle')"><i class="fas fa-caret-up"></i></div>
-                    <div class="shape-item" id="shape-line" onclick="setShape('line')">/</div>
-                    <div class="shape-item" id="shape-arrow" onclick="setShape('arrow')"><i class="fas fa-long-arrow-alt-left"></i></div>
+    <div id="toolbar-container" class="pos-bottom">
+        <div id="smart-toolbar">
+            <button class="tool-btn" onclick="cyclePosition()"><i class="fas fa-arrows-alt"></i></button>
+            
+            <div style="position:relative;">
+                <button class="tool-btn active" id="pen-btn" onclick="openMenu('pen-menu')"><i class="fas fa-pen-nib"></i></button>
+                <div id="pen-menu" class="pop-menu">
+                    <div onclick="setMode('pen', 'normal')" class="tool-btn" style="width:100%; justify-content: flex-start; gap:10px;">
+                        <i class="fas fa-pen"></i> <span>قلم عادي</span>
+                    </div>
+                    <div onclick="setMode('pen', 'neon')" class="tool-btn" style="width:100%; justify-content: flex-start; gap:10px;">
+                        <i class="fas fa-magic"></i> <span>قلم نيون</span>
+                    </div>
+                    <hr>
+                    <p style="font-size: 12px; margin: 10px 0;">حجم الخط:</p>
+                    <input type="range" id="pen-size" min="1" max="50" value="4" style="width:100%;">
                 </div>
             </div>
-        </div>
 
-        <div style="position: relative;">
-            <button class="tool-btn" id="btn-colors" onclick="toggleMenu('menu-colors')">
-                <i class="fas fa-palette"></i>
-            </button>
-            <div id="menu-colors" class="pop-menu">
-                <div class="color-grid" id="color-palette"></div>
+            <div style="position:relative;">
+                <button class="tool-btn" id="color-btn" onclick="openMenu('color-menu')"><i class="fas fa-palette"></i></button>
+                <div id="color-menu" class="pop-menu">
+                    <div class="color-grid" id="colors-container"></div>
+                    <input type="color" id="custom-color-picker" onchange="setCustomColor(this.value)">
+                </div>
             </div>
-        </div>
 
-        <button class="tool-btn" id="btn-eraser" onclick="setMode('eraser')"><i class="fas fa-eraser"></i></button>
-        <button class="tool-btn" id="btn-move" onclick="setMode('move')"><i class="fas fa-hand-paper"></i></button>
-        <button class="tool-btn" onclick="clearFullBoard()" style="color: #ef4444;"><i class="fas fa-trash-alt"></i></button>
-        <button class="tool-btn" onclick="toggleChatWindow()"><i class="fas fa-comment-alt"></i></button>
+            <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')"><i class="fas fa-eraser"></i></button>
+            <button class="tool-btn" id="move-btn" onclick="setMode('move')"><i class="fas fa-hand-rock"></i></button>
+            <button class="tool-btn" onclick="clearCanvas()" style="color:var(--danger);"><i class="fas fa-trash"></i></button>
+            <button class="tool-btn" onclick="toggleChat()"><i class="fas fa-comments"></i></button>
+        </div>
     </div>
 
     <div id="chat-window">
-        <div class="chat-h">
-            <span>دردشة الغرفة</span>
-            <i class="fas fa-times" onclick="toggleChatWindow()" style="cursor: pointer;"></i>
+        <div class="chat-header">
+            <span>دردشة المستر</span>
+            <i class="fas fa-times" onclick="toggleChat()" style="cursor:pointer;"></i>
         </div>
-        <div id="chat-body"></div>
-        <div class="chat-f">
-            <input type="text" id="chat-input" placeholder="اكتب هنا...">
-            <button onclick="sendChatMessage()" style="border: none; background: var(--primary); color: white; border-radius: 12px; width: 45px; cursor: pointer;">
-                <i class="fas fa-paper-plane"></i>
-            </button>
+        <div id="chat-messages"></div>
+        <div style="padding: 15px; display: flex; gap: 10px; border-top: 1px solid #eee;">
+            <input type="text" id="chat-inp" placeholder="اكتب سؤالك هنا..." style="flex:1; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
+            <button onclick="sendMsg()" style="background: var(--primary); color:white; border:none; padding: 10px 20px; border-radius: 10px;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <script>
-        // --- إعدادات Firebase ---
-        const firebaseConfig = {
+        // --- Firebase Configuration ---
+        const config = {
             apiKey: "AIzaSyAVFNJhGIlOjyJgSGj9MqK4Xt89p_irSEQ",
             databaseURL: "https://sapora-f738b-default-rtdb.firebaseio.com"
         };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        firebase.initializeApp(config);
+        const db = firebase.database();
 
-        // --- متغيرات النظام الأساسية ---
+        // --- Core Variables ---
         let canvas = document.getElementById('board');
         let ctx = canvas.getContext('2d', { desynchronized: true });
         let isTeacher = false;
-        let roomID = '';
-        let myName = '';
-        let currentPage = 1;
-        let currentMode = 'pen'; // pen, eraser, move, shape
-        let currentBrush = 'pen'; // pen, neon, marker, pencil
-        let currentShape = 'none';
-        let currentColor = '#000000';
-        let currentSize = 4;
+        let canDraw = false;
+        let myName = "";
+        let roomID = "";
+        let page = 1;
+        let mode = 'pen';
+        let brush = 'normal';
+        let color = '#000000';
+        let size = 4;
         let isDrawing = false;
-        let camera = { x: 0, y: 0 };
-        let startX, startY; // لإحداثيات الأشكال
-        let points = []; // لتخزين نقاط الخطوط الحرة
+        let cam = { x: 0, y: 0 };
+        let points = [];
 
-        // ضبط أبعاد السبورة
-        function resizeCanvas() {
+        // --- App Setup ---
+        function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            renderAllDrawings();
+            redraw();
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        window.onresize = resize;
+        resize();
 
-        // --- نظام المصادقة ---
-        function handleAuth(role) {
+        // --- Auth System ---
+        function auth(role) {
             myName = document.getElementById('userName').value.trim();
             roomID = document.getElementById('roomID').value.trim();
-            let pass = document.getElementById('roomPass').value.trim();
+            let pass = document.getElementById('roomPass').value;
 
-            if(!myName || !roomID) {
-                alert("يا مستر، لازم تكمل بياناتك الأول!");
-                return;
-            }
+            if(!myName || !roomID) return alert("من فضلك ادخل البيانات");
 
-            database.ref(`rooms/${roomID}/config`).once('value', (snap) => {
-                let config = snap.val();
+            db.ref(`rooms/${roomID}/config`).once('value', (s) => {
+                let data = s.val();
                 if(role === 'teacher') {
-                    if(!config || config.pass === pass) {
-                        if(!config) database.ref(`rooms/${roomID}/config`).set({ pass: pass });
+                    if(!data || data.pass === pass) {
+                        if(!data) db.ref(`rooms/${roomID}/config`).set({ pass: pass });
                         isTeacher = true;
-                        launchApp();
-                    } else { alert("كلمة السر غلط يا مستر!"); }
+                        canDraw = true;
+                        startApp();
+                    } else alert("كلمة السر خطأ");
                 } else {
-                    if(config) {
+                    if(data) {
                         isTeacher = false;
-                        launchApp();
-                    } else { alert("الغرفة دي لسه مابدأت الشرح، انتظر المستر!"); }
+                        startApp();
+                    } else alert("الغرفة غير موجودة");
                 }
             });
         }
 
-        // --- انطلاق المنصة ---
-        function launchApp() {
+        function startApp() {
             document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('top-nav').style.display = 'flex';
-            document.getElementById('smart-toolbar').style.display = 'flex';
-            
-            // تسجيل الطالب في قائمة المتصلين
-            let userRef = database.ref(`rooms/${roomID}/online/${myName}`);
-            userRef.set(true);
-            userRef.onDisconnect().remove();
+            document.getElementById('main-nav').style.display = 'flex';
+            document.getElementById('toolbar-container').style.display = 'block';
+            document.getElementById('toggle-toolbar-visibility').style.display = 'flex';
+            if(isTeacher) document.body.classList.add('is-teacher');
 
-            // مراقبة المتصلين
-            database.ref(`rooms/${roomID}/online`).on('value', (snap) => {
-                const users = snap.val() || {};
-                const count = Object.keys(users).length;
-                document.getElementById('online-count').innerText = count;
-                
-                let html = '';
+            // Presence
+            let ref = db.ref(`rooms/${roomID}/users/${myName}`);
+            ref.set({ role: isTeacher ? 'teacher' : 'student', canDraw: isTeacher });
+            ref.onDisconnect().remove();
+
+            // Sync Users
+            db.ref(`rooms/${roomID}/users`).on('value', (s) => {
+                let users = s.val() || {};
+                document.getElementById('count').innerText = Object.keys(users).length;
+                let html = "";
                 Object.keys(users).forEach(u => {
-                    html += `<div class="user-pill"><div class="status-dot"></div>${u}</div>`;
+                    let isG = users[u].canDraw;
+                    if(u === myName && !isTeacher) canDraw = isG;
+                    html += `
+                        <div class="user-item">
+                            <div class="user-info">
+                                <div style="width:8px; height:8px; border-radius:50%; background:var(--success)"></div>
+                                ${u}
+                            </div>
+                            ${isTeacher && u !== myName ? 
+                                `<button class="btn-grant ${isG?'granted':'not-granted'}" onclick="toggleGrant('${u}', ${isG})">
+                                    ${isG ? 'سحب الإذن' : 'إذن كتابة'}
+                                </button>` : ''}
+                        </div>
+                    `;
                 });
-                document.getElementById('users-list-content').innerHTML = html;
+                document.getElementById('users-list').innerHTML = html;
             });
 
-            // بدء مزامنة الرسم والشات
-            initSync();
+            initDrawSync();
+            initChatSync();
+            initColors();
         }
 
-        function initSync() {
-            // مزامنة الرسم لكل صفحة
-            database.ref(`rooms/${roomID}/drawings/p${currentPage}`).on('child_added', (snap) => {
-                drawObject(snap.val());
+        // --- Interaction Logic ---
+        function toggleGrant(user, current) {
+            db.ref(`rooms/${roomID}/users/${user}/canDraw`).set(!current);
+        }
+
+        function initDrawSync() {
+            // Listen for new drawings
+            db.ref(`rooms/${roomID}/draws/p${page}`).on('child_added', (s) => {
+                drawObj(s.val());
             });
 
-            database.ref(`rooms/${roomID}/drawings/p${currentPage}`).on('value', (snap) => {
-                if(!snap.exists()) {
+            // Listen for clear
+            db.ref(`rooms/${roomID}/draws/p${page}`).on('value', (s) => {
+                if(!s.exists()) {
                     ctx.clearRect(0,0,canvas.width, canvas.height);
                 }
             });
-
-            // مزامنة الشات
-            database.ref(`rooms/${roomID}/chat`).limitToLast(15).on('child_added', (snap) => {
-                const m = snap.val();
-                const b = document.getElementById('chat-body');
-                b.innerHTML += `<div class="msg-bubble"><span class="msg-name">${m.user}</span>${m.text}</div>`;
-                b.scrollTop = b.scrollHeight;
-            });
         }
 
-        // --- محرك الرسم الأساسي ---
         canvas.onpointerdown = (e) => {
-            if(!isTeacher && currentMode !== 'move') return;
+            if(!canDraw && mode !== 'move') return;
             isDrawing = true;
-            startX = e.clientX - camera.x;
-            startY = e.clientY - camera.y;
-            points = [{x: startX, y: startY}];
-
-            if(currentMode === 'pen') {
+            let x = e.clientX - cam.x;
+            let y = e.clientY - cam.y;
+            points = [{x, y}];
+            if(mode === 'pen' || mode === 'eraser') {
                 ctx.beginPath();
-                ctx.moveTo(startX + camera.x, startY + camera.y);
+                ctx.moveTo(e.clientX, e.clientY);
             }
         };
 
         window.onpointermove = (e) => {
             if(!isDrawing) return;
-            let currentX = e.clientX - camera.x;
-            let currentY = e.clientY - camera.y;
+            let x = e.clientX - cam.x;
+            let y = e.clientY - cam.y;
 
-            if(currentMode === 'move') {
-                camera.x += e.movementX;
-                camera.y += e.movementY;
-                renderAllDrawings();
+            if(mode === 'move') {
+                cam.x += e.movementX;
+                cam.y += e.movementY;
+                redraw();
                 return;
             }
 
-            if(currentMode === 'pen') {
-                points.push({x: currentX, y: currentY});
-                // رسم وهمي محلي للمعلم لسرعة الاستجابة
-                ctx.save();
-                setCtxBrush(ctx, currentBrush, currentColor, currentSize);
-                ctx.lineTo(e.clientX, e.clientY);
-                ctx.stroke();
-                ctx.restore();
-            }
-        };
-
-        window.onpointerup = (e) => {
-            if(!isDrawing || !isTeacher) { isDrawing = false; return; }
-            let endX = e.clientX - camera.x;
-            let endY = e.clientY - camera.y;
-
-            let drawingData = {
-                mode: currentMode,
-                brush: currentBrush,
-                color: currentColor,
-                size: currentSize,
-                startX, startY, endX, endY,
-                points: points
-            };
-
-            if(currentMode !== 'move') {
-                database.ref(`rooms/${roomID}/drawings/p${currentPage}`).push(drawingData);
-            }
-
-            isDrawing = false;
-            points = [];
-            if(currentMode !== 'pen') renderAllDrawings();
-        };
-
-        // إعدادات الفرشاة على السياق
-        function setCtxBrush(c, brush, color, size) {
-            c.strokeStyle = color;
-            c.lineWidth = size;
-            c.lineCap = 'round';
-            c.lineJoin = 'round';
-            c.globalAlpha = 1;
-            c.shadowBlur = 0;
-
-            if(brush === 'neon') {
-                c.shadowBlur = 15;
-                c.shadowColor = color;
-            } else if(brush === 'marker') {
-                c.globalAlpha = 0.4;
-                c.lineCap = 'square';
-            } else if(brush === 'pencil') {
-                c.globalAlpha = 0.6;
-                c.lineWidth = size / 2;
-            }
-        }
-
-        // رسم كائن من البيانات
-        function drawObject(data) {
-            ctx.save();
-            ctx.translate(camera.x, camera.y);
+            points.push({x, y});
             
-            if(data.mode === 'eraser') {
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 40;
-                ctx.globalCompositeOperation = 'destination-out'; // مسح حقيقي
+            // Local Preview
+            ctx.lineWidth = size;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            if(mode === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = 30;
             } else {
-                setCtxBrush(ctx, data.brush, data.color, data.size);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = color;
+                if(brush === 'neon') { ctx.shadowBlur = 10; ctx.shadowColor = color; }
+                else { ctx.shadowBlur = 0; }
             }
+            ctx.lineTo(e.clientX, e.clientY);
+            ctx.stroke();
+        };
 
+        window.onpointerup = () => {
+            if(!isDrawing) return;
+            isDrawing = false;
+            if(mode !== 'move' && canDraw) {
+                db.ref(`rooms/${roomID}/draws/p${page}`).push({
+                    mode, brush, color, size, points,
+                    user: myName
+                });
+            }
+            if(!isTeacher) redraw(); // Prevent local mess for students
+        };
+
+        function drawObj(d) {
+            ctx.save();
+            ctx.translate(cam.x, cam.y);
             ctx.beginPath();
-            if(data.mode === 'pen' || data.mode === 'eraser') {
-                ctx.moveTo(data.startX, data.startY);
-                data.points.forEach(p => ctx.lineTo(p.x, p.y));
-            } else if(data.mode === 'rect') {
-                ctx.strokeRect(data.startX, data.startY, data.endX - data.startX, data.endY - data.startY);
-            } else if(data.mode === 'circle') {
-                let r = Math.sqrt(Math.pow(data.endX - data.startX, 2) + Math.pow(data.endY - data.startY, 2));
-                ctx.arc(data.startX, data.startY, r, 0, Math.PI * 2);
-            } else if(data.mode === 'line') {
-                ctx.moveTo(data.startX, data.startY);
-                ctx.lineTo(data.endX, data.endY);
-            } else if(data.mode === 'triangle') {
-                ctx.moveTo(data.startX, data.startY);
-                ctx.lineTo(data.endX, data.endY);
-                ctx.lineTo(data.startX - (data.endX - data.startX), data.endY);
-                ctx.closePath();
-            } else if(data.mode === 'arrow') {
-                let headlen = 15;
-                let angle = Math.atan2(data.endY - data.startY, data.endX - data.startX);
-                ctx.moveTo(data.startX, data.startY);
-                ctx.lineTo(data.endX, data.endY);
-                ctx.lineTo(data.endX - headlen * Math.cos(angle - Math.PI / 6), data.endY - headlen * Math.sin(angle - Math.PI / 6));
-                ctx.moveTo(data.endX, data.endY);
-                ctx.lineTo(data.endX - headlen * Math.cos(angle + Math.PI / 6), data.endY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.lineWidth = d.size;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if(d.mode === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = 40;
+            } else {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = d.color;
+                if(d.brush === 'neon') { ctx.shadowBlur = 15; ctx.shadowColor = d.color; }
             }
 
+            if(d.points && d.points.length > 0) {
+                ctx.moveTo(d.points[0].x, d.points[0].y);
+                d.points.forEach(p => ctx.lineTo(p.x, p.y));
+            }
             ctx.stroke();
             ctx.restore();
         }
 
-        // إعادة رسم كل شيء عند التحريك أو مسح جزئي
-        function renderAllDrawings() {
+        function redraw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            database.ref(`rooms/${roomID}/drawings/p${currentPage}`).once('value', (snap) => {
-                snap.forEach(child => drawObject(child.val()));
+            db.ref(`rooms/${roomID}/draws/p${page}`).once('value', (s) => {
+                s.forEach(child => drawObj(child.val()));
             });
         }
 
-        // --- أدوات التحكم في الواجهة ---
-
-        // تدوير موضع شريط الأدوات
-        const positions = ['toolbar-bottom', 'toolbar-left', 'toolbar-top', 'toolbar-right'];
-        let currentPosIdx = 0;
-        function rotateToolbar() {
-            const bar = document.getElementById('smart-toolbar');
-            bar.classList.remove(positions[currentPosIdx]);
-            currentPosIdx = (currentPosIdx + 1) % positions.length;
-            bar.classList.add(positions[currentPosIdx]);
+        // --- Tools UI ---
+        function setMode(m, b = 'normal') {
+            mode = m; brush = b;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            if(m === 'pen') document.getElementById('pen-btn').classList.add('active');
+            if(m === 'eraser') document.getElementById('eraser-btn').classList.add('active');
+            if(m === 'move') document.getElementById('move-btn').classList.add('active');
+            closeMenus();
         }
 
-        // إدارة القوائم المنبثقة
-        function toggleMenu(id) {
-            const menu = document.getElementById(id);
-            const isActive = menu.classList.contains('active');
-            document.querySelectorAll('.pop-menu').forEach(m => m.classList.remove('active'));
-            if(!isActive) menu.classList.add('active');
+        function initColors() {
+            const colors = ['#000000', '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b', '#00f2ff', '#ffffff'];
+            let html = "";
+            colors.forEach(c => {
+                html += `<div class="color-dot" style="background:${c}" onclick="setColor('${c}')"></div>`;
+            });
+            document.getElementById('colors-container').innerHTML = html;
         }
 
-        // اختيار نوع الفرشاة
-        function setBrush(type) {
-            currentBrush = type;
-            currentMode = 'pen';
-            updateActiveButtons();
-            toggleMenu('');
+        function setColor(c) {
+            color = c;
+            document.getElementById('color-btn').style.color = c;
+            closeMenus();
         }
 
-        // اختيار اللون
-        const paletteColors = ['#000000', '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b', '#00f2ff', '#ffffff'];
-        const paletteContainer = document.getElementById('color-palette');
-        paletteColors.forEach(c => {
-            let dot = document.createElement('div');
-            dot.className = 'color-dot';
-            dot.style.backgroundColor = c;
-            dot.onclick = () => {
-                currentColor = c;
-                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-                dot.classList.add('active');
-                toggleMenu('');
-            };
-            paletteContainer.appendChild(dot);
-        });
+        function setCustomColor(c) {
+            color = c;
+            document.getElementById('color-btn').style.color = c;
+        }
 
-        // اختيار الشكل
-        function setShape(type) {
-            if(type === 'none') {
-                currentMode = 'pen';
+        function openMenu(id) {
+            let m = document.getElementById(id);
+            let isOpen = m.classList.contains('active-menu');
+            closeMenus();
+            if(!isOpen) m.classList.add('active-menu');
+        }
+
+        function closeMenus() {
+            document.querySelectorAll('.pop-menu').forEach(m => m.classList.remove('active-menu'));
+        }
+
+        function cyclePosition() {
+            const container = document.getElementById('toolbar-container');
+            const poses = ['pos-bottom', 'pos-left', 'pos-top', 'pos-right'];
+            let current = poses.find(p => container.classList.contains(p));
+            let next = poses[(poses.indexOf(current) + 1) % poses.length];
+            container.classList.remove(current);
+            container.classList.add(next);
+            if(next.includes('left') || next.includes('right')) {
+                document.getElementById('smart-toolbar').style.flexDirection = 'column';
             } else {
-                currentMode = type;
-            }
-            updateActiveButtons();
-            toggleMenu('');
-        }
-
-        // ضبط سمك الخط
-        document.getElementById('size-slider').oninput = (e) => {
-            currentSize = e.target.value;
-            document.getElementById('size-val').innerText = currentSize;
-        };
-
-        // تبديل أوضاع العمل
-        function setMode(m) {
-            currentMode = m;
-            updateActiveButtons();
-        }
-
-        function updateActiveButtons() {
-            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-            if(currentMode === 'pen') document.getElementById('btn-brush').classList.add('active');
-            else if(currentMode === 'eraser') document.getElementById('btn-eraser').classList.add('active');
-            else if(currentMode === 'move') document.getElementById('btn-move').classList.add('active');
-            else document.getElementById('btn-shapes').classList.add('active');
-        }
-
-        // إدارة الصفحات
-        function changePage(dir) {
-            if(!isTeacher) return;
-            database.ref(`rooms/${roomID}/drawings/p${currentPage}`).off();
-            currentPage = Math.max(1, currentPage + dir);
-            document.getElementById('page-num').innerText = currentPage;
-            renderAllDrawings();
-            initSync();
-        }
-
-        // مسح السبورة بالكامل
-        function clearFullBoard() {
-            if(isTeacher && confirm("يا مستر، هل تريد مسح هذه الصفحة بالكامل؟")) {
-                database.ref(`rooms/${roomID}/drawings/p${currentPage}`).remove();
+                document.getElementById('smart-toolbar').style.flexDirection = 'row';
             }
         }
 
-        // --- خدمات إضافية ---
-        function toggleUsersSidebar() {
-            const side = document.getElementById('users-sidebar');
-            side.style.display = side.style.display === 'block' ? 'none' : 'block';
+        // --- Navigation ---
+        function movePage(dir) {
+            // Student moves page locally, Teacher moves for everyone?
+            // Requirement: Student can move for himself.
+            page = Math.max(1, page + dir);
+            document.getElementById('p-num').innerText = page;
+            db.ref(`rooms/${roomID}/draws/p${page}`).off();
+            initDrawSync();
+            redraw();
+        }
+
+        function clearCanvas() {
+            if(!canDraw) return;
+            if(confirm("هل تريد مسح الصفحة بالكامل؟")) {
+                db.ref(`rooms/${roomID}/draws/p${page}`).remove();
+            }
+        }
+
+        // --- Chat System ---
+        function initChatSync() {
+            db.ref(`rooms/${roomID}/chat`).on('child_added', (s) => {
+                let m = s.val();
+                let isMine = m.user === myName;
+                let html = `
+                    <div class="msg-box ${isMine?'mine':''}" id="msg-${s.key}">
+                        <b style="font-size:10px; display:block;">${m.user}</b>
+                        ${m.text}
+                        <i class="fas fa-trash delete-msg" onclick="deleteMsg('${s.key}')"></i>
+                    </div>
+                `;
+                document.getElementById('chat-messages').innerHTML += html;
+                document.getElementById('chat-messages').scrollTop = 99999;
+            });
+
+            db.ref(`rooms/${roomID}/chat`).on('child_removed', (s) => {
+                document.getElementById(`msg-${s.key}`)?.remove();
+            });
+        }
+
+        function sendMsg() {
+            let inp = document.getElementById('chat-inp');
+            if(!inp.value.trim()) return;
+            db.ref(`rooms/${roomID}/chat`).push({
+                user: myName,
+                text: inp.value.trim()
+            });
+            inp.value = "";
+        }
+
+        function deleteMsg(key) {
+            if(isTeacher) db.ref(`rooms/${roomID}/chat/${key}`).remove();
+        }
+
+        // --- UI Utilities ---
+        function toggleSidebar() {
+            let s = document.getElementById('users-sidebar');
+            s.style.display = s.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleChat() {
+            let c = document.getElementById('chat-window');
+            c.style.display = c.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function toggleToolbarUI() {
+            let t = document.getElementById('toolbar-container');
+            t.style.display = t.style.display === 'none' ? 'block' : 'none';
         }
 
         function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
         }
 
-        function toggleChatWindow() {
-            const chat = document.getElementById('chat-window');
-            chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function sendChatMessage() {
-            const inp = document.getElementById('chat-input');
-            if(inp.value.trim()) {
-                database.ref(`rooms/${roomID}/chat`).push({
-                    user: myName,
-                    text: inp.value.trim()
-                });
-                inp.value = '';
-            }
-        }
-
-        // دعم الإرسال بـ Enter في الشات
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') sendChatMessage();
-        });
-
-        // غلق القوائم عند الضغط خارجها
-        window.onclick = (e) => {
-            if(!e.target.closest('.tool-btn') && !e.target.closest('.pop-menu')) {
-                document.querySelectorAll('.pop-menu').forEach(m => m.classList.remove('active'));
-            }
-        };
+        // --- Initialization ---
+        document.getElementById('pen-size').oninput = (e) => size = e.target.value;
+        document.getElementById('chat-inp').onkeydown = (e) => { if(e.key === 'Enter') sendMsg(); };
 
     </script>
 </body>
